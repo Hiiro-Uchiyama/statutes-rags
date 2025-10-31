@@ -5,12 +5,20 @@
 import argparse
 import json
 import sys
+import os
 from pathlib import Path
 from typing import List, Dict, Any
 from tqdm import tqdm
 import re
+from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Load .env file
+env_path = Path("/home/jovyan/work/statutes-rags/.env")
+if env_path.exists():
+    load_dotenv(env_path)
+    print(f"Loaded environment from {env_path}")
 
 from app.core.rag_config import load_config
 from app.retrieval.vector_retriever import VectorRetriever
