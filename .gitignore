@@ -61,9 +61,13 @@ test_mecab.json
 # Datasets
 ###################
 datasets/
+!datasets/README.md
+!datasets/lawqa_jp/
+datasets/lawqa_jp/*
 !datasets/lawqa_jp/README.md
 !datasets/lawqa_jp/LICENSE.md
 
 # Data
 ###################
 data/
+!data/README.md

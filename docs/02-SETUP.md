@@ -124,18 +124,78 @@ echo "これはテストです。" | setup/bin/mecab -Owakati
 
 ## データ準備
 
-### ステップ5: データセットの確認
+### ステップ5: データセットの配置
 
-プロジェクトには以下のデータセットが含まれています：
+**重要:** データセットファイルは大容量のため、Gitリポジトリには含まれていません。以下の手順で個別に入手・配置してください。
 
-```bash
-ls -lh datasets/
+#### datasets/ ディレクトリ構造
+
+```
+datasets/
+├── egov_laws/           # e-Gov法令XMLファイル（必須）
+│   ├── *.xml            # 10,435ファイル、約2GB
+│   └── egov_laws_all.zip  # ダウンロードアーカイブ（264MB）
+├── lawqa_jp/            # デジタル庁 4択法令データ（評価用、必須）
+│   ├── README.md        # データセット説明（リポジトリに含む）
+│   ├── LICENSE.md       # ライセンス情報（リポジトリに含む）
+│   └── data/            # 実データファイル（要ダウンロード）
+│       ├── selection.json
+│       ├── selection.csv
+│       └── ...
+├── civil_law_instructions/  # 民法QAデータ（オプション）
+└── criminal_law_exams/      # 刑法試験問題（オプション）
 ```
 
-- `egov_laws/` - e-Gov法令XML（約264MB、10,435ファイル）
-- `lawqa_jp/` - デジタル庁の4択法令データ（140問）
-- `civil_law_instructions/` - 民法QAデータ
-- `criminal_law_exams/` - 刑法試験問題
+#### データセット入手方法
+
+**1. e-Gov法令XMLファイル（必須）**
+
+```bash
+# datasets/egov_laws/ ディレクトリを作成
+mkdir -p datasets/egov_laws
+
+# オプション1: e-Gov法令APIから取得
+# （詳細な手順は別途提供）
+
+# オプション2: アーカイブファイルがある場合
+# datasets/egov_laws/egov_laws_all.zip を配置し、解凍
+cd datasets/egov_laws
+unzip egov_laws_all.zip
+```
+
+**2. lawqa_jp（4択法令データ、必須）**
+
+デジタル庁の公開データを入手：
+
+- データソース: [政府等が保有するデータのAI学習データへの変換に係る調査研究](https://www.digital.go.jp/news/382c3937-f43c-4452-ae27-2ea7bb66ec75)
+- ライセンス: 公共データ利用規約（第1.0版）
+
+```bash
+# datasets/lawqa_jp/data/ ディレクトリにファイルを配置
+mkdir -p datasets/lawqa_jp/data
+# selection.json, selection.csv など を配置
+```
+
+**3. その他のデータセット（オプション）**
+
+- `civil_law_instructions/`: HuggingFace等から入手
+- `criminal_law_exams/`: 研究用データセット
+
+#### データセットの確認
+
+配置後、以下のコマンドで確認：
+
+```bash
+# ディレクトリ構造を確認
+ls -lh datasets/
+
+# e-Gov法令XMLファイル数を確認
+find datasets/egov_laws -name "*.xml" | wc -l
+# 期待値: 10,435ファイル
+
+# lawqa_jpデータを確認
+ls -lh datasets/lawqa_jp/data/
+```
 
 ### ステップ6: XMLからJSONLへの前処理
 

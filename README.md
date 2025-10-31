@@ -24,9 +24,16 @@
 
 ## セットアップ
 
-プロジェクトを初めて使用する場合は、[docs/SETUP.md](docs/SETUP.md)に従ってセットアップを行ってください。
+プロジェクトを初めて使用する場合は、[docs/02-SETUP.md](docs/02-SETUP.md)に従ってセットアップを行ってください。
 
-簡易セットアップ手順：
+**重要:** データセットファイルは大容量のため、Gitリポジトリには含まれていません。以下の手順でデータを配置してください：
+
+1. `datasets/egov_laws/` に e-Gov法令XMLファイル（10,435ファイル、約2GB）を配置
+2. `datasets/lawqa_jp/data/` にデジタル庁の4択法令データを配置（評価用）
+
+詳細な入手方法は [docs/02-SETUP.md の「データ準備」セクション](docs/02-SETUP.md#データ準備) を参照してください。
+
+### 簡易セットアップ手順
 
 ```bash
 # 1. Python環境構築
@@ -36,11 +43,15 @@ source .venv/bin/activate
 # 2. Ollamaセットアップ
 cd setup && ./setup_ollama.sh
 
-# 3. データ前処理（オプション：既に実行済みの場合はスキップ）
+# 3. データセットを配置（手動）
+# datasets/egov_laws/ に法令XMLファイルを配置
+# datasets/lawqa_jp/data/ に評価データを配置
+
+# 4. データ前処理
 make preprocess
 
-# 4. インデックス構築（オプション：既に存在する場合はスキップ）
+# 5. インデックス構築
 make index
 ```
 
-詳細な手順、トラブルシューティングは[docs/SETUP.md](docs/SETUP.md)を参照してください。
+詳細な手順、トラブルシューティングは[docs/02-SETUP.md](docs/02-SETUP.md)を参照してください。
