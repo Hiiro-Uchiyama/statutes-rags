@@ -24,6 +24,7 @@ env/
 # Specific venv files from setup/
 setup/bin/
 setup/lib/
+setup/datasets/
 
 # Jupyter Notebook
 ###################
