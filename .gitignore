@@ -29,7 +29,8 @@ setup/datasets/
 # Jupyter Notebook
 ###################
 .ipynb_checkpoints/
-app/.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+**/.ipynb_checkpoints/
 
 # IDE / Editor
 ###################
@@ -60,6 +61,8 @@ test_mecab.json
 # Datasets
 ###################
 datasets/
+!datasets/lawqa_jp/README.md
+!datasets/lawqa_jp/LICENSE.md
 
 # Data
 ###################
