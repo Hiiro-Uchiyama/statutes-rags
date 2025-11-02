@@ -80,3 +80,8 @@ datasets/criminal_law_exams/*
 ###################
 data/
 !data/README.md
+# Evaluation results with numbers
+evaluation_results_*.json
+
+# Test scripts in root
+test_retrieval.py
