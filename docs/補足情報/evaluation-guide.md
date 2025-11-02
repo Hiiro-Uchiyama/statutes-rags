@@ -36,7 +36,7 @@
 ### 基本的な使い方
 
 ```bash
-cd /home/jovyan/work/legal-rag
+cd /home/jovyan/work/statutes-rag
 source .venv/bin/activate
 
 # 3サンプルで動作確認
@@ -225,7 +225,7 @@ Ollama call failed with status code 404. Maybe your model is not found
 **対処法**: モデルが存在するか確認：
 
 ```bash
-cd /home/jovyan/work/legal-rag/setup
+cd /home/jovyan/work/statutes-rag/setup
 ./bin/ollama list
 ```
 

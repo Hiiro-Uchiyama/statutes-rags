@@ -1,6 +1,6 @@
-# Legal RAG セットアップガイド
+# statutes RAG セットアップガイド
 
-このドキュメントでは、legal-ragプロジェクトの初回セットアップから評価実験まで、ステップバイステップで説明します。
+このドキュメントでは、statutes-ragプロジェクトの初回セットアップから評価実験まで、ステップバイステップで説明します。
 
 ## 目次
 
@@ -25,8 +25,8 @@
 
 ```bash
 cd /home/jovyan/work
-git clone <repository-url> legal-rag
-cd legal-rag
+git clone <repository-url> statutes-rags
+cd statutes-rags
 ```
 
 ### ステップ2: Python仮想環境のセットアップ
@@ -203,7 +203,7 @@ ls -lh datasets/lawqa_jp/data/
 
 ```bash
 # プロジェクトルートに戻る
-cd /home/jovyan/work/legal-rag
+cd /home/jovyan/work/statutes-rags
 
 # 仮想環境を有効化（まだの場合）
 source .venv/bin/activate

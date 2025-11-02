@@ -4,28 +4,22 @@
 記載の正確性、実験条件の妥当性、設計と実装の整合、前提と仮説の反証可能性、今後の方向性と難所を重点的に精査をお願いします。
 疑って読み、全体的な理解を深めて下さい。
 
-[超重要]
-このディレクトリに直接変更を加えないで下さい。
-`legal-rag`をご自身の`/home/jovyan/work/`以下にコピーして使用して下さい。
-
-``` bash
-cp -r /home/jovyan/shared/legal-rag /home/jovyan/work/
-```
-
-または、
+[重要]
+使用方法について説明
 
 ```bash
-git clone https://github.com/Hiiro-Uchiyama/statutes-rags
+git clone https://github.com/Hiiro-Uchiyama/statutes-rags.git
 ```
 
 の後に、
 
 ```bash
-# shared/datasets/legal2025/ から必要なデータセットをコピー
-cp -r /home/jovyan/work/shared/datasets/legal2025/* /home/jovyan/work/statutes-rags/datasets/
+# shared/datasets/statutes2025/ から必要なデータセットをコピー
+cp -r /home/jovyan/work/shared/datasets/statutes2025/* /home/jovyan/work/statutes-rags/datasets/
 ```
 
-GitHubにプッシュ
+GitHubにプッシュなどをする方法 SSH鍵推奨
+
 ```bash
 ssh-keygen -t ed25519 -C "あなたのGitHubメール"
 eval "$(ssh-agent -s)"
@@ -34,20 +28,27 @@ cat ~/.ssh/id_ed25519.pub  # これを GitHub → Settings → SSH and GPG keys 
 
 git remote set-url origin git@github.com:Hiiro-Uchiyama/statutes-rags.git
 ssh -T git@github.com
-git push -u origin HEAD:main
+git push -u origin HEAD:master
 ```
 
 これにより以下のデータセットが `statutes-rags/datasets/` 配下に配置されます：
 - `civil_law_instructions/` - 民法関連の指示データ
 - `criminal_law_exams/` - 刑法関連の試験データ
 - `lawqa_jp/` - 日本の法律Q&Aデータセット
-- `egov_laws/` - e-Gov法令データ
+- `egov_laws/` - e-Gov法令データ：※ 展開必須
 - `README.md` - データセット説明
 
 [コピー後の動き]
 1. `README.md`と`docs/`に格納しているドキュメントに目を通して下さい
 2. `SETUP.md`に従い、セットアップを進め、実際に動かす
 3. 分からない点は各自調べながら理解を深め、今後どのような方向で進めていくか、検討して下さい
+
+[現時点で気になる点]
+課題としては、インデックス化の処理（法令データを全インデックスFAISS（280万ドキュメント））はheart01では重すぎて実行は現実的では無いので、小野研のサーバで行うなど、工夫が必要そうでした。
+gpt-oss-20bを使用し、1万/280万（全ドキュメントの0.36%をインデックス）のRAGで20問の法令問題に対して6問正解というような精度でした。
+gpt-oss-20bを使用した場合、推論にも時間がかかるので、ここもモデルを8bにするなど工夫が必要そうです。
+法令データ4択問題の作成に関する論文を読んだところ、
+コンテキストを整備してRAGを構築すれば80-90%近い精度になりそうなので、現状のモデルのコンテキストウィンドウ拡大に伴う、RAG不要論なども鑑みて、敢えて最小限のデータで正解数の最大化を目指すという方向性もありそうです。
 
 [調査用]
 理解を深めるために、界隈の最新情報を収集しましょうか。

@@ -48,14 +48,14 @@ sudo yum install -y mecab mecab-devel mecab-ipadic
 ### 方法2: ソースからビルド
 
 ```bash
-cd /home/jovyan/work/legal-rag/setup
+cd /home/jovyan/work/statutes-rag/setup
 
 # MeCabとIPA辞書をダウンロード（有効なURLを使用）
 # 注意: setup_mecab.shのダウンロードURLは現在無効です
 
 # 手動でインストールする場合：
 # 1. https://taku910.github.io/mecab/ からMeCabをダウンロード
-# 2. configure --prefix=/home/jovyan/work/legal-rag/setup/lib/mecab
+# 2. configure --prefix=/home/jovyan/work/statutes-rag/setup/lib/mecab
 # 3. make && make install
 # 4. IPA辞書も同様にインストール
 ```

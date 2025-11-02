@@ -1,4 +1,4 @@
-# Legal RAG System 開発ガイド
+# statutes RAG System 開発ガイド
 
 ## 目次
 
@@ -146,7 +146,7 @@ from app.retrieval.base import BaseRetriever
 
 ### テスト階層
 
-Legal RAGシステムは3層のテスト構造を採用しています:
+statutes RAGシステムは3層のテスト構造を採用しています:
 
 1. **ユニットテスト** (`@pytest.mark.unit`)
    - 個別関数・メソッドのテスト
@@ -973,7 +973,7 @@ jobs:
 
 ## まとめ
 
-Legal RAGシステムは、以下の特徴を持つ拡張性の高い設計となっています:
+statutes RAGシステムは、以下の特徴を持つ拡張性の高い設計となっています:
 
 1. **モジュラーアーキテクチャ**: 各コンポーネントが独立しており、置き換えや追加が容易
 2. **テスト駆動**: 3層のテスト構造で品質を担保

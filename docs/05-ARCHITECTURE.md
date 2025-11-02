@@ -1,6 +1,6 @@
-# Legal RAG アーキテクチャドキュメント
+# statutes RAG アーキテクチャドキュメント
 
-このドキュメントでは、legal-ragプロジェクトのコードベース構造、各モジュールの役割、データフローを詳しく説明します。
+このドキュメントでは、statutes-ragプロジェクトのコードベース構造、各モジュールの役割、データフローを詳しく説明します。
 
 ## 目次
 
@@ -13,7 +13,7 @@
 ## プロジェクト構造
 
 ```
-legal-rag/
+statutes-rags/
 ├── app/                        # メインアプリケーションコード
 │   ├── core/                   # コア設定
 │   │   └── rag_config.py       # 全体設定管理
@@ -441,8 +441,8 @@ RERANKER_MODEL=cross-encoder/ms-marco-MiniLM-L-12-v2
 RERANKER_TOP_N=5
 
 # パス
-VECTOR_STORE_PATH=/home/jovyan/work/legal-rag/data/faiss_index
-DATA_PATH=/home/jovyan/work/legal-rag/data/egov_laws.jsonl
+VECTOR_STORE_PATH=/home/jovyan/work/statutes-rags/data/faiss_index
+DATA_PATH=/home/jovyan/work/statutes-rags/data/egov_laws.jsonl
 
 # Ollama
 OLLAMA_HOST=http://localhost:11434

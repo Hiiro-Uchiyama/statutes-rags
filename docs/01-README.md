@@ -1,10 +1,10 @@
-# Legal RAG System ドキュメント
+# statutes RAG System ドキュメント
 
 日本の法令文書を対象としたRetrieval-Augmented Generation（RAG）システムの包括的ドキュメントです。
 
 ## ドキュメント構成
 
-このディレクトリには、Legal RAGシステムの設計、実装、使用方法に関する詳細ドキュメントが含まれています。
+このディレクトリには、statutes RAGシステムの設計、実装、使用方法に関する詳細ドキュメントが含まれています。
 
 ### 1. [ARCHITECTURE.md](./ARCHITECTURE.md)
 **システムアーキテクチャと設計ドキュメント**
@@ -141,7 +141,7 @@ make test-coverage
 ## システム構成図
 
 ```
-Legal RAG System
+statutes RAG System
 ├── データ準備
 │   ├── e-Gov法令XML (datasets/egov_laws/)
 │   └── 評価データセット (datasets/lawqa_jp/)

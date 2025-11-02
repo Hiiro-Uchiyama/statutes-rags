@@ -84,10 +84,10 @@ class RAGConfig(BaseModel):
     reranker: RerankerConfig = Field(default_factory=RerankerConfig)
     
     vector_store_path: str = Field(
-        default=os.getenv("VECTOR_STORE_PATH", "/home/jovyan/work/legal-rag/data/faiss_index")
+        default=os.getenv("VECTOR_STORE_PATH", "/home/jovyan/work/statutes-rags/data/faiss_index")
     )
     data_path: str = Field(
-        default=os.getenv("DATA_PATH", "/home/jovyan/work/legal-rag/data/egov_laws.jsonl")
+        default=os.getenv("DATA_PATH", "/home/jovyan/work/statutes-rags/data/egov_laws.jsonl")
     )
 
 

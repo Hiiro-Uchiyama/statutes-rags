@@ -2,7 +2,7 @@
 
 ## 概要
 
-本ドキュメントは、legal-ragプロジェクトにMicrosoft Agent Lightningを統合し、強化学習と自動プロンプト最適化技術によってRAGパイプラインを自動最適化することを提案するものです。
+本ドキュメントは、statutes-ragsプロジェクトにMicrosoft Agent Lightningを統合し、強化学習と自動プロンプト最適化技術によってRAGパイプラインを自動最適化することを提案するものです。
 
 ## Agent Lightningについて
 
@@ -27,7 +27,7 @@ Agent Lightningは、Microsoft Researchが開発したフレームワークで�
 
 ### 既存アーキテクチャ
 
-legal-ragプロジェクトは現在、以下を実装しています:
+statutes-ragsプロジェクトは現在、以下を実装しています:
 
 - LangChain Expression Language（LCEL）を使用したRAGパイプライン
 - 複数の検索戦略: Vector、BM25、Hybrid
@@ -227,7 +227,7 @@ Agent Lightningは基本モデルではなく、エージェントの動作（�
 
 ## 結論
 
-Agent Lightning統合は、最小限のリスクと開発工数でlegal-ragシステムのパフォーマンスを向上させる有望な方法です。LangChainとの互換性と既存の評価インフラストラクチャにより、本プロジェクトに自然に適合します。
+Agent Lightning統合は、最小限のリスクと開発工数でstatutes-ragsシステムのパフォーマンスを向上させる有望な方法です。LangChainとの互換性と既存の評価インフラストラクチャにより、本プロジェクトに自然に適合します。
 
 ### 推奨される次のステップ
 
