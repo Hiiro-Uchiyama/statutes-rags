@@ -8,6 +8,9 @@
 使用方法について説明
 
 ```bash
+# Heart01サーバーでやる場合は~/workでリポジトリをクローンすること
+# cd ~/work
+
 git clone https://github.com/Hiiro-Uchiyama/statutes-rags.git
 ```
 
