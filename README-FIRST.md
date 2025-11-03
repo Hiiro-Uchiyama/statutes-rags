@@ -21,17 +21,23 @@ git clone https://github.com/Hiiro-Uchiyama/statutes-rags.git
 cp -r /home/jovyan/work/shared/datasets/statutes2025/* /home/jovyan/work/statutes-rags/datasets/
 ```
 
-GitHubにプッシュなどをする方法 SSH鍵推奨
+GitHubにプッシュなどをする方法 HTTPS接続推奨
+- SSH接続する場合，鍵を置く場所を工夫しないとコンテナの再起動による初期化に伴い鍵を再設定する必要がある
 
 ```bash
-ssh-keygen -t ed25519 -C "あなたのGitHubメール"
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_ed25519
-cat ~/.ssh/id_ed25519.pub  # これを GitHub → Settings → SSH and GPG keys に登録
+# HTTPS接続する場合
+cd statutes-rags/
+git remote set-url origin https://github.com/Hiiro-Uchiyama/statutes-rags.git
 
-git remote set-url origin git@github.com:Hiiro-Uchiyama/statutes-rags.git
-ssh -T git@github.com
-git push -u origin HEAD:master
+# SSH接続する場合
+# ssh-keygen -t ed25519 -C "あなたのGitHubメール"
+# eval "$(ssh-agent -s)"
+# ssh-add ~/.ssh/id_ed25519
+# cat ~/.ssh/id_ed25519.pub  # これを GitHub → Settings → SSH and GPG keys に登録
+
+# git remote set-url origin git@github.com:Hiiro-Uchiyama/statutes-rags.git
+# ssh -T git@github.com
+# git push -u origin HEAD:master
 ```
 
 これにより以下のデータセットが `statutes-rags/datasets/` 配下に配置されます：
