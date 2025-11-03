@@ -18,7 +18,7 @@ git clone https://github.com/Hiiro-Uchiyama/statutes-rags.git
 
 ```bash
 # shared/datasets/statutes2025/ から必要なデータセットをコピー
-cp -r /home/jovyan/work/shared/datasets/statutes2025/* /home/jovyan/work/statutes-rags/datasets/
+cp -r /home/jovyan/shared/datasets/statutes2025/* /home/jovyan/work/statutes-rags/datasets/
 ```
 
 GitHubにプッシュなどをする方法 HTTPS接続推奨
