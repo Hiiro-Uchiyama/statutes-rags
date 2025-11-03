@@ -19,7 +19,7 @@ if ! command -v uv &> /dev/null; then
     curl -LsSf https://astral.sh/uv/install.sh | sh
     
     # uvをパスに追加
-    export PATH="$HOME/.cargo/bin:$PATH"
+    export PATH="$HOME/.local/bin:$PATH"
     
     # 再度確認
     if ! command -v uv &> /dev/null; then
