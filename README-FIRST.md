@@ -8,6 +8,9 @@
 使用方法について説明
 
 ```bash
+# Heart01サーバーでやる場合は~/workでリポジトリをクローンすること
+# cd ~/work
+
 git clone https://github.com/Hiiro-Uchiyama/statutes-rags.git
 ```
 
@@ -15,20 +18,26 @@ git clone https://github.com/Hiiro-Uchiyama/statutes-rags.git
 
 ```bash
 # shared/datasets/statutes2025/ から必要なデータセットをコピー
-cp -r /home/jovyan/work/shared/datasets/statutes2025/* /home/jovyan/work/statutes-rags/datasets/
+cp -r /home/jovyan/shared/datasets/statutes2025/* /home/jovyan/work/statutes-rags/datasets/
 ```
 
-GitHubにプッシュなどをする方法 SSH鍵推奨
+GitHubにプッシュなどをする方法 HTTPS接続推奨
+- SSH接続する場合，鍵を置く場所を工夫しないとコンテナの再起動による初期化に伴い鍵を再設定する必要がある
 
 ```bash
-ssh-keygen -t ed25519 -C "あなたのGitHubメール"
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_ed25519
-cat ~/.ssh/id_ed25519.pub  # これを GitHub → Settings → SSH and GPG keys に登録
+# HTTPS接続する場合
+cd statutes-rags/
+git remote set-url origin https://github.com/Hiiro-Uchiyama/statutes-rags.git
 
-git remote set-url origin git@github.com:Hiiro-Uchiyama/statutes-rags.git
-ssh -T git@github.com
-git push -u origin HEAD:master
+# SSH接続する場合
+# ssh-keygen -t ed25519 -C "あなたのGitHubメール"
+# eval "$(ssh-agent -s)"
+# ssh-add ~/.ssh/id_ed25519
+# cat ~/.ssh/id_ed25519.pub  # これを GitHub → Settings → SSH and GPG keys に登録
+
+# git remote set-url origin git@github.com:Hiiro-Uchiyama/statutes-rags.git
+# ssh -T git@github.com
+# git push -u origin HEAD:master
 ```
 
 これにより以下のデータセットが `statutes-rags/datasets/` 配下に配置されます：
@@ -39,8 +48,8 @@ git push -u origin HEAD:master
 - `README.md` - データセット説明
 
 [コピー後の動き]
-1. `README.md`と`docs/`に格納しているドキュメントに目を通して下さい
-2. `SETUP.md`に従い、セットアップを進め、実際に動かす
+1. [README.md](README.md)と`docs/`に格納しているドキュメントに目を通して下さい
+2. [02-SETUP.md](docs\02-SETUP.md)に従い、セットアップを進め、実際に動かす
 3. 分からない点は各自調べながら理解を深め、今後どのような方向で進めていくか、検討して下さい
 
 [現時点で気になる点]

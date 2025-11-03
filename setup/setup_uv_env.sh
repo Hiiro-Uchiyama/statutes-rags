@@ -6,7 +6,9 @@ echo "Legal RAG System - UV Setup Script"
 echo "==================================="
 
 # プロジェクトルートに移動
-cd "$(dirname "$0")/.."
+# スクリプトがどこから呼ばれてもいいように、スクリプト自身の場所を基準にする
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+cd "$SCRIPT_DIR/.."
 PROJECT_ROOT=$(pwd)
 
 echo ""
@@ -16,14 +18,52 @@ echo ""
 # uvがインストールされているか確認
 if ! command -v uv &> /dev/null; then
     echo "Installing uv..."
+    # インストールスクリプトを実行
     curl -LsSf https://astral.sh/uv/install.sh | sh
     
-    # uvをパスに追加
-    export PATH="$HOME/.cargo/bin:$PATH"
+    # uvのデフォルトインストール先
+    UV_BIN_DIR="$HOME/.local/bin"
     
+    # 現在のセッションのPATHを更新
+    export PATH="$UV_BIN_DIR:$PATH"
+    
+    echo "Updating shell configuration file..."
+
+    # .bashrc や .zshrc にPATHを追加
+    # (zshを使っている場合も考慮)
+    SHELL_CONFIG_FILE=""
+    if [ -n "$ZSH_VERSION" ]; then
+        SHELL_CONFIG_FILE="$HOME/.zshrc"
+    elif [ -n "$BASH_VERSION" ]; then
+        SHELL_CONFIG_FILE="$HOME/.bashrc"
+    else
+        # デフォルトまたはフォールバック
+        SHELL_CONFIG_FILE="$HOME/.bashrc"
+        if [ ! -f "$SHELL_CONFIG_FILE" ]; then
+             SHELL_CONFIG_FILE="$HOME/.profile" # .profile を使う環境もある
+        fi
+    fi
+    
+    # (touchでファイルが存在しない場合に作成)
+    touch "$SHELL_CONFIG_FILE"
+
+    UV_PATH_STRING="export PATH=\"\$HOME/.local/bin:\$PATH\""
+    
+    # 既にPATH設定が書き込まれていないか確認
+    if ! grep -qF "$UV_PATH_STRING" "$SHELL_CONFIG_FILE"; then
+        echo "" >> "$SHELL_CONFIG_FILE"
+        echo "# Add uv (installed by legal-rag setup)" >> "$SHELL_CONFIG_FILE"
+        echo "$UV_PATH_STRING" >> "$SHELL_CONFIG_FILE"
+        echo "✓ Added uv to PATH in $SHELL_CONFIG_FILE."
+        echo "   Please restart your shell or run 'source $SHELL_CONFIG_FILE' to apply changes."
+    else
+        echo "✓ uv PATH already configured in $SHELL_CONFIG_FILE."
+    fi
+
     # 再度確認
     if ! command -v uv &> /dev/null; then
-        echo "Error: uv installation failed"
+        echo "Error: uv installation failed or PATH not set correctly."
+        echo "Please ensure '$UV_BIN_DIR' is in your PATH."
         exit 1
     fi
     
@@ -45,7 +85,8 @@ fi
 
 # uv venvで仮想環境を作成
 if [ ! -d ".venv" ]; then
-    uv venv .venv
+    # Python 3.10以降を指定（推奨）
+    uv venv .venv --python 3.10
     echo "✓ Virtual environment created"
 fi
 
@@ -56,6 +97,7 @@ echo ""
 echo "Installing dependencies with uv..."
 
 # pyproject.tomlから依存関係をインストール
+# -e . は編集可能モードでのインストール
 uv pip install -e .
 
 # 追加の開発用依存関係

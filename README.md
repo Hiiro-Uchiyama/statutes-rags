@@ -7,10 +7,10 @@
 
 詳細なドキュメントは `docs/` ディレクトリを参照してください：
 
-- [SETUP.md](docs/SETUP.md) - 初回セットアップガイド（環境構築から評価実験まで）
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - コードベースの構造とモジュール説明
-- [USAGE.md](docs/USAGE.md) - 各スクリプトの詳細な使用方法
-- [EVALUATION_GUIDE.md](EVALUATION_GUIDE.md) - 4択評価の詳細ガイド
+- [docs/02-SETUP.md](docs/02-SETUP.md) - 初回セットアップガイド（環境構築から評価実験まで）
+- [docs/05-ARCHITECTURE.md](docs/05-ARCHITECTURE.md) - コードベースの構造とモジュール説明
+- [docs/03-USAGE.md](docs/03-USAGE.md) - 各スクリプトの詳細な使用方法
+- [docs/補足情報/evaluation-guide.md](docs/補足情報/evaluation-guide.md) - 4択評価の詳細ガイド
 
 初回の週は「技術調査や課題の調査」を行います。
 そこから、`RAG`や`MCPサーバ`技術検証対象を実務レベルの実装や研究、最新状況を把握しましょう。
