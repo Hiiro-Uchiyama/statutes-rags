@@ -48,8 +48,8 @@ git remote set-url origin https://github.com/Hiiro-Uchiyama/statutes-rags.git
 - `README.md` - データセット説明
 
 [コピー後の動き]
-1. `README.md`と`docs/`に格納しているドキュメントに目を通して下さい
-2. `SETUP.md`に従い、セットアップを進め、実際に動かす
+1. [README.md](README.md)と`docs/`に格納しているドキュメントに目を通して下さい
+2. [02-SETUP.md](docs\02-SETUP.md)に従い、セットアップを進め、実際に動かす
 3. 分からない点は各自調べながら理解を深め、今後どのような方向で進めていくか、検討して下さい
 
 [現時点で気になる点]
