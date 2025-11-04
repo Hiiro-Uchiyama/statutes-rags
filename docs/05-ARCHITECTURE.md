@@ -204,7 +204,7 @@ documents = retriever.retrieve("労働時間 制限", top_k=5)
 ```
 
 **技術詳細:**
-- トークナイザー: SudachiPy（推奨）、Janome、MeCab、n-gram、simple（優先順位順）
+- トークナイザー: auto選択時の優先順位 - SudachiPy > Janome > MeCab > n-gram > simple
 - BM25パラメータ: k1=1.5, b=0.75（デフォルト）
 - 日本語特化: SudachiPyによる形態素解析で高精度（管理者権限不要）
 - トークナイザー選択: `BM25_TOKENIZER`環境変数で指定可能（auto/sudachi/janome/mecab/ngram/simple）
@@ -508,7 +508,7 @@ RERANKER_TOP_N=5
    - 法令名、法令番号
    - 条文番号、項番号、号番号
    - 条文本文
-3. JSON Lines形式で出力
+3. JSONL形式で出力
 
 **データ構造:**
 
@@ -608,3 +608,7 @@ self.prompt_template = PromptTemplate(
 ```
 
 詳細な使用方法は [03-USAGE.md](./03-USAGE.md) を参照してください。
+
+---
+
+最終更新: 2024-11-04

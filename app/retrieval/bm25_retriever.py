@@ -293,16 +293,17 @@ class BM25Retriever(BaseRetriever):
     def save_index(self):
         """インデックスを保存"""
         if not self.index_path:
-            logger.warning("Cannot save BM25 index - index path or BM25 not set")
+            logger.warning("Cannot save BM25 index - index path not set")
             return
 
         if self.bm25 is None:
             logger.debug("BM25 index missing at save time, rebuilding before persistence")
             self._rebuild_index()
-
-        if not self.bm25:
-            logger.warning("Cannot save BM25 index - BM25 not initialized")
-            return
+            
+            # 再構築後も失敗した場合
+            if self.bm25 is None:
+                logger.warning("Cannot save BM25 index - BM25 not initialized after rebuild attempt")
+                return
         
         try:
             index_path = Path(self.index_path)

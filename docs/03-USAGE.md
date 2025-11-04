@@ -115,7 +115,7 @@ python3 scripts/build_index.py \
 | `--index-path` | インデックス保存先 | `.env`から読み込み |
 | `--retriever-type` | `vector`, `bm25`, `hybrid` | `.env`から読み込み |
 | `--limit` | 処理するドキュメント数上限 | なし（全て処理） |
-| `--batch-size` / `--batch_size` | バッチサイズ（ドキュメント数） | 10000 |
+| `--batch-size` | バッチサイズ（ドキュメント数） | 10000 |
 
 #### 使用例
 
@@ -767,3 +767,7 @@ python3 scripts/build_index.py \
 ```
 
 詳細なアーキテクチャは`05-ARCHITECTURE.md`、セットアップ手順は`02-SETUP.md`を参照してください。
+
+---
+
+最終更新: 2024-11-04

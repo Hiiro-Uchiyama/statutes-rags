@@ -196,15 +196,13 @@ datasets/
 ├── egov_laws/           # e-Gov法令XMLファイル（必須）
 │   ├── *.xml            # 10,435ファイル、約264MB（zip圧縮時）
 │   └── egov_laws_all.zip  # ダウンロードアーカイブ（264MB）
-├── lawqa_jp/            # デジタル庁 4択法令データ（評価用、必須）
-│   ├── README.md        # データセット説明（リポジトリに含む）
-│   ├── LICENSE.md       # ライセンス情報（リポジトリに含む）
-│   └── data/            # 実データファイル（要ダウンロード）
-│       ├── selection.json
-│       ├── selection.csv
-│       └── ...
-├── civil_law_instructions/  # 民法QAデータ（オプション）
-└── criminal_law_exams/      # 刑法試験問題（オプション）
+└── lawqa_jp/            # デジタル庁 4択法令データ（評価用、必須）
+    ├── README.md        # データセット説明（リポジトリに含む）
+    ├── LICENSE.md       # ライセンス情報（リポジトリに含む）
+    └── data/            # 実データファイル（要ダウンロード）
+        ├── selection.json
+        ├── selection.csv
+        └── ...
 ```
 
 #### データセット入手方法
@@ -237,10 +235,6 @@ mkdir -p datasets/lawqa_jp/data
 # selection.json, selection.csv など を配置
 ```
 
-**3. その他のデータセット（オプション）**
-
-- `civil_law_instructions/`: HuggingFace等から入手
-- `criminal_law_exams/`: 研究用データセット
 
 #### データセットの確認
 
@@ -550,9 +544,9 @@ SudachiPy not available. Using simple tokenizer.
 
 **説明:**
 
-BM25検索では日本語トークナイザーが必要です。システムは以下の優先順位で自動的にトークナイザーを選択します：
-1. SudachiPy（推奨、高精度）
-2. Janome（軽量、フォールバック）
+BM25検索では日本語トークナイザーが必要です。`tokenizer="auto"`を指定した場合、システムは以下の優先順位で自動的にトークナイザーを選択します：
+1. SudachiPy（推奨、高精度、管理者権限不要）
+2. Janome（軽量、フォールバック、管理者権限不要）
 3. MeCab（レガシーサポート、管理者権限が必要）
 4. n-gram（辞書不要）
 5. simple（最小限の機能）
@@ -691,3 +685,7 @@ ruff check app/ scripts/ tests/
 ```
 
 問題が発生した場合は、トラブルシューティングセクションを参照してください。
+
+---
+
+最終更新: 2024-11-04

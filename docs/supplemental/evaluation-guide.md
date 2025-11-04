@@ -278,7 +278,7 @@ cd setup && ./bin/ollama serve > ollama.log 2>&1 &
 
 1. **複数モデルの比較**: gpt-oss:20b vs qwen2.5:7b vs 他のモデル
 2. **RAG vs Non-RAG比較**: RAGの効果を定量的に測定
-3. **他のデータセットでの評価**: criminal_law_exams（刑法試験問題）を使用
+3. **他のデータセットでの評価**: 将来的に法律試験問題データセットなどを追加予定
 
 ## まとめ
 

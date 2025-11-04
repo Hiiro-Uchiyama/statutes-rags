@@ -74,7 +74,6 @@ statutes-rags/
 class RAGConfig(BaseModel):
     embedding: EmbeddingConfig      # 埋め込みモデル設定
     llm: LLMConfig                  # LLM設定
-    chunking: ChunkingConfig        # チャンキング設定
     retriever: RetrieverConfig      # Retriever設定
     reranker: RerankerConfig        # Reranker設定
     vector_store_path: str          # インデックス保存パス
@@ -696,7 +695,7 @@ python scripts/build_index.py \
     --data-path data/egov_laws.jsonl \
     --index-path data/faiss_index \
     --retriever-type hybrid \
-    --batch-size 10000  # --batch_size でも互換動作
+    --batch-size 10000
 
 # ベクトルインデックスのみ
 python scripts/build_index.py --retriever-type vector
@@ -1123,3 +1122,7 @@ high_quality = [doc for doc in results if doc.score > 0.7]
 - [03-USAGE.md](03-USAGE.md) - 使用方法
 - [04-TESTING.md](04-TESTING.md) - テストガイド
 - [06-DEVELOPMENT.md](06-DEVELOPMENT.md) - 開発ガイド
+
+---
+
+最終更新: 2024-11-04

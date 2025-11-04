@@ -478,26 +478,27 @@ async def query_stream(request: QueryRequest):
 
 **実装内容**:
 - `scripts/finetune.py`: ファインチューニングスクリプト
-- 民法Instructionデータセット（`datasets/civil_law_instructions/`）を使用
+- 法律QAデータセットを使用（将来的には専用の学習データセットを準備予定）
 - LoRA/QLoRAによる効率的なチューニング
 - モデル評価フレームワーク
 
-**学習データ準備**:
+**学習データ準備の例**:
 ```python
-# scripts/prepare_finetune_data.py
-import pandas as pd
+# scripts/prepare_finetune_data.py（将来の実装例）
+import json
 
 def prepare_instruction_data():
-    # 民法Instructionデータセット読み込み
-    df = pd.read_parquet("datasets/civil_law_instructions/data/train-00000-of-00001.parquet")
+    # 法律QAデータセットから学習データを生成
+    with open("datasets/lawqa_jp/data/selection.json") as f:
+        data = json.load(f)
     
     # Instruction形式に変換
     instructions = []
-    for _, row in df.iterrows():
+    for sample in data["samples"]:
         instructions.append({
-            "instruction": row["question"],
+            "instruction": sample["問題文"],
             "input": "",
-            "output": row["answer"]
+            "output": f"正解: {sample['output']}"
         })
     
     return instructions
@@ -543,7 +544,7 @@ class ConversationalRAGPipeline(RAGPipeline):
 **目的**: より包括的なRAG評価
 
 **実装内容**:
-- 刑法試験問題（`datasets/criminal_law_exams/`）での評価
+- 追加の法律問題データセットの作成または取得
 - カスタム評価メトリクス
   - 法令引用精度
   - 条文特定精度
@@ -551,17 +552,18 @@ class ConversationalRAGPipeline(RAGPipeline):
 
 **実装案**:
 ```python
-# scripts/evaluate_criminal_law.py
-def evaluate_criminal_law_exams():
-    # 刑法試験問題読み込み
-    with open("datasets/criminal_law_exams/all_criminal_law_exams.json") as f:
-        exams = json.load(f)
+# scripts/evaluate_custom.py（将来の実装例）
+def evaluate_custom_dataset():
+    # カスタムデータセット読み込み
+    # （データセットは別途準備が必要）
+    with open("datasets/custom_law_qa/test_data.json") as f:
+        test_data = json.load(f)
     
     # 評価実行
     results = []
-    for exam in exams:
-        question = exam["question"]
-        ground_truth = exam["answer"]
+    for item in test_data:
+        question = item["question"]
+        ground_truth = item["answer"]
         
         result = pipeline.query(question)
         
@@ -860,6 +862,8 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 embeddings = HuggingFaceEmbeddings(model_name="intfloat/multilingual-e5-large")
+# NOTE: allow_dangerous_deserialization=True を使用
+# 信頼できるローカルファイルからのみロードすること（セキュリティリスクに注意）
 vector_store = FAISS.load_local(
     str(index_path),
     embeddings,
@@ -973,3 +977,7 @@ jobs:
 ```
 
 今後の開発では、これらの設計原則を維持しながら、FastAPI Web API、Qdrant統合、ファインチューニングなどの機能拡張を進めていきます。
+
+---
+
+最終更新: 2024-11-04

@@ -11,7 +11,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from app.core.rag_config import (
     EmbeddingConfig,
     LLMConfig,
-    ChunkingConfig,
     RetrieverConfig,
     RerankerConfig,
     RAGConfig,
@@ -38,13 +37,6 @@ def test_llm_config_defaults():
     assert config.max_tokens > 0
 
 
-@pytest.mark.unit
-def test_chunking_config_defaults():
-    """チャンク設定のデフォルト値テスト"""
-    config = ChunkingConfig()
-    assert config.chunk_size > 0
-    assert config.chunk_overlap >= 0
-    assert config.chunk_overlap < config.chunk_size
 
 
 @pytest.mark.unit
@@ -73,7 +65,6 @@ def test_rag_config_composition():
     
     assert isinstance(config.embedding, EmbeddingConfig)
     assert isinstance(config.llm, LLMConfig)
-    assert isinstance(config.chunking, ChunkingConfig)
     assert isinstance(config.retriever, RetrieverConfig)
     assert isinstance(config.reranker, RerankerConfig)
     
@@ -95,8 +86,6 @@ def test_config_from_env_vars(monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "ollama")
     monkeypatch.setenv("LLM_MODEL", "test-llm")
     monkeypatch.setenv("LLM_TEMPERATURE", "0.5")
-    monkeypatch.setenv("CHUNK_SIZE", "300")
-    monkeypatch.setenv("CHUNK_OVERLAP", "30")
     monkeypatch.setenv("RETRIEVER_TYPE", "hybrid")
     monkeypatch.setenv("RETRIEVER_TOP_K", "15")
     monkeypatch.setenv("USE_MMR", "true")
@@ -115,8 +104,6 @@ def test_config_from_env_vars(monkeypatch):
     assert config.llm.provider == "ollama"
     assert config.llm.model_name == "test-llm"
     assert config.llm.temperature == 0.5
-    assert config.chunking.chunk_size == 300
-    assert config.chunking.chunk_overlap == 30
     assert config.retriever.retriever_type == "hybrid"
     assert config.retriever.top_k == 15
     assert config.retriever.use_mmr == True
@@ -132,15 +119,10 @@ def test_config_validation():
             provider="huggingface",
             model_name="test-model",
             dimension=768
-        ),
-        chunking=ChunkingConfig(
-            chunk_size=500,
-            chunk_overlap=50
         )
     )
     
     assert config.embedding.dimension == 768
-    assert config.chunking.chunk_size == 500
 
 
 @pytest.mark.unit
@@ -151,7 +133,6 @@ def test_load_config_function():
     # 型チェックの代わりに属性チェック
     assert hasattr(config, 'embedding')
     assert hasattr(config, 'llm')
-    assert hasattr(config, 'chunking')
     assert hasattr(config, 'retriever')
     assert hasattr(config, 'reranker')
     

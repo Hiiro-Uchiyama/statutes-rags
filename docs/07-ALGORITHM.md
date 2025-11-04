@@ -829,3 +829,7 @@ INFO - LLM response received successfully
 - [supplemental/tokenizer-guide.md](supplemental/tokenizer-guide.md) - トークナイザーガイド
 - [supplemental/evaluation-guide.md](supplemental/evaluation-guide.md) - 評価ガイド
 
+---
+
+最終更新: 2024-11-04
+
