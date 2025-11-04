@@ -2,7 +2,16 @@
 
 set -e
 
-echo "=== Ollama Setup Script ==="
+# スクリプト自身のディレクトリに移動する
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+cd "$SCRIPT_DIR"
+
+echo "=== Ollama Setup Script (Persistent) ==="
+
+# 永続的なモデル保存先を定義
+export OLLAMA_MODELS="$HOME/work/.ollama-models"
+mkdir -p "$OLLAMA_MODELS"
+echo "Setting OLLAMA_MODELS to $OLLAMA_MODELS"
 
 # Download Ollama
 echo "Downloading Ollama..."
@@ -31,16 +40,17 @@ echo "Waiting for server to be ready..."
 sleep 5
 
 # Pull embedding model
-echo "Pulling embedding model (nomic-embed-text)..."
+echo "Pulling embedding model (nomic-embed-text) to $OLLAMA_MODELS..."
 ./bin/ollama pull nomic-embed-text
 
 # Pull LLM model
-echo "Pulling LLM model (gpt-oss:20b)..."
+echo "Pulling LLM model (gpt-oss:20b) to $OLLAMA_MODELS..."
 ./bin/ollama pull gpt-oss:20b
 
 echo ""
 echo "=== Setup Complete ==="
 echo "Ollama server is running (PID: $OLLAMA_PID)"
+echo "Models are stored in $OLLAMA_MODELS"
 echo "Log file: ollama.log"
 echo ""
 
@@ -80,3 +90,5 @@ echo "=== Server Control ==="
 echo "Stop server: kill $OLLAMA_PID"
 echo "View logs: tail -f ollama.log"
 echo "API base URL: http://localhost:11434"
+echo ""
+echo "IMPORTANT: After container reset, run 'source restore_env.sh' from your project root."
