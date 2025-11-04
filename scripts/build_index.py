@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 JSONLファイルからベクトルインデックスを構築
+（ハイブリッド構築を効率化するために修正）
 """
 import json
 import argparse
@@ -12,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from app.core.rag_config import load_config
 from app.retrieval.vector_retriever import VectorRetriever
 from app.retrieval.bm25_retriever import BM25Retriever
-from app.retrieval.hybrid_retriever import HybridRetriever
+# HybridRetrieverは構築時には不要
 from tqdm import tqdm
 
 
@@ -57,8 +58,8 @@ def main():
     parser.add_argument(
         "--batch_size",
         type=int,
-        default=10000,
-        help="バッチサイズ"
+        default=100000,
+        help="（FAISS用）バッチサイズ"
     )
     
     args = parser.parse_args()
@@ -73,42 +74,43 @@ def main():
     documents = load_jsonl(data_path, limit=args.limit)
     print(f"Loaded {len(documents)} documents")
     
-    if retriever_type == "vector":
-        print("Building FAISS vector index...")
-        retriever = VectorRetriever(
-            embedding_model=config.embedding.model_name,
-            index_path=str(index_path / "vector"),
-            use_mmr=config.retriever.use_mmr,
-            mmr_lambda=config.retriever.mmr_lambda
-        )
-    elif retriever_type == "bm25":
-        print("Building BM25 index...")
-        retriever = BM25Retriever(
-            index_path=str(index_path / "bm25")
-        )
-    else:
-        print("Building hybrid index (FAISS + BM25)...")
+    # --- Vector (FAISS) 構築 ---
+    if retriever_type == "vector" or retriever_type == "hybrid":
+        print("\n--- Building FAISS vector index (GPU) ---")
         vector_retriever = VectorRetriever(
             embedding_model=config.embedding.model_name,
             index_path=str(index_path / "vector"),
             use_mmr=config.retriever.use_mmr,
             mmr_lambda=config.retriever.mmr_lambda
         )
+        
+        print("Adding documents to FAISS index (in batches)...")
+        batch_size = args.batch_size
+        for i in tqdm(range(0, len(documents), batch_size), desc="Building FAISS"):
+            batch = documents[i:i + batch_size]
+            vector_retriever.add_documents(batch)
+        
+        print("Saving FAISS index...")
+        vector_retriever.save_index()
+        print("FAISS index built successfully.")
+
+    # --- BM25 構築 ---
+    if retriever_type == "bm25" or retriever_type == "hybrid":
+        print("\n--- Building BM25 index (CPU) ---")
         bm25_retriever = BM25Retriever(
             index_path=str(index_path / "bm25")
         )
-        retriever = HybridRetriever(vector_retriever, bm25_retriever)
-    
-    print("Adding documents to index...")
-    batch_size = args.batch_size
-    for i in tqdm(range(0, len(documents), batch_size), desc="Building index"):
-        batch = documents[i:i + batch_size]
-        retriever.add_documents(batch)
-    
-    print("Saving index...")
-    retriever.save_index()
-    
-    print(f"Index built successfully and saved to {index_path}")
+        
+        print("Adding documents to BM25 index (all at once)...")
+        # BM25はバッチ処理ではなく、全ドキュメントを一度に処理する
+        # （これには時間がかかりますが、O(N^2)にはなりません）
+        bm25_retriever.add_documents(documents)
+        
+        print("Saving BM25 index...")
+        bm25_retriever.save_index()
+        print("BM25 index built successfully.")
+
+    print(f"\nIndex built successfully and saved to {index_path}")
 
 
 if __name__ == "__main__":
