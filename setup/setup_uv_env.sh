@@ -2,79 +2,90 @@
 set -e
 
 echo "==================================="
-echo "Legal RAG System - UV Setup Script"
+echo "Legal RAG System - UV Setup Script (Persistent)"
 echo "==================================="
 
 # プロジェクトルートに移動
-# スクリプトがどこから呼ばれてもいいように、スクリプト自身の場所を基準にする
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 cd "$SCRIPT_DIR/.."
 PROJECT_ROOT=$(pwd)
 
 echo ""
-echo "Project root: $PROJECT_ROOT"
+echo "Project root (persistent volume): $PROJECT_ROOT"
 echo ""
 
+# 永続的なツールのインストール先を定義
+PERSISTENT_TOOLS_DIR="$HOME/work/tools"
+UV_DIR="$PERSISTENT_TOOLS_DIR/uv"
+UV_BIN_DIR="$UV_DIR/bin"
+UV_BIN="$UV_BIN_DIR/uv"
+
+# CARGO_HOMEを設定（インストーラがこれを見ることを期待）
+export CARGO_HOME="$UV_DIR"
+mkdir -p "$UV_BIN_DIR"
+
 # uvがインストールされているか確認
-if ! command -v uv &> /dev/null; then
+if [ ! -f "$UV_BIN" ]; then
     echo "Installing uv..."
-    # インストールスクリプトを実行
+    # インストールスクリプトを実行 (これは ~/.local/bin にインストールされる)
     curl -LsSf https://astral.sh/uv/install.sh | sh
     
-    # uvのデフォルトインストール先
-    UV_BIN_DIR="$HOME/.local/bin"
-    
-    # 現在のセッションのPATHを更新
+    DEFAULT_UV_INSTALL_DIR="$HOME/.local/bin"
+
+
+    # インストールされたバイナリを永続的な場所に「コピー」する
+    if [ -f "$DEFAULT_UV_INSTALL_DIR/uv" ]; then
+        echo "Copying uv binary to persistent location: $UV_BIN_DIR"
+        cp "$DEFAULT_UV_INSTALL_DIR/uv" "$UV_BIN_DIR/uv"
+        cp "$DEFAULT_UV_INSTALL_DIR/uvx" "$UV_BIN_DIR/uvx"
+        
+        # envスクリプトは元の場所 (~/.local/bin) に残しておく
+        echo "✓ uv/uvx binaries copied."
+    else
+        echo "Error: uv was not found in the default location ($DEFAULT_UV_INSTALL_DIR) after installation."
+        exit 1
+    fi
+
+
+    # 現在のセッションのPATHを更新 (永続パスを優先的に追加)
     export PATH="$UV_BIN_DIR:$PATH"
     
-    echo "Updating shell configuration file..."
-
-    # .bashrc や .zshrc にPATHを追加
-    # (zshを使っている場合も考慮)
-    SHELL_CONFIG_FILE=""
-    if [ -n "$ZSH_VERSION" ]; then
-        SHELL_CONFIG_FILE="$HOME/.zshrc"
-    elif [ -n "$BASH_VERSION" ]; then
-        SHELL_CONFIG_FILE="$HOME/.bashrc"
-    else
-        # デフォルトまたはフォールバック
-        SHELL_CONFIG_FILE="$HOME/.bashrc"
-        if [ ! -f "$SHELL_CONFIG_FILE" ]; then
-             SHELL_CONFIG_FILE="$HOME/.profile" # .profile を使う環境もある
-        fi
-    fi
-    
-    # (touchでファイルが存在しない場合に作成)
-    touch "$SHELL_CONFIG_FILE"
-
-    UV_PATH_STRING="export PATH=\"\$HOME/.local/bin:\$PATH\""
-    
-    # 既にPATH設定が書き込まれていないか確認
-    if ! grep -qF "$UV_PATH_STRING" "$SHELL_CONFIG_FILE"; then
-        echo "" >> "$SHELL_CONFIG_FILE"
-        echo "# Add uv (installed by legal-rag setup)" >> "$SHELL_CONFIG_FILE"
-        echo "$UV_PATH_STRING" >> "$SHELL_CONFIG_FILE"
-        echo "✓ Added uv to PATH in $SHELL_CONFIG_FILE."
-        echo "   Please restart your shell or run 'source $SHELL_CONFIG_FILE' to apply changes."
-    else
-        echo "✓ uv PATH already configured in $SHELL_CONFIG_FILE."
-    fi
-
-    # 再度確認
-    if ! command -v uv &> /dev/null; then
-        echo "Error: uv installation failed or PATH not set correctly."
-        echo "Please ensure '$UV_BIN_DIR' is in your PATH."
+    # 再度確認 (今度は $UV_BIN のパスで確認)
+    if [ ! -f "$UV_BIN" ]; then
+        echo "Error: uv installation failed. Binary not found at $UV_BIN."
         exit 1
     fi
     
-    echo "✓ uv installed successfully"
+    echo "✓ uv installed successfully to $UV_BIN"
 else
-    echo "✓ uv is already installed"
+    echo "✓ uv is already installed at $UV_BIN"
+    export PATH="$UV_BIN_DIR:$PATH"
     uv --version
 fi
 
+SHELL_CONFIG_FILE="$HOME/.bashrc"
+UV_PATH_STRING="export PATH=\"$UV_BIN_DIR:\$PATH\""
+
+# .bashrc が存在するか確認し、なければ作成
+touch "$SHELL_CONFIG_FILE"
+
+# 既にPATH設定が書き込まれていないか確認
+if ! grep -qF "$UV_PATH_STRING" "$SHELL_CONFIG_FILE"; then
+    echo ""
+    echo "Adding uv persistent path to $SHELL_CONFIG_FILE..."
+    # .bashrcの末尾に追記
+    echo "" >> "$SHELL_CONFIG_FILE"
+    echo "# Added by statutes-rags setup (uv persistent path)" >> "$SHELL_CONFIG_FILE"
+    echo "$UV_PATH_STRING" >> "$SHELL_CONFIG_FILE"
+    echo "✓ uv path added to $SHELL_CONFIG_FILE."
+    echo "  Run 'source $SHELL_CONFIG_FILE' or restart your shell to apply changes permanently."
+else
+    echo ""
+    echo "✓ uv persistent path already configured in $SHELL_CONFIG_FILE."
+fi
+
 echo ""
-echo "Creating virtual environment with uv..."
+echo "Creating virtual environment in $PROJECT_ROOT/.venv ..."
 
 # 既存の.venvがあれば削除（非インタラクティブ）
 if [ -d ".venv" ]; then
@@ -115,6 +126,10 @@ uv pip install \
 echo ""
 echo "Installing RAG-specific dependencies..."
 uv pip install \
+    "torch" \
+    "torchvision" \
+    "torchaudio" \
+    --index-url https://download.pytorch.org/whl/cu121 \
     "langchain>=0.1.0" \
     "langchain-community>=0.0.10" \
     "langchain-core>=1.0.0" \
@@ -133,11 +148,5 @@ echo ""
 echo "To activate the environment, run:"
 echo "  source .venv/bin/activate"
 echo ""
-echo "To run tests:"
-echo "  pytest tests/ -v"
-echo "  pytest tests/ -v --cov=app"
-echo ""
-echo "To format code:"
-echo "  black app/ scripts/ tests/"
-echo "  ruff check app/ scripts/ tests/"
-echo ""
+echo "IMPORTANT: The persistent uv path has been added to $SHELL_CONFIG_FILE."
+echo "Please run 'source $SHELL_CONFIG_FILE' or restart your terminal to ensure it's active everywhere."

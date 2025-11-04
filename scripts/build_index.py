@@ -55,9 +55,9 @@ def main():
         help="処理するドキュメント数の上限"
     )
     parser.add_argument(
-        "--batch-size",
+        "--batch_size",
         type=int,
-        default=100,
+        default=10000,
         help="バッチサイズ"
     )
     
