@@ -51,7 +51,7 @@ cd statutes-rags
 
 プロジェクトでは高速なパッケージマネージャーuvを使用します。
 ```
-# プロジェクトルート `/work/statutes-rag` で実行  
+# プロジェクトルート `/work/statutes-rags` で実行  
 # sourceコマンドで実行します  
 source setup/setup_uv_env.sh
 ```
@@ -94,8 +94,9 @@ cd setup
 * Ollamaバイナリを永続ボリューム (setup/bin) にダウンロード  
 * Ollamaサーバーの**初回起動**  
 * 永続ボリューム `~/work/.ollama-models` へのモデルのダウンロード  
-  * nomic-embed-text（埋め込みモデル）  
   * gpt-oss:20b（LLMモデル、約13GB）
+  
+**注:** 埋め込みモデル（intfloat/multilingual-e5-large）はHuggingFace経由で自動ダウンロードされるため、Ollamaでのダウンロードは不要です。
 
 **注意:** gpt-oss:20bのダウンロードには10-30分かかる場合があります。
 
@@ -110,7 +111,6 @@ curl http://localhost:11434/api/tags
 # 出力例:
 # NAME                    ID              SIZE    MODIFIED
 # gpt-oss:20b            abc123...       13 GB   2 minutes ago
-# nomic-embed-text       def456...       274 MB  3 minutes ago
 ```
 
 **トラブル:** サーバーが起動していない場合
@@ -124,32 +124,66 @@ pkill ollama
 cd setup && ./bin/ollama serve > ollama.log 2>&1 &
 ```
 
-### ~~ステップ4: MeCabのセットアップ（オプション）~~
+### ステップ4: 日本語トークナイザー（自動インストール済み）
 
-**重要** 現在はこのステップは飛ばしてください。MeCabはインストールできません、
-~~MeCabは日本語形態素解析器で、BM25検索に使用されます。インストールしなくてもシステムは動作しますが、BM25の精度が低下します。~~
+**SudachiPyとJanomeがデフォルトで自動インストールされます。**
 
-```bash
-cd setup
-./setup_mecab.sh
-```
+`setup_uv_env.sh`を実行した時点で、以下のトークナイザーが既にインストールされています：
 
-~~このスクリプトは以下を実行します：~~
-- ~~MeCab本体のビルドとインストール（ローカル、sudo不要）~~
-- ~~IPA辞書のインストール~~
-- ~~Python bindingのインストール~~
+- **SudachiPy**: 高性能な日本語形態素解析器（推奨）
+- **sudachidict-core**: SudachiPy用の辞書
+- **Janome**: 軽量なフォールバック
+
+管理者権限不要で、MeCabと同等以上の性能を実現します。
+
+BM25Retrieverはデフォルトで `tokenizer="auto"` を使用し、利用可能なトークナイザーを自動選択します（優先順位: SudachiPy > Janome > MeCab > n-gram > simple）。
 
 **確認方法:**
 
 ```bash
-source setup/mecab_env.sh
-echo "これはテストです。" | setup/bin/mecab -Owakati
-# 出力: これ は テスト です 。
+python -c "from app.retrieval.bm25_retriever import BM25Retriever; r = BM25Retriever(); print(f'トークナイザー: {r.tokenizer_type}')"
+# 出力例: トークナイザー: sudachi
 ```
+
+### ステップ5: 環境変数の設定（オプション）
+
+RAGシステムはデフォルト値が設定されているため、環境変数の設定は**オプション**です。カスタマイズが必要な場合のみ設定してください。
+
+プロジェクトルートに`.env`ファイルを作成して環境変数を設定できます。`.env.example`ファイルをテンプレートとして使用できます：
+
+```bash
+cd /home/jovyan/work/statutes-rags
+
+# .env.exampleをコピーして編集（推奨）
+cp .env.example .env
+nano .env
+
+# または、新規作成
+cat > .env << 'EOF'
+# LLM設定
+LLM_MODEL=gpt-oss:20b
+LLM_TEMPERATURE=0.1
+
+# Retriever設定
+RETRIEVER_TYPE=hybrid
+RETRIEVER_TOP_K=10
+
+# その他の設定はデフォルト値が使用されます
+EOF
+```
+
+主要な環境変数：
+- `LLM_MODEL`: LLMモデル名（デフォルト: `gpt-oss:20b`）
+- `RETRIEVER_TYPE`: Retrieverタイプ `vector`/`bm25`/`hybrid`（デフォルト: `hybrid`）
+- `RETRIEVER_TOP_K`: 検索する文書数（デフォルト: 10）
+- `BM25_TOKENIZER`: トークナイザー `auto`/`sudachi`/`janome`/`mecab`/`ngram`/`simple`（デフォルト: `auto`）
+- `MMR_FETCH_K_MAX`: MMRで取得する候補の最大数（デフォルト: 50）
+
+全ての環境変数とデフォルト値は`.env.example`または`app/core/rag_config.py`を参照してください。
 
 ## データ準備
 
-### ステップ5: データセットの配置（初回のみ）
+### ステップ6: データセットの配置（初回のみ）
 
 
 
@@ -160,7 +194,7 @@ echo "これはテストです。" | setup/bin/mecab -Owakati
 ```
 datasets/
 ├── egov_laws/           # e-Gov法令XMLファイル（必須）
-│   ├── *.xml            # 10,433ファイル、約2GB
+│   ├── *.xml            # 10,435ファイル、約264MB（zip圧縮時）
 │   └── egov_laws_all.zip  # ダウンロードアーカイブ（264MB）
 ├── lawqa_jp/            # デジタル庁 4択法令データ（評価用、必須）
 │   ├── README.md        # データセット説明（リポジトリに含む）
@@ -218,13 +252,13 @@ ls -lh datasets/
 
 # e-Gov法令XMLファイル数を確認
 find datasets/egov_laws -name "*.xml" | wc -l
-# 期待値: 10,433ファイル
+# 期待値: 10,435ファイル
 
 # lawqa_jpデータを確認
 ls -lh datasets/lawqa_jp/data/
 ```
 
-### ステップ6: XMLからJSONLへの前処理（初回のみ）
+### ステップ7: XMLからJSONLへの前処理（初回のみ）
 
 法令XMLファイルを検索可能なJSONL形式に変換します。
 
@@ -241,7 +275,7 @@ python3 scripts/preprocess_egov_xml.py \
   --output-file data/egov_laws.jsonl
 ```
 
-**処理時間:** 約5-10分（10,433ファイル）
+**処理時間:** 約5-10分（10,435ファイル）
 
 **または、Makefileを使用:**
 
@@ -274,11 +308,11 @@ head -1 data/egov_laws.jsonl | python3 -m json.tool
 
 ## インデックス構築
 
-### ステップ7: FAISSインデックスの構築
+### ステップ8: FAISSインデックスの構築
 
 検索用のベクトルインデックスとBM25インデックスを構築します。
 
-インデックスの作成には全件(280万件)を使用すると数十時間を要するので、軽く動かす程度なら`--limit` で件数を絞ることを推奨
+インデックスの作成には全件（約10,435ファイルから抽出された全条文）を使用すると数時間を要するので、軽く動かす程度なら`--limit` で件数を絞ることを推奨
 
 **少数ドキュメントで実行:**
 
@@ -305,7 +339,7 @@ python3 scripts/build_index.py \
 
 **または、Makefileを使用:**
 
-`make`を使用する場合、全件データ(280万)を処理するため、長時間になることに注意
+`make`を使用する場合、全件データ（約10,435ファイル）を処理するため、長時間になることに注意
 ```bash
 make index
 ```
@@ -341,7 +375,7 @@ source setup/restore_env.sh
 
 このスクリプトは以下を**自動的**に行います：
 
-1. uv, ollama, mecab へのPATHを設定  
+1. uv, ollama へのPATHを設定  
 2. OLLAMA_MODELS 環境変数を設定  
 3. .venv 仮想環境を有効化  
 4. Ollamaサーバーが起動していない場合は**自動で起動**  
@@ -350,7 +384,7 @@ source setup/restore_env.sh
 
 ## 動作確認
 
-### ステップ8: 対話型CLIで動作確認
+### ステップ9: 対話型CLIで動作確認
 
 RAGシステムが正しく動作するか確認します。
 
@@ -386,7 +420,7 @@ python3 scripts/query_cli.py "会社法第26条について教えてください
 
 ## 評価実験
 
-### ステップ9: 4択法令データでRAG評価
+### ステップ10: 4択法令データでRAG評価
 
 デジタル庁の4択法令データセットを使用してRAGシステムの精度を評価します。
 
@@ -399,7 +433,9 @@ python3 scripts/evaluate_multiple_choice.py \
   --output evaluation_results_3.json
 ```
 
-**実行時間:** 約2分（1問あたり40秒）
+**実行時間:** 約3-5分（ハードウェア性能に依存）
+
+**注:** 軽量モデルを使用したい場合は、事前に `./setup/bin/ollama pull qwen2.5:7b` を実行して `--llm-model "qwen2.5:7b"` に置き換えてください。
 
 #### 中規模評価（20問）
 
@@ -410,7 +446,7 @@ python3 scripts/evaluate_multiple_choice.py \
   --output evaluation_results_20.json
 ```
 
-**実行時間:** 約13-20分
+**実行時間:** 約20-30分（ハードウェア性能に依存）
 
 #### 全データ評価（140問）
 
@@ -425,7 +461,7 @@ nohup python3 scripts/evaluate_multiple_choice.py \
 tail -f evaluation.log
 ```
 
-**実行時間:** 約90-120分
+**実行時間:** 約120分前後（ハードウェア性能に依存）
 
 ### 評価結果の確認
 
@@ -434,7 +470,7 @@ tail -f evaluation.log
 cat evaluation_results_3.json | python3 -m json.tool | head -20
 
 # 精度のみを表示
-cat evaluation_results_3.json | python3 -c "import json, sys; data=json.load(sys.stdin); print(f"Accuracy: {data['summary']['accuracy']*100:.2f}%")"
+cat evaluation_results_3.json | python3 -c "import json, sys; data=json.load(sys.stdin); print(f\"Accuracy: {data['summary']['accuracy']*100:.2f}%\")"
 ```
 
 **期待される出力例:**
@@ -458,7 +494,7 @@ cat evaluation_results_3.json | python3 -c "import json, sys; data=json.load(sys
 
 ## テストの実行
 
-### ステップ10: ユニットテストの実行
+### ステップ11: ユニットテストの実行
 
 ```bash
 # 全テスト実行
@@ -504,29 +540,39 @@ sleep 5
 ./bin/ollama list
 ```
 
-### 問題2: MeCabの警告
+### 問題2: トークナイザーに関する警告
 
 **症状:**
 
 ```
-Failed to initialize MeCab. Using simple tokenizer.
+SudachiPy not available. Using simple tokenizer.
 ```
+
+**説明:**
+
+BM25検索では日本語トークナイザーが必要です。システムは以下の優先順位で自動的にトークナイザーを選択します：
+1. SudachiPy（推奨、高精度）
+2. Janome（軽量、フォールバック）
+3. MeCab（レガシーサポート、管理者権限が必要）
+4. n-gram（辞書不要）
+5. simple（最小限の機能）
 
 **解決方法:**
 
-MeCabはオプショナルです。警告を無視しても動作しますが、インストールする場合：
+通常はSudachiPyとJanomeが環境構築時（`setup_uv_env.sh`実行時）に自動でインストールされます。
+この警告が出る場合は、手動でインストールしてください：
 
 ```bash
-cd setup
-./setup_mecab.sh
-source mecab_env.sh
+pip install sudachipy sudachidict-core janome
 ```
 
-以降のシェルセッションでは常に以下を実行：
+または、プロジェクト全体を再インストール：
 
 ```bash
-source setup/mecab_env.sh
+pip install -e . --upgrade
 ```
+
+注: 簡易トークナイザー（simple/ngram）でもシステムは動作しますが、検索精度が低下する可能性があります。
 
 ### 問題3: メモリ不足エラー
 
@@ -545,7 +591,7 @@ OutOfMemoryError: Cannot allocate memory
 nano .env
 
 # LLM_MODELを変更
-LLM_MODEL=qwen2.5:7b  # 13GB -> 4.4GB
+LLM_MODEL=gpt-oss:20b  # デフォルトモデル（13GB）
 ```
 
 2. インデックス構築時のバッチサイズを削減
@@ -608,9 +654,9 @@ python3 scripts/preprocess_egov_xml.py \
 
 セットアップが完了したら、以下のドキュメントを参照してください：
 
-- `ARCHITECTURE.md` - コードベースの構造とモジュール説明
-- `USAGE.md` - 各スクリプトの詳細な使用方法
-- `EVALUATION_GUIDE.md` - 評価実験の詳細ガイド
+- [05-ARCHITECTURE.md](./05-ARCHITECTURE.md) - コードベースの構造とモジュール説明
+- [03-USAGE.md](./03-USAGE.md) - 各スクリプトの詳細な使用方法
+- [04-TESTING.md](./04-TESTING.md) - テスト実行ガイド
 
 ## クイックリファレンス
 
@@ -620,8 +666,8 @@ python3 scripts/preprocess_egov_xml.py \
 # 仮想環境を有効化
 source .venv/bin/activate
 
-# MeCab環境を設定（使用する場合）
-source setup/mecab_env.sh
+# トークナイザーの確認
+python -c "from app.retrieval.bm25_retriever import BM25Retriever; r = BM25Retriever(); print(f'使用中: {r.tokenizer_type}')"
 
 # Ollamaサーバーを起動（停止している場合）
 cd setup && ./bin/ollama serve > ollama.log 2>&1 &
@@ -643,16 +689,5 @@ python3 scripts/evaluate_multiple_choice.py --samples 3 --llm-model "gpt-oss:20b
 black app/ scripts/ tests/
 ruff check app/ scripts/ tests/
 ```
-
-## まとめ
-
-このガイドに従えば、以下が完了します：
-
-1. Python環境のセットアップ
-2. Ollama LLMサーバーの起動
-3. 法令データの前処理
-4. ベクトルインデックスの構築
-5. RAGシステムの動作確認
-6. 評価実験の実行
 
 問題が発生した場合は、トラブルシューティングセクションを参照してください。

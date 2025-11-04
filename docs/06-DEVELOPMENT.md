@@ -833,7 +833,7 @@ for i, doc in enumerate(results, 1):
 # RAGパイプラインでプロンプトを出力
 from app.retrieval.rag_pipeline import RAGPipeline
 
-pipeline = RAGPipeline(retriever, llm_provider="ollama", llm_model="qwen2.5:7b")
+pipeline = RAGPipeline(retriever, llm_provider="ollama", llm_model="gpt-oss:20b")
 
 question = "博物館法の目的は？"
 documents = pipeline.retrieve_documents(question)
@@ -852,7 +852,6 @@ print(prompt)
 ```python
 # インデックス診断スクリプト
 from pathlib import Path
-import pickle
 
 index_path = Path("data/faiss_index/vector")
 
@@ -869,13 +868,15 @@ vector_store = FAISS.load_local(
 
 print(f"Total documents: {vector_store.index.ntotal}")
 
-# メタデータ確認
-metadata_path = index_path / "metadata.pkl"
-with open(metadata_path, "rb") as f:
-    metadata = pickle.load(f)
+# Docstore内のメタデータ確認
+docstore = vector_store.docstore
+print(f"Metadata count: {len(docstore._dict)}")
 
-print(f"Metadata count: {len(metadata)}")
-print(f"Sample metadata: {metadata[0]}")
+first_doc = next(iter(docstore._dict.values()), None)
+if first_doc:
+    print(f"Sample metadata: {first_doc.metadata}")
+else:
+    print("Docstore is empty")
 ```
 
 ### パフォーマンスプロファイリング
@@ -970,14 +971,5 @@ jobs:
       with:
         file: ./coverage.xml
 ```
-
-## まとめ
-
-statutes RAGシステムは、以下の特徴を持つ拡張性の高い設計となっています:
-
-1. **モジュラーアーキテクチャ**: 各コンポーネントが独立しており、置き換えや追加が容易
-2. **テスト駆動**: 3層のテスト構造で品質を担保
-3. **設定駆動**: 環境変数で全ての動作をカスタマイズ可能
-4. **段階的拡張**: 短期・中期・長期の明確な開発ロードマップ
 
 今後の開発では、これらの設計原則を維持しながら、FastAPI Web API、Qdrant統合、ファインチューニングなどの機能拡張を進めていきます。

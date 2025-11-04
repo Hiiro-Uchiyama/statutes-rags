@@ -14,11 +14,11 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Load .env file
-env_path = Path("/home/jovyan/work/statutes-rags/.env")
+# プロジェクトルートの.envファイルを読み込み
+project_root = Path(__file__).parent.parent
+env_path = project_root / ".env"
 if env_path.exists():
     load_dotenv(env_path)
-    print(f"Loaded environment from {env_path}")
 
 from app.core.rag_config import load_config
 from app.retrieval.vector_retriever import VectorRetriever
@@ -37,19 +37,35 @@ def create_retriever(config):
             embedding_model=config.embedding.model_name,
             index_path=str(index_path / "vector"),
             use_mmr=config.retriever.use_mmr,
-            mmr_lambda=config.retriever.mmr_lambda
+            mmr_lambda=config.retriever.mmr_lambda,
+            mmr_fetch_k_max=config.retriever.mmr_fetch_k_max
         )
     elif retriever_type == "bm25":
-        return BM25Retriever(index_path=str(index_path / "bm25"))
+        return BM25Retriever(
+            index_path=str(index_path / "bm25"),
+            tokenizer=config.retriever.bm25_tokenizer
+        )
     else:
         vector_retriever = VectorRetriever(
             embedding_model=config.embedding.model_name,
             index_path=str(index_path / "vector"),
             use_mmr=config.retriever.use_mmr,
-            mmr_lambda=config.retriever.mmr_lambda
+            mmr_lambda=config.retriever.mmr_lambda,
+            mmr_fetch_k_max=config.retriever.mmr_fetch_k_max
         )
-        bm25_retriever = BM25Retriever(index_path=str(index_path / "bm25"))
-        return HybridRetriever(vector_retriever, bm25_retriever)
+        bm25_retriever = BM25Retriever(
+            index_path=str(index_path / "bm25"),
+            tokenizer=config.retriever.bm25_tokenizer
+        )
+        return HybridRetriever(
+            vector_retriever, 
+            bm25_retriever,
+            fusion_method=config.retriever.fusion_method,
+            vector_weight=config.retriever.vector_weight,
+            bm25_weight=config.retriever.bm25_weight,
+            rrf_k=config.retriever.rrf_k,
+            fetch_k_multiplier=config.retriever.fetch_k_multiplier
+        )
 
 
 def create_multiple_choice_prompt(question: str, choices: str, context: str = "") -> str:
@@ -157,12 +173,34 @@ def main():
     
     args = parser.parse_args()
     
+    # データセットファイルの存在確認
+    if not args.data.exists():
+        print(f"Error: Dataset file not found: {args.data}")
+        print("\nPlease download the dataset first. See docs/02-SETUP.md for instructions.")
+        print("For Heart01 users, you can copy from shared directory:")
+        print("  cp -r /home/jovyan/shared/datasets/statutes2025/* ./datasets/")
+        sys.exit(1)
+    
     # データセット読み込み
     print(f"Loading dataset from {args.data}...")
-    with open(args.data, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    try:
+        with open(args.data, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON format in {args.data}: {e}")
+        sys.exit(1)
+    
+    # データ構造の検証
+    if 'samples' not in data:
+        print(f"Error: Invalid dataset format. 'samples' key not found.")
+        print(f"Expected format: {{'samples': [...]}}")
+        print(f"Please check the dataset file or re-download it.")
+        sys.exit(1)
     
     samples = data['samples']
+    if not samples:
+        print(f"Error: No samples found in dataset.")
+        sys.exit(1)
     if args.samples:
         samples = samples[:args.samples]
     
@@ -178,15 +216,43 @@ def main():
     # LLMモデル名を引数で上書き
     llm_model = args.llm_model if args.llm_model else config.llm.model_name
     
-    retriever = create_retriever(config)
+    # インデックスの存在確認（RAG有効時のみ）
+    if not args.no_rag:
+        index_path = Path(config.vector_store_path)
+        if config.retriever.retriever_type == "vector":
+            if not (index_path / "vector").exists():
+                print(f"Error: Vector index not found at {index_path / 'vector'}")
+                print("\nPlease build the index first:")
+                print("  make index")
+                sys.exit(1)
+        elif config.retriever.retriever_type == "bm25":
+            if not (index_path / "bm25").exists():
+                print(f"Error: BM25 index not found at {index_path / 'bm25'}")
+                print("\nPlease build the index first:")
+                print("  make index")
+                sys.exit(1)
+        elif config.retriever.retriever_type == "hybrid":
+            if not (index_path / "vector").exists() or not (index_path / "bm25").exists():
+                print(f"Error: Hybrid index not found at {index_path}")
+                print("\nPlease build the index first:")
+                print("  make index")
+                sys.exit(1)
+    
+    retriever = create_retriever(config) if not args.no_rag else None
+    
+    # RAG無効時はダミーのRetrieverを使用
+    if args.no_rag:
+        from unittest.mock import Mock
+        retriever = Mock()
+        retriever.retrieve = Mock(return_value=[])
+    
     pipeline = RAGPipeline(
         retriever=retriever,
         llm_provider=config.llm.provider,
         llm_model=llm_model,
         temperature=0.0,  # 4択問題では決定的な回答が望ましい
         reranker=None,  # Rerankerは無効化
-        top_k=config.retriever.top_k,
-        rerank_top_n=config.retriever.top_k
+        top_k=config.retriever.top_k
     )
     
     print(f"RAG Mode: {'Disabled (LLM only)' if args.no_rag else 'Enabled'}")

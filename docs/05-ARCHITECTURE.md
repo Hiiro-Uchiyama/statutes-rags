@@ -37,7 +37,7 @@ statutes-rags/
 ├── setup/                      # セットアップスクリプト
 │   ├── setup_uv_env.sh         # Python環境セットアップ
 │   ├── setup_ollama.sh         # Ollamaセットアップ
-│   └── setup_mecab.sh          # MeCabセットアップ
+│   └── restore_env.sh          # 環境復元スクリプト（再起動後）
 │
 ├── tests/                      # テストコード
 │   ├── conftest.py             # pytest設定とフィクスチャ
@@ -54,15 +54,14 @@ statutes-rags/
 │       └── bm25/               # BM25インデックス
 │
 ├── datasets/                   # 元データセット
-│   ├── egov_laws/              # e-Gov法令XML（10,435ファイル）
-│   ├── lawqa_jp/               # デジタル庁4択データ
-│   ├── civil_law_instructions/ # 民法QA
-│   └── criminal_law_exams/     # 刑法試験問題
+│   ├── egov_laws/              # e-Gov法令XML（要ダウンロード）
+│   └── lawqa_jp/               # デジタル庁4択データ（要ダウンロード）
 │
 ├── docs/                       # ドキュメント
-│   ├── SETUP.md                # セットアップガイド
-│   ├── ARCHITECTURE.md         # このファイル
-│   └── USAGE.md                # 使用方法
+│   ├── 02-SETUP.md             # セットアップガイド
+│   ├── 05-ARCHITECTURE.md      # このファイル
+│   ├── 03-USAGE.md             # 使用方法
+│   └── 04-TESTING.md           # テストガイド
 │
 ├── pyproject.toml              # Python依存関係定義
 ├── pytest.ini                  # pytest設定
@@ -82,13 +81,13 @@ statutes-rags/
 **主要クラス:**
 
 - `EmbeddingConfig` - 埋め込みモデル設定
-  - `provider`: "huggingface", "openai", "ollama"
+  - `provider`: "huggingface"
   - `model_name`: 埋め込みモデル名（デフォルト: `intfloat/multilingual-e5-large`）
   - `dimension`: 埋め込み次元数（デフォルト: 1024）
 
 - `LLMConfig` - LLM設定
-  - `provider`: "ollama", "openai", "anthropic"
-  - `model_name`: モデル名（デフォルト: `qwen2.5:7b`）
+  - `provider`: "ollama"
+  - `model_name`: モデル名（デフォルト: `gpt-oss:20b`）
   - `temperature`: 生成温度（デフォルト: 0.1）
   - `max_tokens`: 最大トークン数（デフォルト: 2048）
 
@@ -124,9 +123,9 @@ print(config.retriever.top_k)  # 10
 **主要クラス:**
 
 - `Document` - 検索結果の文書を表現
-  - `content`: 文書本文
-  - `metadata`: メタデータ（法令名、条文番号等）
-  - `score`: 検索スコア（オプション）
+  - `page_content`: 文書本文
+  - `metadata`: メタデータ（法令名、条文番号等。デフォルトは空辞書）
+  - `score`: 検索スコア（オプション、デフォルト0.0）
 
 - `BaseRetriever` - Retrieverの抽象基底クラス
   - `retrieve(query, top_k)`: 検索を実行
@@ -148,7 +147,7 @@ FAISSを使用したベクトル検索の実装。
 - MMR（Maximal Marginal Relevance）による多様性確保
 
 **主要メソッド:**
-- `build_index(documents)`: ドキュメントからインデックスを構築
+- `add_documents(documents)`: ドキュメントをベクトルストアへ追加
 - `retrieve(query, top_k)`: クエリに対して関連文書を取得
 - `save_index(path)`: インデックスを永続化
 - `load_index(path)`: インデックスをロード
@@ -167,7 +166,7 @@ retriever = VectorRetriever(
 
 documents = retriever.retrieve("会社法第26条について", top_k=5)
 for doc in documents:
-    print(doc.content)
+    print(doc.page_content)
     print(doc.metadata)
 ```
 
@@ -185,12 +184,12 @@ BM25アルゴリズムを使用したキーワードベース検索。
 - `BM25Retriever(BaseRetriever)`
 
 **機能:**
-- MeCabによる日本語トークナイゼーション
+- SudachiPyによる日本語トークナイゼーション（デフォルト）
 - BM25スコアリング（TF-IDFの改良版）
 - インデックスの永続化
 
 **主要メソッド:**
-- `build_index(documents)`: ドキュメントからBM25インデックスを構築
+- `add_documents(documents)`: ドキュメントをBM25インデックスに追加
 - `retrieve(query, top_k)`: クエリに対して関連文書を取得
 - `save_index(path)`: インデックスを保存
 - `load_index(path)`: インデックスをロード
@@ -205,9 +204,10 @@ documents = retriever.retrieve("労働時間 制限", top_k=5)
 ```
 
 **技術詳細:**
-- トークナイザー: MeCab（IPA辞書）またはフォールバック（文字分割）
+- トークナイザー: SudachiPy（推奨）、Janome、MeCab、n-gram、simple（優先順位順）
 - BM25パラメータ: k1=1.5, b=0.75（デフォルト）
-- 日本語特化: MeCabによる形態素解析で高精度
+- 日本語特化: SudachiPyによる形態素解析で高精度（管理者権限不要）
+- トークナイザー選択: `BM25_TOKENIZER`環境変数で指定可能（auto/sudachi/janome/mecab/ngram/simple）
 
 #### `hybrid_retriever.py`
 
@@ -223,7 +223,9 @@ documents = retriever.retrieve("労働時間 制限", top_k=5)
 - Reciprocal Rank Fusion（RRF）オプション
 
 **主要メソッド:**
-- `retrieve(query, top_k, vector_weight, bm25_weight)`: ハイブリッド検索
+- `add_documents(documents)`: 両方のRetrieverにドキュメントを追加
+- `retrieve(query, top_k)`: ハイブリッド検索
+- `save_index() / load_index()`: 両方のインデックスを保存・読み込み
 
 **使用例:**
 
@@ -340,7 +342,7 @@ print(result["citations"])   # 引用元法令
     │   [vector/index.pkl]
     │
     └─→ BM25Retriever.build_index()
-            ↓ MeCab
+            ↓ SudachiPy
         [トークン列]
             ↓ rank-bm25
         [bm25/index.pkl]
@@ -435,14 +437,24 @@ RETRIEVER_TOP_K=10
 USE_MMR=true
 MMR_LAMBDA=0.5
 
+# Hybrid Retriever設定
+FUSION_METHOD=rrf                    # スコア統合方法: rrf/weighted_rrf/weighted
+VECTOR_WEIGHT=0.5                    # ベクトル検索の重み（weighted/weighted_rrf使用時）
+BM25_WEIGHT=0.5                      # BM25検索の重み（weighted/weighted_rrf使用時）
+RRF_K=60                             # RRF のkパラメータ
+FETCH_K_MULTIPLIER=2                 # 各Retrieverから取得する候補数の倍率
+
+# BM25設定
+BM25_TOKENIZER=auto                  # トークナイザー: auto/sudachi/janome/mecab/ngram/simple
+
 # Reranker
 RERANKER_ENABLED=false
 RERANKER_MODEL=cross-encoder/ms-marco-MiniLM-L-12-v2
 RERANKER_TOP_N=5
 
-# パス
-VECTOR_STORE_PATH=/home/jovyan/work/statutes-rags/data/faiss_index
-DATA_PATH=/home/jovyan/work/statutes-rags/data/egov_laws.jsonl
+# パス（相対パスまたはプロジェクトルートからの絶対パス）
+VECTOR_STORE_PATH=data/faiss_index
+DATA_PATH=data/egov_laws.jsonl
 
 # Ollama
 OLLAMA_HOST=http://localhost:11434
@@ -457,7 +469,7 @@ OLLAMA_HOST=http://localhost:11434
 nano .env
 
 # LLM_MODELを変更
-LLM_MODEL=qwen2.5:7b
+LLM_MODEL=gpt-oss:20b
 ```
 
 #### 2. Retrieverタイプの変更
@@ -595,14 +607,4 @@ self.prompt_template = PromptTemplate(
 )
 ```
 
-## まとめ
-
-このアーキテクチャは以下の特徴を持ちます：
-
-1. **モジュール性**: 各コンポーネントが独立して開発・テスト可能
-2. **拡張性**: 新しいRetriever、LLM、評価方法を簡単に追加可能
-3. **設定管理**: 環境変数で全体を制御、コード変更不要
-4. **パフォーマンス**: FAISS、BM25、ハイブリッド検索で高速・高精度
-5. **評価可能性**: 複数のベンチマークで客観的に性能測定
-
-詳細な使用方法は`USAGE.md`を参照してください。
+詳細な使用方法は [03-USAGE.md](./03-USAGE.md) を参照してください。

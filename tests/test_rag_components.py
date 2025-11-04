@@ -21,6 +21,19 @@ def test_document_creation():
     assert doc.score == 0.95
 
 
+def test_document_metadata_default_isolation():
+    """metadata のデフォルト辞書が共有されないことを確認"""
+    from app.retrieval.base import Document
+
+    doc_a = Document(page_content="A")
+    doc_b = Document(page_content="B")
+
+    doc_a.metadata["law_title"] = "法A"
+
+    assert "law_title" not in doc_b.metadata
+    assert doc_a.metadata["law_title"] == "法A"
+
+
 def test_config_loading():
     """設定ロードテスト"""
     from app.core.rag_config import load_config

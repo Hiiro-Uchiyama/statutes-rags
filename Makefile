@@ -1,4 +1,4 @@
-.PHONY: help preprocess index qa eval clean install test test-all test-integration test-coverage test-quick setup-uv setup-mecab
+.PHONY: help preprocess index qa eval clean install test test-all test-integration test-coverage test-quick setup-uv
 
 # デフォルト設定
 PYTHON := python3
@@ -20,17 +20,18 @@ help:
 	@echo "Legal RAG System - Makefile"
 	@echo ""
 	@echo "Available targets:"
-	@echo "  make setup-uv      - uvで仮想環境をセットアップ"
-	@echo "  make install       - 依存パッケージをインストール"
-	@echo "  make preprocess    - XML→JSONL前処理"
-	@echo "  make index         - ベクトルインデックス構築"
-	@echo "  make qa            - 対話型CLI起動"
-	@echo "  make eval          - RAGAS評価実行"
-	@echo "  make test          - ユニットテスト実行"
-	@echo "  make test-all      - 全テスト実行"
-	@echo "  make test-coverage - カバレッジ付きテスト実行"
-	@echo "  make clean         - 生成ファイル削除"
-	@echo "  make all           - 全ステップ実行 (preprocess → index)"
+	@echo "  make setup-uv              - uvで仮想環境をセットアップ"
+	@echo "  make install               - 依存パッケージをインストール"
+	@echo "  make preprocess            - XML→JSONL前処理"
+	@echo "  make index                 - ベクトルインデックス構築"
+	@echo "  make qa                    - 対話型CLI起動"
+	@echo "  make eval                  - RAGAS評価実行"
+	@echo "  make eval-multiple-choice  - 4択法令データ評価実行"
+	@echo "  make test                  - ユニットテスト実行"
+	@echo "  make test-all              - 全テスト実行"
+	@echo "  make test-coverage         - カバレッジ付きテスト実行"
+	@echo "  make clean                 - 生成ファイル削除"
+	@echo "  make all                   - 全ステップ実行 (preprocess → index)"
 	@echo ""
 	@echo "Environment variables:"
 	@echo "  PREPROCESS_LIMIT   - 前処理ファイル数制限 (デフォルト: 無制限)"
@@ -41,22 +42,20 @@ help:
 	@echo "  make preprocess PREPROCESS_LIMIT=100"
 	@echo "  make index INDEX_LIMIT=1000"
 	@echo "  make eval EVAL_LIMIT=50"
+	@echo "  make eval-multiple-choice EVAL_LIMIT=20"
 
 setup-uv:
 	@echo "Setting up environment with uv..."
-	./scripts/setup_uv_env.sh
+	./setup/setup_uv_env.sh
 	@echo "Setup complete!"
-
-setup-mecab:
-	@echo "Setting up MeCab..."
-	./scripts/setup_mecab.sh
-	@echo "MeCab setup complete!"
 
 install:
 	@echo "Installing dependencies..."
+	@echo "Note: For initial setup, use './setup/setup_uv_env.sh' instead."
+	@echo "This target is for reinstalling dependencies in an existing environment."
 	$(PYTHON) -m pip install --upgrade pip
 	$(PYTHON) -m pip install -e .
-	$(PYTHON) -m pip install langchain langchain-community faiss-cpu sentence-transformers rank-bm25 mecab-python3 ragas datasets
+	@echo "SudachiPy and Janome are now included in dependencies (no admin rights required)"
 	@echo "Installation complete!"
 
 preprocess:
@@ -97,6 +96,15 @@ eval:
 		--output $(EVAL_REPORT) \
 		--limit $(EVAL_LIMIT)
 	@echo "Evaluation complete! Report: $(EVAL_REPORT)"
+
+eval-multiple-choice:
+	@echo "Running 4-choice evaluation..."
+	@mkdir -p $(DATA_DIR)
+	$(PYTHON) scripts/evaluate_multiple_choice.py \
+		--data $(LAWQA_DATASET) \
+		--output evaluation_results.json \
+		--samples $(EVAL_LIMIT)
+	@echo "4-choice evaluation complete! Report: evaluation_results.json"
 
 test:
 	@echo "Running unit tests..."

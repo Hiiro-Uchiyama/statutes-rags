@@ -23,7 +23,7 @@ from app.core.rag_config import (
 def test_embedding_config_defaults():
     """埋め込み設定のデフォルト値テスト"""
     config = EmbeddingConfig()
-    assert config.provider in ["openai", "huggingface", "ollama"]
+    assert config.provider == "huggingface"
     assert config.model_name is not None
     assert config.dimension > 0
 
@@ -32,7 +32,7 @@ def test_embedding_config_defaults():
 def test_llm_config_defaults():
     """LLM設定のデフォルト値テスト"""
     config = LLMConfig()
-    assert config.provider in ["openai", "ollama", "anthropic"]
+    assert config.provider == "ollama"
     assert config.model_name is not None
     assert 0 <= config.temperature <= 1
     assert config.max_tokens > 0

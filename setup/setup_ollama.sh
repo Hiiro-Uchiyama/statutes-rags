@@ -9,7 +9,10 @@ cd "$SCRIPT_DIR"
 echo "=== Ollama Setup Script (Persistent) ==="
 
 # 永続的なモデル保存先を定義
-export OLLAMA_MODELS="$HOME/work/.ollama-models"
+# 環境変数が既に設定されている場合はそれを優先、なければデフォルトパスを使用
+if [ -z "$OLLAMA_MODELS" ]; then
+    export OLLAMA_MODELS="$HOME/work/.ollama-models"
+fi
 mkdir -p "$OLLAMA_MODELS"
 echo "Setting OLLAMA_MODELS to $OLLAMA_MODELS"
 
@@ -39,11 +42,8 @@ echo "Ollama server started (PID: $OLLAMA_PID)"
 echo "Waiting for server to be ready..."
 sleep 5
 
-# Pull embedding model
-echo "Pulling embedding model (nomic-embed-text) to $OLLAMA_MODELS..."
-./bin/ollama pull nomic-embed-text
-
 # Pull LLM model
+# Note: Embedding model (intfloat/multilingual-e5-large) is downloaded via HuggingFace, not Ollama
 echo "Pulling LLM model (gpt-oss:20b) to $OLLAMA_MODELS..."
 ./bin/ollama pull gpt-oss:20b
 
@@ -58,9 +58,9 @@ echo ""
 echo "Verifying API endpoint..."
 sleep 2
 if curl -s http://localhost:11434/api/tags > /dev/null; then
-    echo "✓ API is accessible at http://localhost:11434"
+    echo "[OK] API is accessible at http://localhost:11434"
 else
-    echo "⚠ Warning: API endpoint not responding"
+    echo "[WARNING] API endpoint not responding"
 fi
 
 echo ""
@@ -75,12 +75,6 @@ echo "curl http://localhost:11434/api/generate -d '{"
 echo '  "model": "gpt-oss:20b",'
 echo '  "prompt": "Why is the sky blue?",'
 echo '  "stream": false'
-echo "}'"
-echo ""
-echo "# Generate embeddings with nomic-embed-text:"
-echo "curl http://localhost:11434/api/embeddings -d '{"
-echo '  "model": "nomic-embed-text",'
-echo '  "prompt": "Hello world"'
 echo "}'"
 echo ""
 echo "# List models via API:"

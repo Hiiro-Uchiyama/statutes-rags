@@ -36,7 +36,7 @@ make setup-uv
 または
 
 ```bash
-./scripts/setup_uv_env.sh
+./setup/setup_uv_env.sh
 ```
 
 ### 2. 仮想環境の有効化
@@ -259,12 +259,14 @@ cd /home/jovyan/work/legal-rag
 pytest tests/ -v
 ```
 
-### MeCabエラー
+### トークナイザーエラー
 
 ```bash
-# MeCabをインストール
-sudo apt-get install mecab libmecab-dev mecab-ipadic-utf8
-pip install mecab-python3
+# SudachiPyとJanomeをインストール（管理者権限不要）
+pip install sudachipy sudachidict-core janome
+
+# または環境を更新
+pip install -e . --upgrade
 ```
 
 ### 遅いテストをスキップ

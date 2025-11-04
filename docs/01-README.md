@@ -6,7 +6,7 @@
 
 このディレクトリには、statutes RAGシステムの設計、実装、使用方法に関する詳細ドキュメントが含まれています。
 
-### 1. [ARCHITECTURE.md](./ARCHITECTURE.md)
+### 1. [05-ARCHITECTURE.md](./05-ARCHITECTURE.md)
 **システムアーキテクチャと設計ドキュメント**
 
 - システム概要と主要機能
@@ -24,12 +24,12 @@
 
 **対象読者**: 開発者、システム設計者、アーキテクト
 
-### 2. [USAGE.md](./USAGE.md)
+### 2. [03-USAGE.md](./03-USAGE.md)
 **使用方法ガイド**
 
 - セットアップ手順
   - uv環境セットアップ
-  - MeCabセットアップ
+  - 日本語トークナイザー（SudachiPy - 自動インストール済み）
   - Ollamaセットアップ
   - 環境変数設定
 - 基本的な使い方
@@ -45,7 +45,7 @@
 
 **対象読者**: ユーザー、オペレーター、初学者
 
-### 3. [DEVELOPMENT.md](./DEVELOPMENT.md)
+### 3. [06-DEVELOPMENT.md](./06-DEVELOPMENT.md)
 **開発ガイド**
 
 - 開発環境セットアップ
@@ -68,7 +68,7 @@
 
 **対象読者**: 開発者、コントリビューター
 
-### 4. [TESTING.md](./TESTING.md)
+### 4. [04-TESTING.md](./04-TESTING.md)
 **テストドキュメント**
 
 - テスト概要（3層のテスト階層）
@@ -91,6 +91,32 @@
 
 **対象読者**: テスター、QAエンジニア、開発者
 
+### 5. [07-ALGORITHM.md](./07-ALGORITHM.md)
+**アルゴリズム詳細ガイド**
+
+- システムアーキテクチャ概要
+- 文書前処理とチャンキング
+- ベクトル検索アルゴリズム（FAISS、MMR）
+- BM25検索アルゴリズム（日本語トークナイザー）
+- ハイブリッド検索とスコア統合（RRF、重み付き統合）
+- Rerankerアルゴリズム（Cross-Encoder）
+- RAGパイプライン全体フロー
+- パラメータチューニングガイド
+
+**対象読者**: アルゴリズム研究者、実装者、上級開発者
+
+### 6. [08-CODE-REFERENCE.md](./08-CODE-REFERENCE.md)
+**コードリファレンス**
+
+- ディレクトリ構造詳細
+- コアモジュール（app/）の実装詳細
+- スクリプト（scripts/）の使用方法
+- テスト（tests/）の構成
+- 設定ファイルの解説
+- 主要クラスのAPIリファレンス
+
+**対象読者**: 開発者、コントリビューター、実装詳細を知りたい方
+
 ## クイックスタート
 
 ### 1. 環境構築
@@ -100,9 +126,8 @@
 ./setup/setup_uv_env.sh
 source .venv/bin/activate
 
-# MeCabセットアップ
-./setup/setup_mecab.sh
-source setup/mecab_env.sh
+# 日本語トークナイザーの確認（自動インストール済み）
+python -c "from app.retrieval.bm25_retriever import BM25Retriever; r = BM25Retriever(); print(f'使用中: {r.tokenizer_type}')"
 
 # Ollamaセットアップ
 cd setup && ./setup_ollama.sh && cd ..
@@ -158,7 +183,7 @@ statutes RAG System
 ├── RAGパイプライン
 │   ├── Retriever (Vector/BM25/Hybrid)
 │   ├── Reranker (Cross-encoder, オプション)
-│   └── LLM (Ollama qwen2.5:7b)
+│   └── LLM (Ollama gpt-oss:20b)
 │
 ├── インターフェース
 │   ├── CLI (scripts/query_cli.py)
@@ -190,8 +215,8 @@ statutes RAG System
 |------------|--------|------|------|
 | e-Gov法令XML | 264MB | メインコーパス | `datasets/egov_laws/` |
 | lawqa_jp | 4.9MB | RAG評価 | `datasets/lawqa_jp/` |
-| 民法Instruction | 128KB | Few-shot/Fine-tuning | `datasets/civil_law_instructions/` |
-| 刑法試験問題 | 472KB | 高難度評価 | `datasets/criminal_law_exams/` |
+| 民法Instruction（任意） | 128KB | Few-shot/Fine-tuning | `datasets/civil_law_instructions/` |
+| 刑法試験問題（任意） | 472KB | 高難度評価 | `datasets/criminal_law_exams/` |
 
 ## 技術スタック
 
@@ -200,8 +225,8 @@ statutes RAG System
 - **ベクトル検索**: FAISS
 - **埋め込みモデル**: HuggingFace Transformers（intfloat/multilingual-e5-large）
 - **キーワード検索**: rank-bm25
-- **トークナイザ**: MeCab
-- **LLM**: Ollama（qwen2.5:7b）
+- **トークナイザ**: SudachiPy（デフォルト、管理者権限不要）
+- **LLM**: Ollama（gpt-oss:20b）
 - **リランキング**: sentence-transformers（Cross-encoder）
 - **評価**: RAGAS
 - **テスト**: pytest
@@ -217,7 +242,7 @@ EMBEDDING_MODEL=intfloat/multilingual-e5-large
 EMBEDDING_DIM=1024
 
 # LLM
-LLM_MODEL=qwen2.5:7b
+LLM_MODEL=gpt-oss:20b
 LLM_TEMPERATURE=0.1
 
 # Retriever
@@ -230,72 +255,15 @@ RERANKER_ENABLED=false
 RERANKER_TOP_N=5
 ```
 
-詳細は [USAGE.md](./USAGE.md) の「設定カスタマイズ」セクションを参照してください。
-
-## パフォーマンス指標
-
-### 処理時間
-
-- **前処理**: 10,000ファイル → 約10分
-- **インデックス構築**: 100,000文書 → 約50分（CPU、multilingual-e5-large使用）
-- **検索**: クエリあたり1-3秒（Top-K=10、ハイブリッド検索）
-- **LLM生成**: クエリあたり5-15秒（qwen2.5:7b、CPU）
-
-### 評価メトリクス（lawqa_jp、50サンプル）
-
-- **Faithfulness**: 0.82（回答の忠実性）
-- **Answer Relevancy**: 0.79（回答の関連性）
-- **Context Precision**: 0.85（コンテキストの精度）
-
-注: 実際の値は設定やデータセットによって変動します。
-
-## 今後のロードマップ
-
-### 短期（1-3ヶ月）
-- FastAPI Web API実装
-- Qdrant統合
-- ストリーミング応答
-
-### 中期（3-6ヶ月）
-- ファインチューニング（民法Instructionデータセット使用）
-- マルチターン対話対応
-- 評価データセット拡充（刑法試験問題）
-
-### 長期（6ヶ月以上）
-- マルチモーダル対応（図表解析）
-- 判例検索統合
-- 自動更新パイプライン
-
-詳細は [DEVELOPMENT.md](./DEVELOPMENT.md) の「今後の開発方針」を参照してください。
-
-## コントリビューション
-
-開発に参加する場合は以下を確認してください:
-
-1. [DEVELOPMENT.md](./DEVELOPMENT.md) のコーディング規約
-2. [TESTING.md](./TESTING.md) のテスト作成ガイドライン
-3. テストカバレッジ80%以上を維持
+詳細は [03-USAGE.md](./03-USAGE.md) の「設定カスタマイズ」セクションを参照してください。
 
 ## トラブルシューティング
 
 問題が発生した場合は以下を確認:
 
-1. [USAGE.md](./USAGE.md) の「トラブルシューティング」セクション
-2. [TESTING.md](./TESTING.md) の「トラブルシューティング」セクション
-
-よくある問題:
-- MeCabが見つからない → `source setup/mecab_env.sh`
-- Ollamaに接続できない → Ollamaサーバーが起動しているか確認
-- メモリ不足 → より小さいモデルを使用、またはドキュメント数を制限
-
-## ライセンス
-
-（プロジェクトのライセンスを記載）
-
-## 連絡先
-
-（開発者・メンテナーの連絡先を記載）
+1. [03-USAGE.md](./03-USAGE.md) の「トラブルシューティング」セクション
+2. [04-TESTING.md](./04-TESTING.md) の「トラブルシューティング」セクション
 
 ---
 
-最終更新: 2025-10-30
+最終更新: 2024-11-04

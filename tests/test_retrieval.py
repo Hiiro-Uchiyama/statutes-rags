@@ -82,9 +82,11 @@ def test_bm25_retriever_basic(sample_jsonl_data, temp_index_dir):
     """BM25Retrieverの基本機能テスト"""
     from app.retrieval.bm25_retriever import BM25Retriever
     
+    # Note: テスト環境では依存関係を最小化するため、simpleトークナイザーを使用
+    # 本番環境ではauto（SudachiPy優先）が推奨
     retriever = BM25Retriever(
         index_path=str(temp_index_dir / "bm25"),
-        use_mecab=False  # MeCab不要でテスト
+        tokenizer="simple"
     )
     
     # ドキュメント追加
@@ -111,9 +113,10 @@ def test_hybrid_retriever_basic(sample_jsonl_data, temp_index_dir):
         index_path=str(temp_index_dir / "vector")
     )
     
+    # Note: テスト環境では依存関係を最小化するため、simpleトークナイザーを使用
     bm25_retriever = BM25Retriever(
         index_path=str(temp_index_dir / "bm25"),
-        use_mecab=False  # MeCab不要でテスト
+        tokenizer="simple"
     )
     
     hybrid = HybridRetriever(
@@ -170,12 +173,12 @@ def test_bm25_retriever_save_load(sample_jsonl_data, temp_index_dir):
     index_path = str(temp_index_dir / "bm25_save_test")
     
     # 作成と保存
-    retriever1 = BM25Retriever(index_path=index_path, use_mecab=False)
+    retriever1 = BM25Retriever(index_path=index_path, tokenizer="simple")
     retriever1.add_documents(sample_jsonl_data)
     retriever1.save_index()
     
     # ロード
-    retriever2 = BM25Retriever(index_path=index_path, use_mecab=False)
+    retriever2 = BM25Retriever(index_path=index_path, tokenizer="simple")
     
     # 検索できることを確認
     results = retriever2.retrieve("博物館", top_k=2)
@@ -231,7 +234,8 @@ def test_bm25_tokenization():
     """BM25のトークン化テスト"""
     from app.retrieval.bm25_retriever import BM25Retriever
     
-    retriever = BM25Retriever(use_mecab=False)
+    # テスト環境では確実に動作するsimpleトークナイザーを使用
+    retriever = BM25Retriever(tokenizer="simple")
     
     # 日本語のトークン化
     tokens = retriever.tokenize("これは博物館に関するテストです。")
@@ -239,6 +243,6 @@ def test_bm25_tokenization():
     assert isinstance(tokens, list)
     assert len(tokens) > 0
     
-    # シンプルトークナイザーで主要な文字が含まれることを確認
+    # トークン化された結果に主要な文字が含まれることを確認
     text_content = "".join(tokens)
     assert "博物館" in text_content or "博" in text_content

@@ -98,7 +98,7 @@ class RetrievalAgent:
     
     def __init__(self, retrievers: Dict[str, BaseRetriever]):
         self.retrievers = retrievers
-        self.llm = Ollama(model="qwen2.5:7b")
+        self.llm = Ollama(model="gpt-oss:20b")
         
     def decide_strategy(self, query: str) -> str:
         """クエリに応じた検索戦略を決定"""
@@ -521,7 +521,3 @@ Traditional RAGとAgentic RAGの性能を以下で比較:
 - arXiv: "MA-RAG: Multi-Agent Retrieval-Augmented Generation"
 - Hugging Face: "Multi-agent RAG System Cookbook"
 - Analytics Vidhya: "Top 7 Agentic RAG System Architectures"
-
-## 結論
-
-Agentic RAGへの移行は、statutes-ragsシステムの能力を大幅に向上させる可能性があります。段階的な実装アプローチにより、リスクを最小限に抑えながら、複雑な法律質問への対応能力を強化できます。特に、マルチエージェント構成による動的な推論と検証機能は、法律ドメインにおいて高い価値を提供すると期待されます。

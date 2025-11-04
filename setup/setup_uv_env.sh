@@ -40,7 +40,7 @@ if [ ! -f "$UV_BIN" ]; then
         cp "$DEFAULT_UV_INSTALL_DIR/uvx" "$UV_BIN_DIR/uvx"
         
         # envスクリプトは元の場所 (~/.local/bin) に残しておく
-        echo "✓ uv/uvx binaries copied."
+        echo "[OK] uv/uvx binaries copied."
     else
         echo "Error: uv was not found in the default location ($DEFAULT_UV_INSTALL_DIR) after installation."
         exit 1
@@ -56,9 +56,9 @@ if [ ! -f "$UV_BIN" ]; then
         exit 1
     fi
     
-    echo "✓ uv installed successfully to $UV_BIN"
+    echo "[OK] uv installed successfully to $UV_BIN"
 else
-    echo "✓ uv is already installed at $UV_BIN"
+    echo "[OK] uv is already installed at $UV_BIN"
     export PATH="$UV_BIN_DIR:$PATH"
     uv --version
 fi
@@ -77,11 +77,11 @@ if ! grep -qF "$UV_PATH_STRING" "$SHELL_CONFIG_FILE"; then
     echo "" >> "$SHELL_CONFIG_FILE"
     echo "# Added by statutes-rags setup (uv persistent path)" >> "$SHELL_CONFIG_FILE"
     echo "$UV_PATH_STRING" >> "$SHELL_CONFIG_FILE"
-    echo "✓ uv path added to $SHELL_CONFIG_FILE."
+    echo "[OK] uv path added to $SHELL_CONFIG_FILE."
     echo "  Run 'source $SHELL_CONFIG_FILE' or restart your shell to apply changes permanently."
 else
     echo ""
-    echo "✓ uv persistent path already configured in $SHELL_CONFIG_FILE."
+    echo "[OK] uv persistent path already configured in $SHELL_CONFIG_FILE."
 fi
 
 echo ""
@@ -91,14 +91,14 @@ echo "Creating virtual environment in $PROJECT_ROOT/.venv ..."
 if [ -d ".venv" ]; then
     echo "Removing existing .venv..."
     rm -rf .venv
-    echo "✓ Removed existing .venv"
+    echo "[OK] Removed existing .venv"
 fi
 
 # uv venvで仮想環境を作成
 if [ ! -d ".venv" ]; then
     # Python 3.10以降を指定（推奨）
     uv venv .venv --python 3.10
-    echo "✓ Virtual environment created"
+    echo "[OK] Virtual environment created"
 fi
 
 # 仮想環境を有効化
@@ -136,9 +136,17 @@ uv pip install \
     "faiss-cpu>=1.7.4" \
     "sentence-transformers>=2.2.0" \
     "rank-bm25>=0.2.2" \
-    "mecab-python3>=1.0.6" \
     "ragas>=0.1.0" \
     "pandas>=2.0.0"
+
+echo ""
+echo "Installing Japanese tokenizers (no admin rights required)..."
+echo "  - SudachiPy (recommended, MeCab alternative)"
+echo "  - Janome (lightweight fallback)"
+uv pip install \
+    "sudachipy>=0.6.0" \
+    "sudachidict-core>=20230927" \
+    "janome>=0.5.0"
 
 echo ""
 echo "==================================="

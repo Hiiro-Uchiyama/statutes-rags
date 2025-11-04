@@ -9,7 +9,7 @@ cd "$(dirname "$0")/.."
 
 # 仮想環境の確認
 if [ ! -d ".venv" ]; then
-    echo "Error: Virtual environment not found. Run setup_uv_env.sh first."
+    echo "Error: Virtual environment not found. Run 'make setup-uv' or './setup/setup_uv_env.sh' first."
     exit 1
 fi
 

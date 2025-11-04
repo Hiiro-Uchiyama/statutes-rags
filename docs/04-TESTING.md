@@ -164,7 +164,7 @@ def mock_config():
         ),
         llm=LLMConfig(
             provider="ollama",
-            model_name="qwen2.5:7b",
+            model_name="gpt-oss:20b",
             temperature=0.1,
             max_tokens=512
         ),
@@ -390,11 +390,11 @@ def test_hybrid_retriever(sample_jsonl_data, temp_index_dir):
         assert results[i].score >= results[i + 1].score
 
 @pytest.mark.unit
-def test_bm25_tokenizer_mecab():
-    """MeCabトークナイザのテスト"""
+def test_bm25_tokenizer_sudachi():
+    """SudachiPyトークナイザのテスト"""
     from app.retrieval.bm25_retriever import BM25Retriever
     
-    retriever = BM25Retriever(use_mecab=True)
+    retriever = BM25Retriever(tokenizer="sudachi")
     
     text = "これはテストです。"
     tokens = retriever.tokenize(text)
@@ -408,7 +408,7 @@ def test_bm25_tokenizer_fallback():
     """フォールバックトークナイザのテスト"""
     from app.retrieval.bm25_retriever import BM25Retriever
     
-    retriever = BM25Retriever(use_mecab=False)
+    retriever = BM25Retriever(tokenizer="simple")
     
     text = "これはテストです。"
     tokens = retriever.tokenize(text)
@@ -805,16 +805,16 @@ export PYTHONPATH="${PYTHONPATH}:$(pwd)"
 sys.path.insert(0, str(Path(__file__).parent.parent))
 ```
 
-#### 2. MeCabエラー
+#### 2. トークナイザーエラー
 
 ```
-RuntimeError: MeCab initialization failed
+SudachiPy not available. Using simple tokenizer.
 ```
 
 **解決策**:
 ```bash
-# MeCab環境変数を設定
-source setup/mecab_env.sh
+# トークナイザーをインストール
+pip install sudachipy sudachidict-core janome
 
 # テスト実行
 pytest tests/ -v -m unit
@@ -863,14 +863,5 @@ pytest tests/ -v --pdb --pdbcls=IPython.terminal.debugger:Pdb
 # テストコード内に追加:
 import pdb; pdb.set_trace()
 ```
-
-## まとめ
-
-statutes RAGシステムのテストは以下のように設計されています:
-
-1. **階層的テスト**: ユニット→統合→評価の3段階
-2. **高速なCI**: ユニットテストのみで数秒で完了
-3. **包括的カバレッジ**: 全体で80%以上のカバレッジ目標
-4. **モック活用**: 外部依存を最小化し、テストの独立性を確保
 
 テストの追加・修正時は、この設計方針に従ってください。

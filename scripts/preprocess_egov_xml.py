@@ -143,17 +143,20 @@ def process_directory(input_dir: Path, output_file: Path, limit: int = None):
 
 
 def main():
+    # プロジェクトルートを取得
+    project_root = Path(__file__).parent.parent
+    
     parser = argparse.ArgumentParser(description="e-Gov法令XMLをJSONLに変換")
     parser.add_argument(
         "--input-dir",
         type=Path,
-        default=Path("/home/jovyan/work/legal-rag/datasets/egov_laws"),
+        default=project_root / "datasets" / "egov_laws",
         help="入力XMLディレクトリ"
     )
     parser.add_argument(
         "--output-file",
         type=Path,
-        default=Path("/home/jovyan/work/legal-rag/data/egov_laws.jsonl"),
+        default=project_root / "data" / "egov_laws.jsonl",
         help="出力JSONLファイル"
     )
     parser.add_argument(

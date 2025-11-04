@@ -210,9 +210,9 @@ Predicted: c
 
 ## トラブルシューティング
 
-### 問題1: MeCabの警告が表示される
+### 問題1: トークナイザーの警告が表示される
 
-**修正済み**: この警告は抑制されました。MeCabが利用できない場合は自動的にシンプルトークナイザーにフォールバックします。詳細は`MECAB_NOTES.md`を参照してください。
+**修正済み**: SudachiPyがデフォルトでインストールされるようになりました。利用できない場合は自動的にJanome、n-gram、または簡易トークナイザーにフォールバックします。詳細は`docs/supplemental/tokenizer-guide.md`を参照してください。
 
 **影響**: BM25検索の精度がわずかに低下する可能性がありますが、ハイブリッド検索（Vector + BM25）により実用上は問題ありません。
 
@@ -225,7 +225,7 @@ Ollama call failed with status code 404. Maybe your model is not found
 **対処法**: モデルが存在するか確認：
 
 ```bash
-cd /home/jovyan/work/statutes-rag/setup
+cd /home/jovyan/work/statutes-rags/setup
 ./bin/ollama list
 ```
 
@@ -240,7 +240,7 @@ cd setup && ./bin/ollama serve > ollama.log 2>&1 &
 
 **対処法**:
 1. サンプル数を減らす（`--samples 10`）
-2. より小さいモデルを使用（`--llm-model "qwen2.5:7b"`）
+2. より小さいモデルを使用（事前に `./setup/bin/ollama pull qwen2.5:7b` を実行し、`--llm-model "qwen2.5:7b"` を指定）
 3. バックグラウンド実行（`nohup ... &`）
 
 ## 評価指標の分析

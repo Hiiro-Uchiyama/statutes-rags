@@ -710,7 +710,3 @@ class MCPEnhancedRetriever(BaseRetriever):
 - デジタル庁法令API: https://www.digital.go.jp/
 - MCP Python SDK: https://github.com/modelcontextprotocol/python-sdk
 - MCPサーバ事例集: https://glama.ai/mcp/servers
-
-## 結論
-
-MCPサーバの導入により、statutes-ragsシステムは静的なデータセットから動的なAPI連携へと進化します。これにより、常に最新の法令データへのアクセスが可能になり、システムの価値が大幅に向上します。段階的な実装アプローチにより、既存機能を維持しながら新機能を追加できます。

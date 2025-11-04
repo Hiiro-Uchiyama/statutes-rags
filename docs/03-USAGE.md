@@ -115,7 +115,7 @@ python3 scripts/build_index.py \
 | `--index-path` | インデックス保存先 | `.env`から読み込み |
 | `--retriever-type` | `vector`, `bm25`, `hybrid` | `.env`から読み込み |
 | `--limit` | 処理するドキュメント数上限 | なし（全て処理） |
-| `--batch-size` | バッチサイズ | 100 |
+| `--batch-size` / `--batch_size` | バッチサイズ（ドキュメント数） | 10000 |
 
 #### 使用例
 
@@ -254,18 +254,24 @@ cat result.json | python3 -m json.tool
 
 ```json
 {
-  "question": "会社法第26条について教えてください",
   "answer": "会社法第26条は...",
   "citations": [
     {
       "law_title": "会社法",
       "article": "26",
       "paragraph": "1",
-      "item": null,
-      "text": "株式会社を設立するには..."
+      "item": null
     }
   ],
-  "retrieved_docs_count": 5
+  "contexts": [
+    {
+      "law_title": "会社法",
+      "article": "26",
+      "paragraph": "1",
+      "text": "株式会社を設立するには...",
+      "score": 0.92
+    }
+  ]
 }
 ```
 
@@ -299,6 +305,8 @@ python3 scripts/evaluate_multiple_choice.py \
   --llm-model "gpt-oss:20b"
 ```
 
+**注:** 軽量モデルを使いたい場合は、`./setup/bin/ollama pull qwen2.5:7b` を実行した上で `--llm-model "qwen2.5:7b"` を指定してください。
+
 #### オプション
 
 | オプション | 説明 | デフォルト |
@@ -320,7 +328,7 @@ python3 scripts/evaluate_multiple_choice.py \
   --llm-model "gpt-oss:20b"
 ```
 
-**実行時間:** 約2分
+**実行時間:** 約3-5分（ハードウェア性能に依存）  
 **用途:** 動作確認、デバッグ
 
 ##### 2. 中規模評価（20問）
@@ -332,7 +340,7 @@ python3 scripts/evaluate_multiple_choice.py \
   --output evaluation_results_20.json
 ```
 
-**実行時間:** 約13-20分
+**実行時間:** 約20-30分（ハードウェア性能に依存）
 **用途:** 開発中の性能確認
 
 ##### 3. 全データ評価（140問）
@@ -391,17 +399,17 @@ python3 scripts/evaluate_multiple_choice.py \
 ##### 6. 異なるLLMモデルの比較
 
 ```bash
-# gpt-oss:20b（13GB、高精度）
+# gpt-oss:20b（約13GB、高精度）
 python3 scripts/evaluate_multiple_choice.py \
   --samples 10 --llm-model "gpt-oss:20b" \
   --output eval_20b.json
 
-# qwen2.5:7b（4.4GB、中精度）
+# qwen2.5:7b（約4.4GB、軽量モデル）
 python3 scripts/evaluate_multiple_choice.py \
   --samples 10 --llm-model "qwen2.5:7b" \
   --output eval_7b.json
 
-# qwen2.5:3b（1.9GB、低精度）
+# qwen2.5:3b（約1.9GB、さらに軽量）
 python3 scripts/evaluate_multiple_choice.py \
   --samples 10 --llm-model "qwen2.5:3b" \
   --output eval_3b.json
@@ -457,6 +465,18 @@ cat evaluation_results.json | python3 -c \
   ]
 }
 ```
+
+#### 重要な注意事項
+
+**温度パラメータについて:**
+
+4択評価では、スクリプト内で`temperature=0.0`が設定されています（デフォルトの`0.1`ではなく）。これは以下の理由によります：
+
+- 4択問題では決定的な回答が求められる
+- 温度を0にすることで、LLMの出力が一貫性を持つ
+- 再現性が向上し、評価結果の比較が容易になる
+
+この設定は`scripts/evaluate_multiple_choice.py`の202行目で行われています。
 
 ### `evaluate_ragas.py`
 
@@ -553,7 +573,8 @@ make qa            # 対話型CLI起動
 make query Q="質問文"  # 単発クエリ
 
 # 評価
-make eval          # RAGAS評価
+make eval                   # RAGAS評価
+make eval-multiple-choice   # 4択法令データ評価
 
 # テスト
 make test          # ユニットテスト
@@ -624,7 +645,7 @@ self.prompt_template = PromptTemplate(
 
 ```bash
 # LLMモデルを一時的に変更
-LLM_MODEL=qwen2.5:7b python3 scripts/query_cli.py --interactive
+LLM_MODEL=gpt-oss:20b python3 scripts/query_cli.py --interactive
 
 # Top-Kを変更
 RETRIEVER_TOP_K=20 python3 scripts/query_cli.py --interactive
@@ -687,17 +708,17 @@ from app.retrieval.rag_pipeline import RAGPipeline
 ### 6. 検索結果のデバッグ
 
 ```python
-# scripts/debug_retrieval.py
-from app.retrieval.hybrid_retriever import HybridRetriever
-# ...
+from app.retrieval.bm25_retriever import BM25Retriever
 
-documents = retriever.retrieve("会社法第26条", top_k=10)
+retriever = BM25Retriever(index_path="data/faiss_index/bm25")
+retriever.load_index()
+
+documents = retriever.retrieve("会社法第26条", top_k=5)
 for i, doc in enumerate(documents, 1):
     print(f"[{i}] Score: {doc.score:.4f}")
-    print(f"    Law: {doc.metadata['law_title']}")
-    print(f"    Article: {doc.metadata['article']}")
-    print(f"    Text: {doc.content[:100]}...")
-    print()
+    print(f"    Law: {doc.metadata.get('law_title')}")
+    print(f"    Article: {doc.metadata.get('article')}")
+    print(f"    Text: {doc.page_content[:100]}...")
 ```
 
 ## トラブルシューティング
@@ -726,12 +747,14 @@ curl http://localhost:11434/api/tags
 cd setup && ./bin/ollama list
 ```
 
-#### 4. `MeCab initialization failed`
+#### 4. トークナイザーが利用できない
 
 ```bash
-# 解決方法: MeCabをインストール（オプション）
-cd setup && ./setup_mecab.sh
-source setup/mecab_env.sh
+# 解決方法: トークナイザーをインストール
+pip install sudachipy sudachidict-core janome
+
+# または既存環境を更新
+pip install -e . --upgrade
 ```
 
 #### 5. `OutOfMemoryError`
@@ -743,16 +766,4 @@ python3 scripts/build_index.py \
   --data-path data/egov_laws.jsonl
 ```
 
-## まとめ
-
-このガイドでは以下をカバーしました：
-
-1. データ前処理（XML→JSONL）
-2. インデックス構築（FAISS, BM25）
-3. 対話型クエリ実行
-4. 評価実験（4択データ）
-5. テスト実行
-6. Makefile活用
-7. 高度な使用方法
-
-詳細なアーキテクチャは`ARCHITECTURE.md`、セットアップ手順は`SETUP.md`を参照してください。
+詳細なアーキテクチャは`05-ARCHITECTURE.md`、セットアップ手順は`02-SETUP.md`を参照してください。

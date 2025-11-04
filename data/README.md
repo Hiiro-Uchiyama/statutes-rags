@@ -80,7 +80,7 @@ make index
 
 **index.faiss**: FAISSベクトルインデックス
 - ベクトル検索用のインデックス
-- 768次元の埋め込みベクトル（nomic-embed-text モデル）
+- 1024次元の埋め込みベクトル（intfloat/multilingual-e5-large モデル）
 - サイズ: 約500MB-1GB（文書数による）
 
 **index.pkl**: メタデータ
@@ -91,7 +91,7 @@ make index
 
 **index.pkl**: BM25インデックス
 - キーワードベース検索用のインデックス
-- MeCabによる日本語トークナイズ
+- SudachiPyによる日本語トークナイズ（デフォルト、管理者権限不要）
 - サイズ: 約100-200MB
 
 ## テスト用データ

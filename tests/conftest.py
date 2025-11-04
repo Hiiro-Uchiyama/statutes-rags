@@ -140,7 +140,7 @@ def temp_index_dir(tmp_path):
 @pytest.fixture
 def mock_config():
     """モック設定"""
-    from app.core.rag_config import RAGConfig, EmbeddingConfig, LLMConfig, ChunkingConfig, RetrieverConfig, RerankerConfig
+    from app.core.rag_config import RAGConfig, EmbeddingConfig, LLMConfig, RetrieverConfig, RerankerConfig
     
     return RAGConfig(
         embedding=EmbeddingConfig(
@@ -150,19 +150,16 @@ def mock_config():
         ),
         llm=LLMConfig(
             provider="ollama",
-            model_name="qwen2.5:7b",
+            model_name="gpt-oss:20b",
             temperature=0.1,
             max_tokens=512
-        ),
-        chunking=ChunkingConfig(
-            chunk_size=200,
-            chunk_overlap=20
         ),
         retriever=RetrieverConfig(
             retriever_type="vector",
             top_k=3,
             use_mmr=False,
-            mmr_lambda=0.5
+            mmr_lambda=0.5,
+            bm25_tokenizer="simple"  # テスト用に確実に動作するトークナイザーを指定
         ),
         reranker=RerankerConfig(
             enabled=False,

@@ -834,7 +834,3 @@ class EvaluationDashboard:
 - LRAGE: Legal RAG Evaluation Tool
 - Toloka AI: RAG Evaluation Technical Guide
 - NVIDIA: Traditional RAG vs Agentic RAG
-
-## 結論
-
-包括的な評価フレームワークの導入により、statutes-ragsシステムの品質を多角的に測定・改善できるようになります。法律ドメイン特有の評価指標により、より実用的な性能評価が可能になります。

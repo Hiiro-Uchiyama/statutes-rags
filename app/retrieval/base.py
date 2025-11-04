@@ -2,15 +2,15 @@
 抽象Retrieverインターフェース
 """
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any
-from pydantic import BaseModel
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field
 
 
 class Document(BaseModel):
     """検索結果のドキュメント"""
     page_content: str
-    metadata: Dict[str, Any] = {}
-    score: float = 0.0
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    score: Optional[float] = 0.0
 
 
 class BaseRetriever(ABC):
@@ -22,8 +22,13 @@ class BaseRetriever(ABC):
         pass
     
     @abstractmethod
-    def add_documents(self, documents: List[Dict[str, Any]]):
-        """ドキュメントを追加"""
+    def add_documents(self, documents: List[Dict[str, Any]], **kwargs):
+        """ドキュメントを追加
+        
+        Args:
+            documents: 追加するドキュメントのリスト
+            **kwargs: 実装固有のオプションパラメータ
+        """
         pass
 
 

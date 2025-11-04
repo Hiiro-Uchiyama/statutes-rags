@@ -11,7 +11,9 @@ from typing import List, Dict, Any
 from tqdm import tqdm
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+PROJECT_ROOT = Path(__file__).parent.parent
+
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.core.rag_config import load_config
 from app.retrieval.vector_retriever import VectorRetriever
@@ -146,13 +148,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=Path,
-        default=Path("/home/jovyan/work/legal-rag/datasets/lawqa_jp/data/selection.json"),
+        default=PROJECT_ROOT / "datasets" / "lawqa_jp" / "data" / "selection.json",
         help="lawqa_jp selection.jsonパス"
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("/home/jovyan/work/legal-rag/data/evaluation_report.json"),
+        default=PROJECT_ROOT / "data" / "evaluation_report.json",
         help="評価レポート出力先"
     )
     parser.add_argument(
