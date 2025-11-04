@@ -20,20 +20,20 @@
 
 * Python 3.10以上  
 * Linux環境（Dockerコンテナを想定）  
-* **永続ボリュームが \~/work にマウントされていること**  
+* **永続ボリュームが `~/work` にマウントされていること**  
 * 最低20GBのディスク空き容量（永続ボリューム内）  
 * GPU利用を強く推奨
 
 
 ## コンテナ環境での永続化と復元について
 
-このプロジェクトは、コンテナが再起動しても \~/work ディレクトリのみが永続化される環境を想定しています。
+このプロジェクトは、コンテナが再起動しても `~/work` ディレクトリのみが永続化される環境を想定しています。
 
-1. 初回セットアップ（setup\_\*.sh スクリプト）:  
-   setup/setup\_uv\_env.sh や setup/setup\_ollama.sh などのスクリプトは、必要なツール（UV, Ollama）とPython環境（.venv）、Ollamaモデルを永続ボリューム (\~/work 配下) にインストールします。これは初回のみ実行します。  
-2. 再起動後の復元（restore\_env.sh スクリプト）:  
+1. 初回セットアップ（`setup_*.sh` スクリプト）:  
+   `setup/setup_uv_env.sh` や `setup/setup_ollama.sh` などのスクリプトは、必要なツール（UV, Ollama）とPython環境（.venv）、Ollamaモデルを永続ボリューム `~/work 配下` にインストールします。これは初回のみ実行します。  
+2. 再起動後の復元（`restore_env.sh` スクリプト）:  
    コンテナが再起動すると、インストールされたツールへのパス（$PATH）や環境変数は失われます。  
-   setup/restore\_env.sh スクリプトは、これら全ての環境設定を一度に復元し、Ollamaサーバーを自動起動するために提供されています。
+   `setup/restore_env.sh` スクリプトは、これら全ての環境設定を一度に復元し、Ollamaサーバーを自動起動するために提供されています。
 
 ## 環境構築
 
@@ -51,13 +51,13 @@ cd statutes-rags
 
 プロジェクトでは高速なパッケージマネージャーuvを使用します。
 ```
-# プロジェクトルート（\~/work/statutes-rags）で実行  
+# プロジェクトルート `/work/statutes-rag` で実行  
 # sourceコマンドで実行します  
 source setup/setup_uv_env.sh
 ```
 このスクリプトは以下を実行します：
 
-* uv を永続ボリューム (\~/work/tools/uv) にインストール  
+* uv を永続ボリューム `/work/tools/uv` にインストール  
 * Python仮想環境 .venv をプロジェクトルートに作成（永続化）  
 * 必要な全依存パッケージ（CUDA 12.1用PyTorchを含む）を .venv にインストール  
 * uv へのパスを ~/.bashrc に永続化
@@ -93,7 +93,7 @@ cd setup
 
 * Ollamaバイナリを永続ボリューム (setup/bin) にダウンロード  
 * Ollamaサーバーの**初回起動**  
-* 永続ボリューム (\~/work/.ollama-models) へのモデルのダウンロード  
+* 永続ボリューム `~/work/.ollama-models` へのモデルのダウンロード  
   * nomic-embed-text（埋め込みモデル）  
   * gpt-oss:20b（LLMモデル、約13GB）
 
@@ -159,7 +159,7 @@ echo "これはテストです。" | setup/bin/mecab -Owakati
 ```
 datasets/
 ├── egov_laws/           # e-Gov法令XMLファイル（必須）
-│   ├── *.xml            # 10,435ファイル、約2GB
+│   ├── *.xml            # 10,433ファイル、約2GB
 │   └── egov_laws_all.zip  # ダウンロードアーカイブ（264MB）
 ├── lawqa_jp/            # デジタル庁 4択法令データ（評価用、必須）
 │   ├── README.md        # データセット説明（リポジトリに含む）
@@ -217,7 +217,7 @@ ls -lh datasets/
 
 # e-Gov法令XMLファイル数を確認
 find datasets/egov_laws -name "*.xml" | wc -l
-# 期待値: 10,435ファイル
+# 期待値: 10,433ファイル
 
 # lawqa_jpデータを確認
 ls -lh datasets/lawqa_jp/data/
@@ -240,7 +240,7 @@ python3 scripts/preprocess_egov_xml.py \
   --output-file data/egov_laws.jsonl
 ```
 
-**処理時間:** 約5-10分（10,435ファイル）
+**処理時間:** 約5-10分（10,433ファイル）
 
 **または、Makefileを使用:**
 
@@ -326,17 +326,17 @@ ls -lh data/faiss_index/bm25/
 コンテナが再起動（または新しいターミナルセッションを開始）した場合は、**以下のコマンドを1つ実行するだけ**で環境が復元されます。
 
 ```
-# プロジェクトルート（\~/work/statutes-rags）に移動  
-cd \~/work/statutes-rags
+# プロジェクトルート（~/work/statutes-rags）に移動  
+cd ~/work/statutes-rags
 
-# setup/restore\_env.sh を source で実行  
-source setup/restore\_env.sh
+# setup/restore_env.sh を source で実行  
+source setup/restore_env.sh
 ```
 
 このスクリプトは以下を**自動的**に行います：
 
 1. uv, ollama, mecab へのPATHを設定  
-2. OLLAMA\_MODELS 環境変数を設定  
+2. OLLAMA_MODELS 環境変数を設定  
 3. .venv 仮想環境を有効化  
 4. Ollamaサーバーが起動していない場合は**自動で起動**  
 5. curl を使用してOllama APIが応答するかを**確認**
@@ -428,7 +428,7 @@ tail -f evaluation.log
 cat evaluation_results_3.json | python3 -m json.tool | head -20
 
 # 精度のみを表示
-cat evaluation_results_3.json | python3 -c "import json, sys; data=json.load(sys.stdin); print(f\"Accuracy: {data['summary']['accuracy']*100:.2f}%\")"
+cat evaluation_results_3.json | python3 -c "import json, sys; data=json.load(sys.stdin); print(f"Accuracy: {data['summary']['accuracy']*100:.2f}%")"
 ```
 
 **期待される出力例:**
