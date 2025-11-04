@@ -79,7 +79,7 @@ source .venv/bin/activate
 
 ```bash
 python3 --version  # Python 3.10以上が表示されること
-pip list | grep langchain  # langchainパッケージが表示されること
+uv pip list | grep langchain  # langchainパッケージが表示されること
 ```
 
 ### ステップ3: Ollamaのセットアップ
@@ -124,19 +124,20 @@ pkill ollama
 cd setup && ./bin/ollama serve > ollama.log 2>&1 &
 ```
 
-### ステップ4: MeCabのセットアップ（オプション）
+### ~~ステップ4: MeCabのセットアップ（オプション）~~
 
-MeCabは日本語形態素解析器で、BM25検索に使用されます。インストールしなくてもシステムは動作しますが、BM25の精度が低下します。
+**重要** 現在はこのステップは飛ばしてください。MeCabはインストールできません、
+~~MeCabは日本語形態素解析器で、BM25検索に使用されます。インストールしなくてもシステムは動作しますが、BM25の精度が低下します。~~
 
 ```bash
 cd setup
 ./setup_mecab.sh
 ```
 
-このスクリプトは以下を実行します：
-- MeCab本体のビルドとインストール（ローカル、sudo不要）
-- IPA辞書のインストール
-- Python bindingのインストール
+~~このスクリプトは以下を実行します：~~
+- ~~MeCab本体のビルドとインストール（ローカル、sudo不要）~~
+- ~~IPA辞書のインストール~~
+- ~~Python bindingのインストール~~
 
 **確認方法:**
 
@@ -277,6 +278,19 @@ head -1 data/egov_laws.jsonl | python3 -m json.tool
 
 検索用のベクトルインデックスとBM25インデックスを構築します。
 
+インデックスの作成には全件(280万件)を使用すると数十時間を要するので、軽く動かす程度なら`--limit` で件数を絞ることを推奨
+
+**少数ドキュメントで実行:**
+
+```bash
+# 最初の1000ドキュメントのみ
+python3 scripts/build_index.py \
+  --data-path data/test_egov.jsonl \
+  --index-path data/faiss_index_test \
+  --retriever-type hybrid \
+  --limit 1000
+```
+
 ```bash
 # ハイブリッド検索用インデックスを構築（Vector + BM25）
 python3 scripts/build_index.py \
@@ -291,20 +305,12 @@ python3 scripts/build_index.py \
 
 **または、Makefileを使用:**
 
+`make`を使用する場合、全件データ(280万)を処理するため、長時間になることに注意
 ```bash
 make index
 ```
 
-**テスト実行（少数ドキュメントで確認）:**
 
-```bash
-# 最初の1000ドキュメントのみ
-python3 scripts/build_index.py \
-  --data-path data/test_egov.jsonl \
-  --index-path data/faiss_index_test \
-  --retriever-type hybrid \
-  --limit 1000
-```
 
 **確認方法:**
 
