@@ -19,7 +19,9 @@ class VectorRetriever(BaseRetriever):
         self.embeddings = HuggingFaceEmbeddings(
             model_name=embedding_model,
             model_kwargs={'device': 'cuda'},
-            encode_kwargs={'normalize_embeddings': True}
+            encode_kwargs={'normalize_embeddings': True,
+                           'batch_size': 256  # A100 (20GB MIG)なら256や512に設定
+                           }
         )
         self.index_path = index_path
         self.use_mmr = use_mmr
