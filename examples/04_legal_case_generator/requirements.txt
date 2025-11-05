@@ -1,0 +1,9 @@
+# Legal Case Generator 追加依存関係
+
+# エージェントフレームワーク
+langgraph>=0.2.0
+
+# オプション: トレーシング・デバッグ
+# langsmith>=0.1.0
+
+

@@ -149,6 +149,16 @@ uv pip install \
     "janome>=0.5.0"
 
 echo ""
+echo "Installing examples dependencies (for advanced features)..."
+echo "  - LangGraph (for Multi-Agent Debate and Agentic RAG)"
+echo "  - LangSmith (optional, for tracing)"
+echo "  - xmltodict (for e-Gov API XML parsing)"
+uv pip install \
+    "langgraph>=0.2.0" \
+    "langsmith>=0.1.0" \
+    "xmltodict>=0.13.0"
+
+echo ""
 echo "==================================="
 echo "Setup Complete!"
 echo "==================================="

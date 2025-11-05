@@ -32,6 +32,14 @@ dev = [
     "black>=23.11.0",
     "ruff>=0.1.6",
 ]
+examples = [
+    # Agentic RAG用
+    "langgraph>=0.2.0",
+    "langsmith>=0.1.0",
+    # MCP e-Gov Agent用
+    "tenacity>=8.2.0",
+    "xmltodict>=0.13.0",
+]
 # MeCab（管理者権限が必要、レガシー環境用）
 mecab = [
     "mecab-python3>=1.0.6",

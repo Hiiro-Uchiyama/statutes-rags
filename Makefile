@@ -22,13 +22,16 @@ help:
 	@echo "Available targets:"
 	@echo "  make setup-uv              - uvで仮想環境をセットアップ"
 	@echo "  make install               - 依存パッケージをインストール"
+	@echo "  make install-examples      - Examples用依存関係をインストール"
 	@echo "  make preprocess            - XML→JSONL前処理"
 	@echo "  make index                 - ベクトルインデックス構築"
 	@echo "  make qa                    - 対話型CLI起動"
 	@echo "  make eval                  - RAGAS評価実行"
 	@echo "  make eval-multiple-choice  - 4択法令データ評価実行"
+	@echo "  make eval-agentic-rag      - Agentic RAG評価実行"
 	@echo "  make test                  - ユニットテスト実行"
 	@echo "  make test-all              - 全テスト実行"
+	@echo "  make test-examples         - Examplesテスト実行"
 	@echo "  make test-coverage         - カバレッジ付きテスト実行"
 	@echo "  make clean                 - 生成ファイル削除"
 	@echo "  make all                   - 全ステップ実行 (preprocess → index)"
@@ -43,6 +46,7 @@ help:
 	@echo "  make index INDEX_LIMIT=1000"
 	@echo "  make eval EVAL_LIMIT=50"
 	@echo "  make eval-multiple-choice EVAL_LIMIT=20"
+	@echo "  make eval-agentic-rag"
 
 setup-uv:
 	@echo "Setting up environment with uv..."
@@ -168,3 +172,22 @@ format:
 	@echo "Formatting code..."
 	black app/ scripts/
 	@echo "Format complete!"
+
+# Examples用ターゲット
+install-examples:
+	@echo "Installing examples dependencies..."
+	./setup/setup_examples.sh
+	@echo "Examples dependencies installed!"
+
+test-examples:
+	@echo "Running examples tests..."
+	cd examples && pytest tests/test_01_agentic_rag.py -v -m "not integration"
+	@echo "Examples tests complete!"
+
+eval-agentic-rag:
+	@echo "Running Agentic RAG evaluation (limited)..."
+	cd examples/01_agentic_rag && python evaluate.py \
+		--dataset ../../datasets/lawqa_jp/data/selection.json \
+		--output results/eval_$(shell date +%Y%m%d_%H%M%S).json \
+		--max-questions 5
+	@echo "Agentic RAG evaluation complete!"
