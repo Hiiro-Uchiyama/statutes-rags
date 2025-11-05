@@ -302,7 +302,7 @@ python3 scripts/query_cli.py "不法行為の要件について教えてくだ�
 ```bash
 python3 scripts/evaluate_multiple_choice.py \
   --samples 3 \
-  --llm-model "gpt-oss:20b"
+  --llm-model "qwen3:8b"
 ```
 
 **注:** 軽量モデルを使いたい場合は、`./setup/bin/ollama pull qwen2.5:7b` を実行した上で `--llm-model "qwen2.5:7b"` を指定してください。
@@ -325,7 +325,7 @@ python3 scripts/evaluate_multiple_choice.py \
 ```bash
 python3 scripts/evaluate_multiple_choice.py \
   --samples 3 \
-  --llm-model "gpt-oss:20b"
+  --llm-model "qwen3:8b"
 ```
 
 **実行時間:** 約3-5分（ハードウェア性能に依存）  
@@ -336,7 +336,7 @@ python3 scripts/evaluate_multiple_choice.py \
 ```bash
 python3 scripts/evaluate_multiple_choice.py \
   --samples 20 \
-  --llm-model "gpt-oss:20b" \
+  --llm-model "qwen3:8b" \
   --output evaluation_results_20.json
 ```
 
@@ -348,7 +348,7 @@ python3 scripts/evaluate_multiple_choice.py \
 ```bash
 # バックグラウンド実行推奨
 nohup python3 scripts/evaluate_multiple_choice.py \
-  --llm-model "gpt-oss:20b" \
+  --llm-model "qwen3:8b" \
   --output evaluation_results_full.json \
   > evaluation.log 2>&1 &
 
@@ -385,12 +385,12 @@ python3 scripts/evaluate_multiple_choice.py \
 ```bash
 # RAG有効
 python3 scripts/evaluate_multiple_choice.py \
-  --samples 10 --llm-model "gpt-oss:20b" \
+  --samples 10 --llm-model "qwen3:8b" \
   --output eval_rag.json
 
 # RAG無効（LLMのみ）
 python3 scripts/evaluate_multiple_choice.py \
-  --samples 10 --llm-model "gpt-oss:20b" \
+  --samples 10 --llm-model "qwen3:8b" \
   --no-rag --output eval_no_rag.json
 ```
 
@@ -399,9 +399,9 @@ python3 scripts/evaluate_multiple_choice.py \
 ##### 6. 異なるLLMモデルの比較
 
 ```bash
-# gpt-oss:20b（約13GB、高精度）
+# qwen3:8b（約13GB、高精度）
 python3 scripts/evaluate_multiple_choice.py \
-  --samples 10 --llm-model "gpt-oss:20b" \
+  --samples 10 --llm-model "qwen3:8b" \
   --output eval_20b.json
 
 # qwen2.5:7b（約4.4GB、軽量モデル）
@@ -441,7 +441,7 @@ cat evaluation_results.json | python3 -c \
   "config": {
     "rag_enabled": true,
     "retriever_type": "hybrid",
-    "llm_model": "gpt-oss:20b",
+    "llm_model": "qwen3:8b",
     "top_k": 5,
     "total_samples": 3
   },
@@ -645,7 +645,7 @@ self.prompt_template = PromptTemplate(
 
 ```bash
 # LLMモデルを一時的に変更
-LLM_MODEL=gpt-oss:20b python3 scripts/query_cli.py --interactive
+LLM_MODEL=qwen3:8b python3 scripts/query_cli.py --interactive
 
 # Top-Kを変更
 RETRIEVER_TOP_K=20 python3 scripts/query_cli.py --interactive

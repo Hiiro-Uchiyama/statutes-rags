@@ -21,7 +21,7 @@ class MultiAgentDebateConfig(BaseModel):
     
     # LLM設定
     llm_model: str = Field(
-        default=os.getenv("LLM_MODEL", "gpt-oss:20b"),
+        default=os.getenv("LLM_MODEL", "qwen3:8b"),
         description="使用するLLMモデル"
     )
     llm_temperature: float = Field(

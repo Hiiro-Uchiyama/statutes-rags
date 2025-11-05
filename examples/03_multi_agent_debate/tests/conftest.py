@@ -71,7 +71,7 @@ def debate_config():
     return MultiAgentDebateConfig(
         max_debate_rounds=3,
         agreement_threshold=0.8,
-        llm_model="gpt-oss:20b",
+        llm_model="qwen3:8b",
         llm_temperature=0.1,
         retrieval_top_k=10
     )

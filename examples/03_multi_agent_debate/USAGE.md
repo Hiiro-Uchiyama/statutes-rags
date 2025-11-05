@@ -21,8 +21,8 @@ pip install langchain-community langchain-core langgraph langchain-ollama
 # Ollamaを起動（別ターミナル）
 ollama serve
 
-# gpt-oss:20b モデルをダウンロード（初回のみ、サイズ大）
-ollama pull gpt-oss:20b
+# qwen3:8b モデルをダウンロード（初回のみ、サイズ大）
+ollama pull qwen3:8b
 
 # または、より軽量なモデル
 ollama pull gpt-oss:7b
@@ -89,7 +89,7 @@ Multi-Agent Debateシステムの動作は `config.yaml` で細かく制御で�
 
 ```yaml
 # LLMモデル設定
-model_name: "gpt-oss:20b"  # 使用するOllamaモデル
+model_name: "qwen3:8b"  # 使用するOllamaモデル
 temperature: 0.3           # 生成の多様性（0.0-1.0）
 max_tokens: 2000          # 最大トークン数
 
@@ -117,7 +117,7 @@ temperature: 0.1           # より確実な出力
 
 ```yaml
 # より高精度な評価のための設定例
-model_name: "gpt-oss:20b"  # 大規模モデル
+model_name: "qwen3:8b"  # 大規模モデル
 max_debate_rounds: 5       # 議論を深める
 agreement_threshold: 0.95  # より厳密な合意基準
 retrieval_top_k: 15        # より多くの文書を参照
@@ -211,7 +211,7 @@ ollama serve
 ollama list
 
 # モデルをダウンロード
-ollama pull gpt-oss:20b
+ollama pull qwen3:8b
 ```
 
 ### 処理が遅い場合
@@ -300,7 +300,7 @@ pytest tests/ --cov=. --cov-report=html
 
 ### システム構成
 - **インデックス**: ベクトル 2,802,222件、BM25 10,000件
-- **LLMモデル**: gpt-oss:20b (Ollama)
+- **LLMモデル**: qwen3:8b (Ollama)
 - **検索方式**: Hybrid (Vector + BM25, RRF融合)
 
 ### 処理時間

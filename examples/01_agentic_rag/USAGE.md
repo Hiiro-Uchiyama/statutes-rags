@@ -78,7 +78,7 @@ export LLM_MODEL=gpt-oss:7b
 python evaluate.py --dataset ../../datasets/lawqa_jp/data/selection.json --max-questions 10
 
 # より大規模なモデルを使用（高精度）
-export LLM_MODEL=gpt-oss:20b
+export LLM_MODEL=qwen3:8b
 python evaluate.py --dataset ../../datasets/lawqa_jp/data/selection.json --max-questions 10
 ```
 

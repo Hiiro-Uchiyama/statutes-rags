@@ -73,7 +73,7 @@ def agentic_rag_config():
         confidence_threshold=0.7,
         enable_reasoning=True,
         enable_validation=True,
-        llm_model="gpt-oss:20b",
+        llm_model="qwen3:8b",
         llm_temperature=0.1,
         retrieval_top_k=5
     )

@@ -164,7 +164,7 @@ def mock_config():
         ),
         llm=LLMConfig(
             provider="ollama",
-            model_name="gpt-oss:20b",
+            model_name="qwen3:8b",
             temperature=0.1,
             max_tokens=512
         ),

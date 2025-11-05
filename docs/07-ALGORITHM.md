@@ -730,7 +730,7 @@ RERANKER_TOP_N=5               # Reranker後の文書数
 
 # LLM設定
 LLM_PROVIDER=ollama
-LLM_MODEL=gpt-oss:20b
+LLM_MODEL=qwen3:8b
 LLM_TEMPERATURE=0.1
 ```
 

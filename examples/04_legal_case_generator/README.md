@@ -68,7 +68,7 @@ cd /path/to/statutes-rags
 
 # 既存のセットアップスクリプトを実行済み
 # ./setup/setup_uv_env.sh  # Python環境 + 全依存関係（LangGraph含む）
-# ./setup/setup_ollama.sh  # Ollama + gpt-oss:20b
+# ./setup/setup_ollama.sh  # Ollama + qwen3:8b
 
 # uvとvenvが設定済みか確認
 source .venv/bin/activate
@@ -100,7 +100,7 @@ uv pip install -e ".[examples]"
 # Ollamaが起動していることを確認
 curl http://localhost:11434/api/tags
 
-# gpt-oss:20bモデルがあることを確認
+# qwen3:8bモデルがあることを確認
 ollama list | grep gpt-oss
 ```
 
@@ -283,7 +283,7 @@ export LEGAL_CASE_GEN_NON_APPLICABLE=true
 export LEGAL_CASE_GEN_BOUNDARY=true
 
 # LLM設定
-export LLM_MODEL="gpt-oss:20b"
+export LLM_MODEL="qwen3:8b"
 export LLM_TEMPERATURE=0.3
 export LLM_TIMEOUT=120
 
@@ -583,11 +583,11 @@ LangChainDeprecationWarning: The class `Ollama` was deprecated in LangChain 0.3.
 - **シナリオ生成**: 3-30秒（事例の複雑さによる）
 - **法的検証**: 5-40秒
 - **洗練処理**: 6-10秒（必要な場合のみ）
-- **メモリ使用量**: ~500MB（gpt-oss:20bモデル使用時）
+- **メモリ使用量**: ~500MB（qwen3:8bモデル使用時）
 
 ### 推奨環境
 
 - Python: 3.10以上
 - メモリ: 8GB以上
 - Ollama: 最新版
-- LLMモデル: gpt-oss:20b (13GB)
+- LLMモデル: qwen3:8b (13GB)

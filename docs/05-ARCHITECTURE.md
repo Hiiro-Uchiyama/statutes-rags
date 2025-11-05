@@ -87,7 +87,7 @@ statutes-rags/
 
 - `LLMConfig` - LLM設定
   - `provider`: "ollama"
-  - `model_name`: モデル名（デフォルト: `gpt-oss:20b`）
+  - `model_name`: モデル名（デフォルト: `qwen3:8b`）
   - `temperature`: 生成温度（デフォルト: 0.1）
   - `max_tokens`: 最大トークン数（デフォルト: 2048）
 
@@ -110,7 +110,7 @@ statutes-rags/
 from app.core.rag_config import load_config
 
 config = load_config()
-print(config.llm.model_name)  # "gpt-oss:20b"
+print(config.llm.model_name)  # "qwen3:8b"
 print(config.retriever.top_k)  # 10
 ```
 
@@ -307,7 +307,7 @@ from app.retrieval.hybrid_retriever import HybridRetriever
 pipeline = RAGPipeline(
     retriever=hybrid_retriever,
     llm_provider="ollama",
-    llm_model="gpt-oss:20b",
+    llm_model="qwen3:8b",
     temperature=0.1,
     top_k=10,
     rerank_top_n=5
@@ -427,7 +427,7 @@ EMBEDDING_DIM=1024
 
 # LLM
 LLM_PROVIDER=ollama
-LLM_MODEL=gpt-oss:20b
+LLM_MODEL=qwen3:8b
 LLM_TEMPERATURE=0.1
 LLM_MAX_TOKENS=2048
 
@@ -469,7 +469,7 @@ OLLAMA_HOST=http://localhost:11434
 nano .env
 
 # LLM_MODELを変更
-LLM_MODEL=gpt-oss:20b
+LLM_MODEL=qwen3:8b
 ```
 
 #### 2. Retrieverタイプの変更

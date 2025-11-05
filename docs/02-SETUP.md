@@ -94,11 +94,11 @@ cd setup
 * Ollamaバイナリを永続ボリューム (setup/bin) にダウンロード  
 * Ollamaサーバーの**初回起動**  
 * 永続ボリューム `~/work/.ollama-models` へのモデルのダウンロード  
-  * gpt-oss:20b（LLMモデル、約13GB）
+  * qwen3:8b（LLMモデル、約13GB）
   
 **注:** 埋め込みモデル（intfloat/multilingual-e5-large）はHuggingFace経由で自動ダウンロードされるため、Ollamaでのダウンロードは不要です。
 
-**注意:** gpt-oss:20bのダウンロードには10-30分かかる場合があります。
+**注意:** qwen3:8bのダウンロードには10-30分かかる場合があります。
 
 **確認方法:**
 
@@ -110,7 +110,7 @@ curl http://localhost:11434/api/tags
 ./bin/ollama list
 # 出力例:
 # NAME                    ID              SIZE    MODIFIED
-# gpt-oss:20b            abc123...       13 GB   2 minutes ago
+# qwen3:8b            abc123...       13 GB   2 minutes ago
 ```
 
 **トラブル:** サーバーが起動していない場合
@@ -161,7 +161,7 @@ nano .env
 # または、新規作成
 cat > .env << 'EOF'
 # LLM設定
-LLM_MODEL=gpt-oss:20b
+LLM_MODEL=qwen3:8b
 LLM_TEMPERATURE=0.1
 
 # Retriever設定
@@ -173,7 +173,7 @@ EOF
 ```
 
 主要な環境変数：
-- `LLM_MODEL`: LLMモデル名（デフォルト: `gpt-oss:20b`）
+- `LLM_MODEL`: LLMモデル名（デフォルト: `qwen3:8b`）
 - `RETRIEVER_TYPE`: Retrieverタイプ `vector`/`bm25`/`hybrid`（デフォルト: `hybrid`）
 - `RETRIEVER_TOP_K`: 検索する文書数（デフォルト: 10）
 - `BM25_TOKENIZER`: トークナイザー `auto`/`sudachi`/`janome`/`mecab`/`ngram`/`simple`（デフォルト: `auto`）
@@ -455,7 +455,7 @@ export RETRIEVER_TYPE=vector
 # 小規模テスト（10問で動作確認）
 python3 scripts/evaluate_multiple_choice.py \
   --samples 10 \
-  --llm-model "gpt-oss:20b" \
+  --llm-model "qwen3:8b" \
   --output evaluation_results_10.json
 ```
 
@@ -468,7 +468,7 @@ python3 scripts/evaluate_multiple_choice.py \
 ```bash
 python3 scripts/evaluate_multiple_choice.py \
   --samples 50 \
-  --llm-model "gpt-oss:20b" \
+  --llm-model "qwen3:8b" \
   --output evaluation_results_50.json
 ```
 
@@ -479,7 +479,7 @@ python3 scripts/evaluate_multiple_choice.py \
 ```bash
 # バックグラウンド実行推奨
 nohup python3 scripts/evaluate_multiple_choice.py \
-  --llm-model "gpt-oss:20b" \
+  --llm-model "qwen3:8b" \
   --output evaluation_results_full.json \
   > evaluation.log 2>&1 &
 
@@ -506,7 +506,7 @@ cat evaluation_results_3.json | python3 -c "import json, sys; data=json.load(sys
   "config": {
     "rag_enabled": true,
     "retriever_type": "hybrid",
-    "llm_model": "gpt-oss:20b",
+    "llm_model": "qwen3:8b",
     "top_k": 5,
     "total_samples": 3
   },
@@ -617,7 +617,7 @@ OutOfMemoryError: Cannot allocate memory
 nano .env
 
 # LLM_MODELを変更
-LLM_MODEL=gpt-oss:20b  # デフォルトモデル（13GB）
+LLM_MODEL=qwen3:8b  # デフォルトモデル（13GB）
 ```
 
 2. インデックス構築時のバッチサイズを削減
@@ -706,7 +706,7 @@ cd setup && ./bin/ollama serve > ollama.log 2>&1 &
 python3 scripts/query_cli.py --interactive
 
 # 3問で評価テスト
-python3 scripts/evaluate_multiple_choice.py --samples 3 --llm-model "gpt-oss:20b"
+python3 scripts/evaluate_multiple_choice.py --samples 3 --llm-model "qwen3:8b"
 
 # テスト実行
 ./scripts/run_tests.sh unit

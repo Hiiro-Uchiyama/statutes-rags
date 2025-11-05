@@ -835,7 +835,7 @@ for i, doc in enumerate(results, 1):
 # RAGパイプラインでプロンプトを出力
 from app.retrieval.rag_pipeline import RAGPipeline
 
-pipeline = RAGPipeline(retriever, llm_provider="ollama", llm_model="gpt-oss:20b")
+pipeline = RAGPipeline(retriever, llm_provider="ollama", llm_model="qwen3:8b")
 
 question = "博物館法の目的は？"
 documents = pipeline.retrieve_documents(question)

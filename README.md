@@ -1,7 +1,7 @@
 「何らかの質問に対して法令根拠を基に回答できるサービス」を実装し、4択法令問題(デジタル庁)を用いて評価を行います。
 
 **検索方式**: デフォルトでVector-Onlyモード（FAISSベクトル検索）を使用します。  
-**LLMモデル**: `gpt-oss:20b`（Ollama、GPU対応）
+**LLMモデル**: `qwen3:8b`（Ollama、GPU対応）
 
 > **注意**: BM25キーワード検索は、大規模データセット（280万件）では50-60GBのメモリを必要とし、現在のシステム構成では使用できません。Vector-Onlyモードで十分な精度（50%）を達成しています。詳細は [docs/supplemental/memory_issue_analysis.md](docs/supplemental/memory_issue_analysis.md) を参照してください。
 

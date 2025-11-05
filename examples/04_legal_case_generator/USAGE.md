@@ -148,7 +148,7 @@ export LEGAL_CASE_GEN_BOUNDARY=true        # 境界事例
 
 ```bash
 # モデル選択
-export LLM_MODEL="gpt-oss:20b"
+export LLM_MODEL="qwen3:8b"
 
 # 温度パラメータ（0.0-1.0）
 export LLM_TEMPERATURE=0.3

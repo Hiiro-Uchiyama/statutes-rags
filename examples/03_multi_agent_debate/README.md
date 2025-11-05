@@ -33,7 +33,7 @@
 ### 前提条件
 
 1. プロジェクトルートでの環境セットアップが完了していること
-2. Ollamaがインストールされ、`gpt-oss:20b`モデルが利用可能であること
+2. Ollamaがインストールされ、`qwen3:8b`モデルが利用可能であること
 3. FAISSインデックスが構築されていること
 
 ### インストール
@@ -194,7 +194,7 @@ result = workflow.query("あなたの質問")
 ollama serve
 
 # 別のターミナルでモデルをプル
-ollama pull gpt-oss:20b
+ollama pull qwen3:8b
 ```
 
 #### データセットの準備
@@ -271,7 +271,7 @@ DEBATE_MAX_ROUNDS=3
 DEBATE_AGREEMENT_THRESHOLD=0.8
 
 # LLM設定
-LLM_MODEL=gpt-oss:20b
+LLM_MODEL=qwen3:8b
 LLM_TEMPERATURE=0.1
 LLM_TIMEOUT=60
 
@@ -412,7 +412,7 @@ pytest tests/test_quick.py -v
 - Pytest単体テスト: 全16テストパス
 - 実際のLLM評価: 動作確認完了
 
-### 実際のLLM評価結果（Ollama + gpt-oss:20b）
+### 実際のLLM評価結果（Ollama + qwen3:8b）
 
 #### インデックスロード状況
 - **ベクトルインデックス**: 2,802,222件のドキュメント正常ロード

@@ -98,7 +98,7 @@ class RetrievalAgent:
     
     def __init__(self, retrievers: Dict[str, BaseRetriever]):
         self.retrievers = retrievers
-        self.llm = Ollama(model="gpt-oss:20b")
+        self.llm = Ollama(model="qwen3:8b")
         
     def decide_strategy(self, query: str) -> str:
         """クエリに応じた検索戦略を決定"""

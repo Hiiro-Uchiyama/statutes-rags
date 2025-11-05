@@ -5,7 +5,7 @@
 ### 評価設定
 - **評価対象**: 法令4択問題（lawqa_jp selection.json）
 - **評価モード**: Vector-Only（BM25無効化）
-- **LLM**: gpt-oss:20b（Ollama、GPU使用）
+- **LLM**: qwen3:8b（Ollama、GPU使用）
 - **サンプル数**: 10サンプル
 - **Top-K**: 10件
 
@@ -86,7 +86,7 @@
 
 ### GPU使用の確認
 - ✓ Embedding Model: GPUで正常動作（2.6GB VRAM）
-- ✓ Ollama（gpt-oss:20b）: GPUで正常動作（13GB VRAM）
+- ✓ Ollama（qwen3:8b）: GPUで正常動作（13GB VRAM）
 - ✓ GPU使用率: 80-83%（正常範囲）
 
 ### 処理速度

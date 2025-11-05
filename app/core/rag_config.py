@@ -57,7 +57,7 @@ class LLMConfig(BaseModel):
         default=os.getenv("LLM_PROVIDER", "ollama")
     )
     model_name: str = Field(
-        default=os.getenv("LLM_MODEL", "gpt-oss:20b")
+        default=os.getenv("LLM_MODEL", "qwen3:8b")
     )
     temperature: float = Field(
         default=float(os.getenv("LLM_TEMPERATURE", "0.1"))

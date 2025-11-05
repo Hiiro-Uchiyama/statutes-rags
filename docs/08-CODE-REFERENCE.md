@@ -90,7 +90,7 @@ EMBEDDING_DIM=1024
 
 # LLM
 LLM_PROVIDER=ollama
-LLM_MODEL=gpt-oss:20b
+LLM_MODEL=qwen3:8b
 LLM_TEMPERATURE=0.1
 LLM_MAX_TOKENS=2048
 
@@ -526,7 +526,7 @@ class RAGPipeline:
         self,
         retriever: BaseRetriever,
         llm_provider: str = "ollama",
-        llm_model: str = "gpt-oss:20b",
+        llm_model: str = "qwen3:8b",
         temperature: float = 0.1,
         reranker: Optional[BaseReranker] = None,
         top_k: int = 10,
@@ -773,7 +773,7 @@ python scripts/evaluate_multiple_choice.py \
 
 # 異なるモデルで評価
 python scripts/evaluate_multiple_choice.py \
-    --llm-model gpt-oss:20b \
+    --llm-model qwen3:8b \
     --top-k 10
 ```
 
@@ -793,7 +793,7 @@ python scripts/evaluate_multiple_choice.py \
   "config": {
     "rag_enabled": true,
     "retriever_type": "hybrid",
-    "llm_model": "gpt-oss:20b",
+    "llm_model": "qwen3:8b",
     "top_k": 10,
     "total_samples": 20
   },

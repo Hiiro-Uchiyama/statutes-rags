@@ -44,8 +44,8 @@ sleep 5
 
 # Pull LLM model
 # Note: Embedding model (intfloat/multilingual-e5-large) is downloaded via HuggingFace, not Ollama
-echo "Pulling LLM model (gpt-oss:20b) to $OLLAMA_MODELS..."
-./bin/ollama pull gpt-oss:20b
+echo "Pulling LLM model (qwen3:8b) to $OLLAMA_MODELS..."
+./bin/ollama pull qwen3:8b
 
 echo ""
 echo "=== Setup Complete ==="
@@ -70,9 +70,9 @@ echo "Available models:"
 echo ""
 echo "=== API Usage Examples ==="
 echo ""
-echo "# Chat with gpt-oss:20b:"
+echo "# Chat with qwen3:8b:"
 echo "curl http://localhost:11434/api/generate -d '{"
-echo '  "model": "gpt-oss:20b",'
+echo '  "model": "qwen3:8b",'
 echo '  "prompt": "Why is the sky blue?",'
 echo '  "stream": false'
 echo "}'"

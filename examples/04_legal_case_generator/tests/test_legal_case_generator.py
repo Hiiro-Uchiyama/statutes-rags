@@ -23,7 +23,7 @@ def test_config():
     config = load_config()
     
     # 注: max_cases_per_law は現在コメントアウトされています
-    assert config.llm_model == "gpt-oss:20b"
+    assert config.llm_model == "qwen3:8b"
     assert config.llm_temperature == 0.3
     assert config.max_iterations == 2
     

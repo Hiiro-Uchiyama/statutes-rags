@@ -197,7 +197,7 @@ export MCP_USE_API_FOR_RECENT=true      # 最近の法令はAPI優先
 export MCP_RECENT_LAW_DAYS=90           # 最近と判定する日数
 
 # LLM設定
-export LLM_MODEL="gpt-oss:20b"
+export LLM_MODEL="qwen3:8b"
 export LLM_TEMPERATURE=0.1
 export LLM_TIMEOUT=60
 

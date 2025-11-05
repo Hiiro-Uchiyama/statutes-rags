@@ -66,7 +66,7 @@ e-Gov APIを通じて最新の法令データを動的に取得するエージ�
 ### 技術スタック
 
 - エージェントフレームワーク: LangGraph
-- LLM: Ollama（ローカル）、gpt-oss:20b
+- LLM: Ollama（ローカル）、qwen3:8b
 - 埋め込み: intfloat/multilingual-e5-large
 - 既存RAGコンポーネントの活用
 

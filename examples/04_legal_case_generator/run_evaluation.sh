@@ -25,12 +25,12 @@ fi
 echo "✓ Ollama起動確認完了"
 echo ""
 
-# gpt-oss:20bモデルの確認
+# qwen3:8bモデルの確認
 echo "[2/4] LLMモデルの確認..."
-if ! curl -s http://localhost:11434/api/tags | grep -q "gpt-oss:20b"; then
-    echo "   警告: gpt-oss:20bモデルが見つかりません"
+if ! curl -s http://localhost:11434/api/tags | grep -q "qwen3:8b"; then
+    echo "   警告: qwen3:8bモデルが見つかりません"
     echo "   次のコマンドでモデルをダウンロードしてください:"
-    echo "   ollama pull gpt-oss:20b"
+    echo "   ollama pull qwen3:8b"
 fi
 echo "✓ モデル確認完了"
 echo ""

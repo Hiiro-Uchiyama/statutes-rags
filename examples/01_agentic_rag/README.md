@@ -148,7 +148,7 @@ AGENTIC_COMPLEXITY_SIMPLE=0.3
 AGENTIC_COMPLEXITY_COMPLEX=0.7
 
 # LLM設定（既存の設定を使用）
-LLM_MODEL=gpt-oss:20b
+LLM_MODEL=qwen3:8b
 LLM_TEMPERATURE=0.1
 ```
 
@@ -668,7 +668,7 @@ tests/test_agentic_rag.py::TestAgenticRAGPipeline::test_pipeline_query SKIPPED
 ```bash
 $ python test_run.py
 設定をロード中...
-  - LLMモデル: gpt-oss:20b
+  - LLMモデル: qwen3:8b
   - 最大反復回数: 3
   - Reasoning有効: True
   - Validation有効: True
@@ -703,7 +703,7 @@ Tokenizer mismatch: index was built with 'ngram', but current tokenizer is 'suda
 **影響**: 検索精度に若干の影響がある可能性がありますが、動作には問題ありません。
 
 #### 3. LLM応答速度
-ローカルLLM（Ollama）使用時、大規模モデル（gpt-oss:20b）での応答に時間がかかる場合があります。
+ローカルLLM（Ollama）使用時、大規模モデル（qwen3:8b）での応答に時間がかかる場合があります。
 
 **対策**:
 ```bash

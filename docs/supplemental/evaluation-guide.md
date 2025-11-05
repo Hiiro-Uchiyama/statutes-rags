@@ -43,7 +43,7 @@ source .venv/bin/activate
 python3 scripts/evaluate_multiple_choice.py \
   --samples 3 \
   --top-k 5 \
-  --llm-model "gpt-oss:20b" \
+  --llm-model "qwen3:8b" \
   --output evaluation_results_3.json
 ```
 
@@ -65,10 +65,10 @@ python3 scripts/evaluate_multiple_choice.py \
 ```bash
 python3 scripts/evaluate_multiple_choice.py \
   --samples 3 \
-  --llm-model "gpt-oss:20b"
+  --llm-model "qwen3:8b"
 ```
 
-**実行時間**: 約2分（gpt-oss:20b使用時）
+**実行時間**: 約2分（qwen3:8b使用時）
 
 #### 例2: 中規模評価（20問）
 
@@ -76,23 +76,23 @@ python3 scripts/evaluate_multiple_choice.py \
 python3 scripts/evaluate_multiple_choice.py \
   --samples 20 \
   --top-k 10 \
-  --llm-model "gpt-oss:20b" \
+  --llm-model "qwen3:8b" \
   --output evaluation_20samples.json
 ```
 
-**実行時間**: 約13-20分（gpt-oss:20b使用時、1問あたり40秒程度）
+**実行時間**: 約13-20分（qwen3:8b使用時、1問あたり40秒程度）
 
 #### 例3: 全データ評価（140問）
 
 ```bash
 # バックグラウンド実行を推奨
 nohup python3 scripts/evaluate_multiple_choice.py \
-  --llm-model "gpt-oss:20b" \
+  --llm-model "qwen3:8b" \
   --output evaluation_full.json \
   > evaluation.log 2>&1 &
 ```
 
-**実行時間**: 約90-120分（gpt-oss:20b使用時）
+**実行時間**: 約90-120分（qwen3:8b使用時）
 
 #### 例4: RAG無効化（LLMのみ）
 
@@ -100,7 +100,7 @@ nohup python3 scripts/evaluate_multiple_choice.py \
 python3 scripts/evaluate_multiple_choice.py \
   --samples 10 \
   --no-rag \
-  --llm-model "gpt-oss:20b" \
+  --llm-model "qwen3:8b" \
   --output evaluation_llm_only.json
 ```
 
@@ -112,13 +112,13 @@ RAGの効果を測定するため、LLMのみの性能と比較できます。
 
 ```bash
 # Top-K=3
-python3 scripts/evaluate_multiple_choice.py --samples 10 --top-k 3 --llm-model "gpt-oss:20b"
+python3 scripts/evaluate_multiple_choice.py --samples 10 --top-k 3 --llm-model "qwen3:8b"
 
 # Top-K=5（デフォルト）
-python3 scripts/evaluate_multiple_choice.py --samples 10 --top-k 5 --llm-model "gpt-oss:20b"
+python3 scripts/evaluate_multiple_choice.py --samples 10 --top-k 5 --llm-model "qwen3:8b"
 
 # Top-K=10
-python3 scripts/evaluate_multiple_choice.py --samples 10 --top-k 10 --llm-model "gpt-oss:20b"
+python3 scripts/evaluate_multiple_choice.py --samples 10 --top-k 10 --llm-model "qwen3:8b"
 ```
 
 ## 評価結果の見方
@@ -153,7 +153,7 @@ Predicted: c
   "config": {
     "rag_enabled": true,
     "retriever_type": "hybrid",
-    "llm_model": "gpt-oss:20b",
+    "llm_model": "qwen3:8b",
     "top_k": 5,
     "total_samples": 3
   },
@@ -181,7 +181,7 @@ Predicted: c
 ## 初期評価結果（3サンプル）
 
 ### 設定
-- **LLMモデル**: gpt-oss:20b
+- **LLMモデル**: qwen3:8b
 - **Retriever**: Hybrid（Vector + BM25）
 - **Top-K**: 5
 - **Temperature**: 0.0（決定的な回答）
@@ -202,7 +202,7 @@ Predicted: c
 
 | モデル | サイズ | 推論速度（概算） | 精度期待値 |
 |--------|--------|-----------------|-----------|
-| gpt-oss:20b | 13GB | 40秒/問 | 高 |
+| qwen3:8b | 13GB | 40秒/問 | 高 |
 | qwen2.5:7b | 4.4GB | 10-15秒/問 | 中 |
 | qwen2.5:3b | 1.9GB | 5-10秒/問 | 低〜中 |
 
@@ -229,7 +229,7 @@ cd /home/jovyan/work/statutes-rags/setup
 ./bin/ollama list
 ```
 
-gpt-oss:20bがリストにない場合は、Ollamaサーバーを再起動：
+qwen3:8bがリストにない場合は、Ollamaサーバーを再起動：
 
 ```bash
 pkill ollama
@@ -276,7 +276,7 @@ cd setup && ./bin/ollama serve > ollama.log 2>&1 &
 
 ### 評価の拡張
 
-1. **複数モデルの比較**: gpt-oss:20b vs qwen2.5:7b vs 他のモデル
+1. **複数モデルの比較**: qwen3:8b vs qwen2.5:7b vs 他のモデル
 2. **RAG vs Non-RAG比較**: RAGの効果を定量的に測定
 3. **他のデータセットでの評価**: 将来的に法律試験問題データセットなどを追加予定
 

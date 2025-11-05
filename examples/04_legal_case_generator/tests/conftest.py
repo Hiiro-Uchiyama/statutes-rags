@@ -35,7 +35,7 @@ def legal_case_config():
         generate_applicable=True,
         generate_non_applicable=True,
         generate_boundary=True,
-        llm_model="gpt-oss:20b",
+        llm_model="qwen3:8b",
         llm_temperature=0.3
     )
 

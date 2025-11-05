@@ -183,7 +183,7 @@ statutes RAG System
 ├── RAGパイプライン
 │   ├── Retriever (Vector/BM25/Hybrid)
 │   ├── Reranker (Cross-encoder, オプション)
-│   └── LLM (Ollama gpt-oss:20b)
+│   └── LLM (Ollama qwen3:8b)
 │
 ├── インターフェース
 │   ├── CLI (scripts/query_cli.py)
@@ -226,7 +226,7 @@ statutes RAG System
 - **埋め込みモデル**: HuggingFace Transformers（intfloat/multilingual-e5-large）
 - **キーワード検索**: rank-bm25
 - **トークナイザ**: SudachiPy（デフォルト、管理者権限不要）
-- **LLM**: Ollama（gpt-oss:20b）
+- **LLM**: Ollama（qwen3:8b）
 - **リランキング**: sentence-transformers（Cross-encoder）
 - **評価**: RAGAS
 - **テスト**: pytest
@@ -242,7 +242,7 @@ EMBEDDING_MODEL=intfloat/multilingual-e5-large
 EMBEDDING_DIM=1024
 
 # LLM
-LLM_MODEL=gpt-oss:20b
+LLM_MODEL=qwen3:8b
 LLM_TEMPERATURE=0.1
 
 # Retriever

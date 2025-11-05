@@ -28,7 +28,7 @@ class TestMultiAgentDebateConfig:
         
         assert config.max_debate_rounds == 3
         assert config.agreement_threshold == 0.8
-        assert config.llm_model == "gpt-oss:20b"
+        assert config.llm_model == "qwen3:8b"
         assert config.llm_temperature == 0.1
         assert config.retrieval_top_k == 10
     

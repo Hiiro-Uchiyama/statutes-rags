@@ -82,7 +82,7 @@ Input is too long, it can't be more than 49149 bytes, was 718357.
 **正常に動作している部分**：
 - ✓ CUDA利用可能（RTX 4090, 24GB VRAM）
 - ✓ Embedding Model（HuggingFace）はGPU使用
-- ✓ Ollama（gpt-oss:20b）もGPU使用
+- ✓ Ollama（qwen3:8b）もGPU使用
 
 **GPU使用率**：
 - Embedding Model: 約2.6GB VRAM

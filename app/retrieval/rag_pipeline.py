@@ -20,7 +20,7 @@ class RAGPipeline:
         self,
         retriever: BaseRetriever,
         llm_provider: str = "ollama",
-        llm_model: str = "gpt-oss:20b",
+        llm_model: str = "qwen3:8b",
         temperature: float = 0.1,
         reranker: Optional[BaseReranker] = None,
         top_k: int = 10,
