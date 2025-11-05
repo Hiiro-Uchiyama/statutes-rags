@@ -315,6 +315,10 @@ class BM25Retriever(BaseRetriever):
             with open(index_path / "documents.pkl", "wb") as f:
                 pickle.dump(self.documents, f)
             
+            # トークナイズ済みコーパスを保存（メモリ節約のため）
+            with open(index_path / "tokenized_corpus.pkl", "wb") as f:
+                pickle.dump(self.tokenized_corpus, f)
+            
             # トークナイザータイプを保存（互換性チェック用）
             with open(index_path / "tokenizer_info.pkl", "wb") as f:
                 pickle.dump({"tokenizer_type": self.tokenizer_type}, f)
@@ -360,16 +364,26 @@ class BM25Retriever(BaseRetriever):
             with open(docs_path, "rb") as f:
                 self.documents = pickle.load(f)
             
-            logger.info(f"BM25 index loaded from {index_path} ({len(self.documents)} documents, tokenizer: {self.tokenizer_type})")
-
-            # 追加学習に備えてトークナイズ済みコーパスを再構築
-            if self.documents:
-                self.tokenized_corpus = [
-                    self.tokenize(doc.get("text", ""))
-                    for doc in self.documents
-                ]
+            # トークナイズ済みコーパスをロード（メモリ節約）
+            tokenized_corpus_path = index_path / "tokenized_corpus.pkl"
+            if tokenized_corpus_path.exists():
+                with open(tokenized_corpus_path, "rb") as f:
+                    self.tokenized_corpus = pickle.load(f)
+                logger.info(f"BM25 index loaded from {index_path} ({len(self.documents)} documents, tokenizer: {self.tokenizer_type})")
             else:
-                self.tokenized_corpus = []
+                # 旧バージョンとの互換性: tokenized_corpus.pklが存在しない場合は再構築
+                logger.warning(
+                    f"tokenized_corpus.pkl not found at {index_path}. "
+                    f"Rebuilding tokenized corpus (this may use significant memory)."
+                )
+                if self.documents:
+                    self.tokenized_corpus = [
+                        self.tokenize(doc.get("text", ""))
+                        for doc in self.documents
+                    ]
+                else:
+                    self.tokenized_corpus = []
+                logger.info(f"BM25 index loaded from {index_path} ({len(self.documents)} documents, tokenizer: {self.tokenizer_type})")
         except Exception as e:
             logger.error(f"Error loading BM25 index from {index_path}: {e}", exc_info=True)
             # 状態をクリアして続行（新規インデックス作成可能な状態に）

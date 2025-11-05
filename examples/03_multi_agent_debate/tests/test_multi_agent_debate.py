@@ -7,12 +7,16 @@ from unittest.mock import Mock, MagicMock, patch
 import pytest
 
 # プロジェクトルートをパスに追加
-project_root = Path(__file__).parent.parent.parent
+project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from examples.03_multi_agent_debate.config import MultiAgentDebateConfig, load_config
-from examples.03_multi_agent_debate.agents.debater import DebaterAgent
-from examples.03_multi_agent_debate.agents.moderator import ModeratorAgent
+# 03_multi_agent_debateディレクトリをパスに追加
+debate_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(debate_dir))
+
+from config import MultiAgentDebateConfig, load_config
+from agents.debater import DebaterAgent
+from agents.moderator import ModeratorAgent
 
 
 class TestMultiAgentDebateConfig:

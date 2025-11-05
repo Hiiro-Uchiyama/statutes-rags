@@ -18,12 +18,16 @@ sys.path.insert(0, str(project_root))
 from langchain_community.llms import Ollama
 from langgraph.graph import StateGraph, END
 
-from examples.04_legal_case_generator.config import LegalCaseConfig, load_config
-from examples.04_legal_case_generator.agents import (
-    ScenarioGeneratorAgent,
-    LegalCheckerAgent,
-    RefinerAgent,
-)
+# 数字で始まるモジュール名のため、importlibを使用
+import importlib
+config_module = importlib.import_module('examples.04_legal_case_generator.config')
+agents_module = importlib.import_module('examples.04_legal_case_generator.agents')
+
+LegalCaseConfig = config_module.LegalCaseConfig
+load_config = config_module.load_config
+ScenarioGeneratorAgent = agents_module.ScenarioGeneratorAgent
+LegalCheckerAgent = agents_module.LegalCheckerAgent
+RefinerAgent = agents_module.RefinerAgent
 
 logger = logging.getLogger(__name__)
 

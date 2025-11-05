@@ -14,7 +14,7 @@ from langchain_core.output_parsers import StrOutputParser
 
 from app.retrieval.base import Document, BaseRetriever
 from .config import MCPEgovConfig, load_config
-from .agent import MCPEgovAgent
+from .agents import MCPEgovAgent
 
 logger = logging.getLogger(__name__)
 

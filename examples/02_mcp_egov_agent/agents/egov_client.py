@@ -146,7 +146,7 @@ class EGovAPIClient:
         try:
             response = self._request("GET", "/keyword", params=params)
             result = response.json()
-            logger.info(f"Keyword search successful: keyword='{keyword}', results={len(result.get('laws', []))}")
+            logger.info(f"Keyword search successful: keyword='{keyword}', results={len(result.get('items', []))}")
             return result
         
         except Exception as e:
@@ -237,7 +237,7 @@ class EGovAPIClient:
         try:
             response = self._request("GET", "/laws", params=params)
             result = response.json()
-            logger.info(f"Laws list retrieved: {len(result.get('laws', []))} laws")
+            logger.info(f"Laws list retrieved: {len(result.get('items', []))} laws")
             return result
         
         except Exception as e:

@@ -20,7 +20,7 @@ print("=" * 60)
 print("\n[1/5] Testing imports...")
 try:
     # 数字で始まるモジュール名を避けるため、sys.pathを使用
-    debate_dir = Path(__file__).parent
+    debate_dir = Path(__file__).parent.parent
     sys.path.insert(0, str(debate_dir))
     
     from config import MultiAgentDebateConfig, load_config

@@ -402,6 +402,59 @@ pytest tests/test_quick.py -v
     └── test_quick.py            # クイックテスト
 ```
 
+## 動作確認
+
+### 確認日時
+2024年11月6日
+
+### テスト結果
+- クイックテスト: 全5項目パス
+- Pytest単体テスト: 全16テストパス
+- 実際のLLM評価: 動作確認完了
+
+### 実際のLLM評価結果（Ollama + gpt-oss:20b）
+
+#### インデックスロード状況
+- **ベクトルインデックス**: 2,802,222件のドキュメント正常ロード
+- **BM25インデックス**: 10,000件のドキュメント正常ロード
+- **ハイブリッド検索**: 1問あたり10件の関連文書を取得
+
+#### パフォーマンス
+- **処理時間**: 約26秒/問（検索最適化後）
+  - 修正前（検索無効時）: 108秒/問
+  - 改善率: **76%短縮**
+- **議論ラウンド数**: 平均1ラウンド
+- **合意スコア**: 0.99（非常に高い合意形成）
+
+### 修正履歴
+
+#### 第1段階: インポートエラーの修正
+数字で始まるディレクトリ名（`03_multi_agent_debate`）がPythonモジュール名として無効であるため、以下のファイルのインポート方法を修正：
+
+1. **agents/__init__.py**: 相対インポートに変更
+2. **workflow.py**: sys.pathに現在のディレクトリを追加
+3. **evaluate.py**: sys.pathに現在のディレクトリを追加、データセット形式対応
+4. **tests/test_quick.py**: パス設定を修正
+5. **tests/test_multi_agent_debate.py**: インポートパスを修正
+6. **tests/conftest.py**: インポートパスを修正
+
+#### 第2段階: データセット形式の対応
+- `evaluate.py`の`load_dataset`関数を修正：`{'samples': [...]}`形式に対応
+- `parse_choices`関数を追加：文字列形式の選択肢をリストに変換
+
+#### 第3段階: Retrieverパスの修正（最重要）
+**問題**: 相対パス（`data/faiss_index`）がexamples/03_multi_agent_debateから実行すると解決できない
+
+**解決策**: `workflow.py`の`_initialize_retriever`メソッドで、相対パスをプロジェクトルートからの絶対パスに変換
+```python
+project_root = Path(__file__).parent.parent.parent
+base_path = Path(config.vector_store_path)
+if not base_path.is_absolute():
+    base_path = project_root / base_path
+```
+
+これらの修正により、全てのテストと実際のLLM評価が正常に動作することを確認しました。
+
 ## 参考文献
 
 - Du, Y., et al. (2023). Improving Factuality and Reasoning in Language Models through Multiagent Debate.

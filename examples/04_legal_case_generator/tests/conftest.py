@@ -22,7 +22,10 @@ def mock_llm():
 @pytest.fixture
 def legal_case_config():
     """Legal Case Generator設定を提供"""
-    from examples.04_legal_case_generator.config import LegalCaseConfig
+    # 数字で始まるモジュール名のため、importlibを使用
+    import importlib
+    config_module = importlib.import_module('examples.04_legal_case_generator.config')
+    LegalCaseConfig = config_module.LegalCaseConfig
     
     # 注: max_cases_per_law は現在コメントアウトされています
     return LegalCaseConfig(

@@ -1,0 +1,42 @@
+{
+  "timestamp": "2025-11-06T00:52:53.603185",
+  "metrics": {
+    "total_questions": 1,
+    "correct_answers": 0,
+    "accuracy": 0.0,
+    "avg_rounds": 1.0,
+    "avg_agreement_score": 1.0000000127457995,
+    "avg_time_per_question": 181.01328086853027,
+    "agreement_formation_rate": 1.0,
+    "errors": 0
+  },
+  "results": [
+    {
+      "question_index": 0,
+      "question": "金融商品取引法第5条第6項により、公益又は投資者保護に欠けることがないものとして内閣府令で定める場合に該当することを理由として、届出書提出外国会社が金融商品取引法第5条第1項の届出書に代えて提出ことができる書類を教えてください。",
+      "correct_answer": "c",
+      "predicted_answer": "a",
+      "is_correct": false,
+      "full_response": "最終回答の生成に失敗しました。",
+      "rounds": 1,
+      "agreement_score": 1.0000000127457995,
+      "debate_history": [
+        {
+          "round": 1,
+          "debater_a": {
+            "position": "応答生成に失敗しました",
+            "reasoning": "",
+            "citations": []
+          },
+          "debater_b": {
+            "position": "応答生成に失敗しました",
+            "reasoning": "",
+            "citations": []
+          }
+        }
+      ],
+      "elapsed_time": 181.01328086853027,
+      "error": null
+    }
+  ]
+}

@@ -25,7 +25,7 @@ def test_api_connection():
             response = client.get(f"{base_url}/laws", params={"law_type": "Act"})
             response.raise_for_status()
             data = response.json()
-            laws = data.get("laws", [])
+            laws = data.get("items", [])
             print(f"結果: {len(laws)}件の法律を取得しました")
             if laws:
                 first_law = laws[0].get("law_info", {})
@@ -46,7 +46,7 @@ def test_api_connection():
             response = client.get(f"{base_url}/keyword", params={"keyword": keyword})
             response.raise_for_status()
             data = response.json()
-            laws = data.get("laws", [])
+            laws = data.get("items", [])
             print(f"キーワード: '{keyword}'")
             print(f"結果: {len(laws)}件の法令が見つかりました")
             if laws:

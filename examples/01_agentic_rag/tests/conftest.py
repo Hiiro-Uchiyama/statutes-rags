@@ -62,7 +62,11 @@ def mock_documents(mock_document):
 @pytest.fixture
 def agentic_rag_config():
     """Agentic RAG設定を提供"""
-    from examples.01_agentic_rag.config import AgenticRAGConfig
+    # examplesディレクトリをパスに追加
+    examples_dir = Path(__file__).parent.parent
+    sys.path.insert(0, str(examples_dir))
+    
+    from config import AgenticRAGConfig
     
     return AgenticRAGConfig(
         max_iterations=2,

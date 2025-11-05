@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import importlib
-egov_client_module = importlib.import_module('examples.02_mcp_egov_agent.egov_client')
+egov_client_module = importlib.import_module('examples.02_mcp_egov_agent.agents.egov_client')
 EGovAPIClient = egov_client_module.EGovAPIClient
 EGovAPIError = egov_client_module.EGovAPIError
 
@@ -50,7 +50,7 @@ def test_keyword_search(client: EGovAPIClient):
         print(f"\nキーワード: '{keyword}'")
         try:
             result = client.search_by_keyword(keyword)
-            laws = result.get("laws", [])
+            laws = result.get("items", [])
             print(f"  結果: {len(laws)}件の法令が見つかりました")
             
             if laws:
@@ -113,7 +113,7 @@ def test_get_laws(client: EGovAPIClient):
     try:
         # 法令種別を指定して一覧取得
         result = client.get_laws(law_type=["Act"])
-        laws = result.get("laws", [])
+        laws = result.get("items", [])
         print(f"結果: {len(laws)}件の法律が見つかりました")
         
         if laws:

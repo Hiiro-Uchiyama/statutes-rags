@@ -16,8 +16,12 @@ import time
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from examples.03_multi_agent_debate.workflow import DebateWorkflow
-from examples.03_multi_agent_debate.config import load_config
+# 03_multi_agent_debateディレクトリをパスに追加
+debate_dir = Path(__file__).parent
+sys.path.insert(0, str(debate_dir))
+
+from workflow import DebateWorkflow
+from config import load_config
 
 logging.basicConfig(
     level=logging.INFO,
@@ -39,9 +43,18 @@ def load_dataset(dataset_path: Path) -> List[Dict[str, Any]]:
     with open(dataset_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    logger.info(f"Loaded {len(data)} questions from {dataset_path}")
+    # データセットが辞書の場合、'samples'キーから取得
+    if isinstance(data, dict):
+        if 'samples' in data:
+            questions = data['samples']
+        else:
+            raise ValueError(f"Expected 'samples' key in dataset, got keys: {list(data.keys())}")
+    else:
+        questions = data
     
-    return data
+    logger.info(f"Loaded {len(questions)} questions from {dataset_path}")
+    
+    return questions
 
 
 def create_multiple_choice_prompt(question: str, choices: List[str]) -> str:
@@ -91,6 +104,32 @@ def extract_answer(response: str) -> str:
     return "a"  # デフォルト
 
 
+def parse_choices(choices_str: str) -> List[str]:
+    """
+    選択肢文字列をリストに変換
+    
+    Args:
+        choices_str: 選択肢文字列（例: "a 選択肢1\nb 選択肢2\nc 選択肢3\nd 選択肢4"）
+    
+    Returns:
+        選択肢のリスト
+    """
+    choices = []
+    # 改行で分割
+    lines = choices_str.strip().split('\n')
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        # "a ", "b ", "c ", "d " を削除
+        for prefix in ['a ', 'b ', 'c ', 'd ']:
+            if line.startswith(prefix):
+                line = line[2:]
+                break
+        choices.append(line)
+    return choices
+
+
 def evaluate_single_question(
     workflow: DebateWorkflow,
     question_data: Dict[str, Any],
@@ -107,9 +146,18 @@ def evaluate_single_question(
     Returns:
         評価結果
     """
-    question = question_data.get("question", "")
-    choices = question_data.get("choices", [])
-    correct_answer = question_data.get("answer", "a")
+    # データセットの形式に対応（'問題文'/'question', '選択肢'/'choices', 'output'/'answer'）
+    question = question_data.get("問題文") or question_data.get("question", "")
+    choices_raw = question_data.get("選択肢") or question_data.get("choices")
+    correct_answer = question_data.get("output") or question_data.get("answer", "a")
+    
+    # 選択肢を処理
+    if isinstance(choices_raw, str):
+        choices = parse_choices(choices_raw)
+    elif isinstance(choices_raw, list):
+        choices = choices_raw
+    else:
+        choices = []
     
     # プロンプトを作成
     prompt = create_multiple_choice_prompt(question, choices)

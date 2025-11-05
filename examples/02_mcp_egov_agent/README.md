@@ -10,7 +10,10 @@ e-Gov API v2を活用した動的法令検索エージェントです。最新�
 - [使用方法](#使用方法)
 - [評価](#評価)
 - [主要コンポーネント](#主要コンポーネント)
+- [ディレクトリ構成](#ディレクトリ構成)
 - [トラブルシューティング](#トラブルシューティング)
+
+**使用方法の詳細**: [USAGE.md](USAGE.md) を参照してください。
 
 ## 概要
 
@@ -92,21 +95,24 @@ uv pip install httpx tenacity
 python3 -m pip install httpx tenacity
 
 cd examples/02_mcp_egov_agent
-python3 demo_simple.py
+python3 demo.py --simple
 ```
 
 ### デモを実行
 
 ```bash
 cd examples/02_mcp_egov_agent
+
+# 完全デモ（仮想環境内で全機能をテスト）
 python3 demo.py
+
+# 簡易デモ（最小依存でAPI接続テストのみ）
+python3 demo.py --simple
 ```
 
-このスクリプトは以下をチェックします:
-- 依存関係の確認
-- e-Gov APIへの接続テスト
-- 設定の確認
-- データパスの確認
+**デモモード:**
+- `demo.py`: 完全デモ - 依存関係の確認、API接続テスト、設定確認、データパス確認
+- `demo.py --simple`: 簡易デモ - 最小限の依存関係でAPI接続テストのみ実行
 
 ## 使用方法
 
@@ -202,7 +208,28 @@ export MCP_RERANK_TOP_N=5
 
 ## 評価
 
-### 基本的な評価
+### 標準的な評価方法（推奨）
+
+プロジェクトルートから統一されたベンチマーク評価を実行：
+
+```bash
+cd /path/to/statutes-rags
+
+# MCPエージェント評価（50サンプル、API優先モード）
+python scripts/evaluate_mcp_benchmark.py --samples 50 --mode api_preferred
+
+# Vector-basedとの比較評価
+./scripts/run_benchmark_comparison.sh 50
+```
+
+**利点**:
+- 既存のVector-based評価と同じフォーマットで結果を出力
+- 自動的に比較レポートを生成
+- プロジェクト全体のベンチマークとして管理可能
+
+### 個別評価（開発・デバッグ用）
+
+MCPエージェント固有の詳細評価：
 
 ```bash
 cd examples/02_mcp_egov_agent
@@ -223,29 +250,42 @@ python evaluate.py \
 
 ### 評価モードの説明
 
-- `api_preferred`: API優先（デフォルト、推奨）
-- `local_preferred`: ローカル優先
-- `api_forced`: API強制（フォールバックなし）
-- `local_forced`: ローカル強制（APIなし）
+| モード | 説明 | 用途 |
+|--------|------|------|
+| `api_preferred` | API優先、ローカルフォールバック | 推奨：本番想定 |
+| `local_preferred` | ローカル優先 | オフライン環境 |
+| `api_only` | API強制（フォールバックなし） | API性能評価 |
+| `local_only` | ローカル強制（APIなし） | ローカル性能評価 |
 
-### 結果の確認
+### ベンチマーク比較結果の確認
 
 ```bash
-cat results.json | python3 -m json.tool | less
+# 比較レポートの確認
+cat benchmark_comparison.json | python3 -m json.tool | less
+
+# 主要指標のみ抽出
+cat benchmark_comparison.json | python3 -m json.tool | grep -A 5 '"comparison"'
 ```
 
 ### 評価指標
 
+**共通指標**（Vector-basedと比較可能）:
 - 正答率（4択問題）
-- API呼び出し成功率
+- 正答数
 - 平均応答時間
-- データソース別の精度比較
+- エラー率
+
+**MCP固有指標**:
+- API呼び出し成功率
+- API使用率
+- データソース別の精度比較（API/ローカル/ハイブリッド）
+- API経由での正答率
 
 ## 主要コンポーネント
 
 ### EGovAPIClient
 
-e-Gov API v2との通信を管理するクライアント。
+`agents/egov_client.py` - e-Gov API v2との通信を管理するクライアント。
 
 ```python
 # 数字で始まるモジュール名のため、動的インポートを使用
@@ -268,7 +308,7 @@ if client.health_check():
 
 ### MCPEgovAgent
 
-質問を分析し、適切なデータソースを選択するエージェント。
+`agents/mcp_agent.py` - 質問を分析し、適切なデータソースを選択するエージェント。
 
 - 最近の法令に関する質問はAPI優先
 - 法令番号が含まれる場合は直接取得を試行
@@ -276,7 +316,11 @@ if client.health_check():
 
 ### MCPEgovPipeline
 
-ハイブリッド検索とLLM応答生成を統合したパイプライン。
+`pipeline.py` - ハイブリッド検索とLLM応答生成を統合したパイプライン。
+
+### Tools
+
+`agents/tools.py` - e-Gov APIとローカル検索のLangChain Tools定義。
 
 ## API仕様
 
@@ -362,19 +406,22 @@ cd examples/02_mcp_egov_agent
 02_mcp_egov_agent/
 ├── __init__.py                   # パッケージ定義
 ├── README.md                     # このファイル
-├── egov_client.py                # e-Gov APIクライアント
+├── USAGE.md                      # 使用方法ガイド
 ├── config.py                     # 設定管理
-├── tools.py                      # LangChain Tools
-├── agent.py                      # ハイブリッド検索エージェント
 ├── pipeline.py                   # RAGパイプライン
 ├── evaluate.py                   # 評価スクリプト
-├── demo_simple.py                # 簡易デモ（最小依存）
-├── demo.py                       # 完全デモ（仮想環境内）
+├── demo.py                       # デモスクリプト（--simpleで簡易モード）
+├── agents/                       # エージェントコンポーネント
+│   ├── __init__.py
+│   ├── egov_client.py            # e-Gov APIクライアント
+│   ├── mcp_agent.py              # ハイブリッド検索エージェント
+│   └── tools.py                  # LangChain Tools
 └── tests/                        # テストディレクトリ
     ├── __init__.py
     ├── conftest.py
     ├── test_api_simple.py        # API接続テスト
-    └── test_api_connection.py    # 詳細APIテスト
+    ├── test_api_connection.py    # 詳細APIテスト
+    └── test_pipeline.py          # パイプライン統合テスト
 ```
 
 ## 制約事項
@@ -418,15 +465,66 @@ python3 tests/test_api_connection.py
 pytest tests/ -v
 ```
 
+## 動作確認済み
+
+このサンプルは以下の環境で動作確認済みです：
+
+### 動作確認日
+2025年1月（e-Gov API v2使用）
+
+### テスト結果
+- API接続テスト（demo.py --simple）: 成功
+- 詳細APIテスト（tests/test_api_simple.py）: 全テスト成功
+- 完全接続テスト（tests/test_api_connection.py）: 全テスト成功
+- フルデモ（demo.py）: 成功
+- パイプラインテスト（tests/test_pipeline.py）: 成功
+
+### 主な修正点
+- **API応答キーの修正**: e-Gov API v2の応答キーが`laws`から`items`に変更されていたため、全ファイルで修正
+- **LangChainインポートの修正**: `langchain.tools`から`langchain_core.tools`に変更し、バージョン互換性を改善
+
+### 確認されたAPI機能
+- キーワード検索（/keyword）: 正常動作、検索結果取得確認
+- 法令一覧取得（/laws）: 正常動作
+- 法令本文取得（/law_data）: 正常動作
+- エラーハンドリング: 404エラーなど適切に処理
+
+### 依存関係
+```bash
+# 必須
+httpx>=0.25.0
+tenacity>=8.2.0
+pydantic>=2.5.0
+
+# RAG統合時に必要
+langchain>=0.1.0
+langchain-core>=1.0.0
+langgraph>=0.2.0
+```
+
 ## サポート
 
 問題が発生した場合:
 
-1. デモスクリプトを実行して診断: `python3 demo.py`
-2. API接続テストを実行: `python3 tests/test_api_simple.py`
-3. ログを確認（ログレベルを上げる）
+1. **仮想環境を使用**: `source .venv/bin/activate`
+2. デモスクリプトを実行して診断: `python3 demo.py`
+3. 簡易デモでAPI接続確認: `python3 demo.py --simple`
+4. API接続テストを実行: `python3 tests/test_api_simple.py`
+5. パイプラインテスト: `python3 tests/test_pipeline.py`
+6. ログを確認（ログレベルを上げる）
 
-## ライセンス
+### よくある問題
 
-本プロジェクトのライセンスに従います。
+**Q: `ModuleNotFoundError: No module named 'langchain_core'`**
+```bash
+# 仮想環境を使用してください
+source .venv/bin/activate
+```
 
+**Q: キーワード検索で0件の結果**
+- この問題は修正済みです。最新のコードを使用してください。
+- API応答キーが`items`に正しく設定されているか確認してください。
+
+**Q: "law_title" が "不明" と表示される**
+- これはAPI応答のキー構造の違いによるものです。
+- `revision_info`内の`law_title`を参照する必要があります（今後の改善予定）。

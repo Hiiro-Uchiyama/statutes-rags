@@ -156,7 +156,26 @@ class RetrievalAgent(BaseAgent):
         
         # スコアベースの評価（scoreがない場合は0.5をデフォルトとする）
         scores = [getattr(doc, 'score', 0.5) for doc in documents]
-        avg_score = sum(scores) / len(scores)
+        
+        # スコアを0-1の範囲に正規化
+        # BM25などのスコアは大きな値になる可能性があるため、正規化が必要
+        if scores:
+            min_score = min(scores)
+            max_score = max(scores)
+            
+            if max_score > min_score:
+                # Min-Max正規化
+                normalized_scores = [(s - min_score) / (max_score - min_score) for s in scores]
+            else:
+                # すべて同じスコアの場合は0.5とする
+                normalized_scores = [0.5] * len(scores)
+            
+            avg_score = sum(normalized_scores) / len(normalized_scores)
+        else:
+            avg_score = 0.0
+        
+        # 浮動小数点の精度問題を避けるため、スコアを丸める
+        avg_score = round(avg_score, 6)
         
         # 閾値判定
         threshold = 0.5

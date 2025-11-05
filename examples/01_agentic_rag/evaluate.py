@@ -15,8 +15,8 @@ import sys
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from examples.01_agentic_rag.pipeline import AgenticRAGPipeline
-from examples.01_agentic_rag.config import load_config
+from pipeline import AgenticRAGPipeline
+from config import load_config
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,6 +37,15 @@ def load_dataset(dataset_path: Path) -> List[Dict[str, Any]]:
     """
     with open(dataset_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
+    
+    # データセットの構造に応じて処理
+    if isinstance(data, dict):
+        # {"samples": [...]} 形式
+        if "samples" in data:
+            data = data["samples"]
+        # {"key1": {...}, "key2": {...}} 形式
+        else:
+            data = list(data.values())
     
     logger.info(f"Loaded {len(data)} questions from {dataset_path}")
     
@@ -106,9 +115,18 @@ def evaluate_single_question(
     Returns:
         評価結果
     """
-    question = question_data.get("question", "")
-    choices = question_data.get("choices", [])
-    correct_answer = question_data.get("answer", "a")
+    # データセットのフィールド名に対応
+    question = question_data.get("問題文", question_data.get("question", ""))
+    
+    # 選択肢を処理（改行区切りの文字列またはリスト）
+    choices_raw = question_data.get("選択肢", question_data.get("choices", []))
+    if isinstance(choices_raw, str):
+        # "a ...\nb ...\nc ...\nd ..." 形式から選択肢を抽出
+        choices = [line.strip() for line in choices_raw.split('\n') if line.strip()]
+    else:
+        choices = choices_raw
+    
+    correct_answer = question_data.get("output", question_data.get("answer", "a"))
     
     # プロンプト作成
     prompt = create_multiple_choice_prompt(question, choices)

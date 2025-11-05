@@ -5,9 +5,9 @@ e-Gov APIとローカル検索のためのToolsを定義します。
 """
 import logging
 from typing import Dict, Any, Optional, List
-from langchain.tools import Tool
+from langchain_core.tools import Tool
 from .egov_client import EGovAPIClient, EGovAPIError
-from .config import MCPEgovConfig
+from ..config import MCPEgovConfig
 
 logger = logging.getLogger(__name__)
 
@@ -48,11 +48,11 @@ class EgovToolsFactory:
         try:
             result = self.client.search_by_keyword(keyword=query)
             
-            if not result.get("laws"):
+            if not result.get("items"):
                 return "検索結果が見つかりませんでした。"
             
             # 結果を整形
-            laws = result.get("laws", [])
+            laws = result.get("items", [])
             output_lines = [f"検索結果: {len(laws)}件の法令が見つかりました。\n"]
             
             for i, law in enumerate(laws[:5], 1):  # 上位5件のみ

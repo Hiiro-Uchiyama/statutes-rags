@@ -2,6 +2,12 @@
 
 法令条文から具体的な適用事例を自動生成する教育的ツールです。
 
+## ドキュメント
+
+- **[USAGE.md](USAGE.md)** - 使い方ガイド（コマンドリファレンス）
+- **[docs/testing_report.md](docs/testing_report.md)** - 詳細テストレポート
+- **[docs/verification_results.md](docs/verification_results.md)** - 動作確認結果
+
 ## 目次
 
 - [概要](#概要)
@@ -493,13 +499,95 @@ python evaluate.py --output test_evaluation.json
 4. 評価を実行して品質を確認
 5. 人手評価テンプレートで詳細評価
 
-## 注意事項
+## 動作確認済み
 
-- 生成される事例は教育目的の参考資料です
-- 法的判断の根拠として使用しないでください
-- 専門家による検証は行われていません
+**テスト実行日**: 2025-11-06
 
-## ライセンス
+### 基本動作テスト
 
-本プロジェクトのライセンスに従います。
+```bash
+python3 pipeline.py \
+  --law-number "平成十七年法律第八十七号" \
+  --law-title "会社法" \
+  --article "26" \
+  --article-content "株式会社は、株主名簿を作成し..." \
+  --output result.json
+```
 
+**結果**:
+- ✓ 3種類の事例（適用・非適用・境界）を正常に生成
+- ✓ 検証スコア: 0.92-1.00 (全て閾値以上)
+- ✓ 実行時間: 約3分
+
+### 総合評価テスト
+
+```bash
+python3 evaluate.py --output evaluation_results.json
+```
+
+**結果**:
+- テストケース数: 3 (会社法、民法、個人情報保護法)
+- 生成事例数: 9
+- 成功率: **100%**
+- 平均生成時間: 31.5秒/事例
+- 平均反復回数: 0.44回
+
+### 検証された機能
+
+- ✓ LangGraphベースのマルチエージェントワークフロー
+- ✓ シナリオ生成エージェント
+- ✓ 法的整合性検証エージェント
+- ✓ 事例洗練エージェント（フィードバックループ）
+- ✓ 3種類の事例タイプ生成
+- ✓ 評価スクリプト
+
+### 既知の問題と対処
+
+#### 1. モジュールインポートエラー (解決済み)
+
+**問題**: Python 3.xでは `04_legal_case_generator` のような数字で始まるモジュール名を直接インポートできない
+
+```python
+# ✗ これはSyntaxErrorになる
+from examples.04_legal_case_generator.config import load_config
+```
+
+**対処**: `importlib` を使用した動的インポートに修正済み
+
+```python
+# ✓ 正しい方法
+import importlib
+config_module = importlib.import_module('examples.04_legal_case_generator.config')
+load_config = config_module.load_config
+```
+
+**修正済みファイル**:
+- `pipeline.py`
+- `evaluate.py`
+- `tests/conftest.py`
+- `tests/test_legal_case_generator.py`
+
+#### 2. LangChain非推奨警告
+
+**警告メッセージ**:
+```
+LangChainDeprecationWarning: The class `Ollama` was deprecated in LangChain 0.3.1
+```
+
+**影響**: 動作には問題なし（警告のみ）
+
+**今後の対応**: `langchain-ollama` パッケージへの移行を推奨
+
+### パフォーマンス特性
+
+- **シナリオ生成**: 3-30秒（事例の複雑さによる）
+- **法的検証**: 5-40秒
+- **洗練処理**: 6-10秒（必要な場合のみ）
+- **メモリ使用量**: ~500MB（gpt-oss:20bモデル使用時）
+
+### 推奨環境
+
+- Python: 3.10以上
+- メモリ: 8GB以上
+- Ollama: 最新版
+- LLMモデル: gpt-oss:20b (13GB)

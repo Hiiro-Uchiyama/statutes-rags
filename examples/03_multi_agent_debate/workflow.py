@@ -13,6 +13,10 @@ import sys
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
+# 03_multi_agent_debateディレクトリをパスに追加
+debate_dir = Path(__file__).parent
+sys.path.insert(0, str(debate_dir))
+
 from langchain_community.llms import Ollama
 from langgraph.graph import StateGraph, END
 
@@ -20,8 +24,8 @@ from app.retrieval.vector_retriever import VectorRetriever
 from app.retrieval.bm25_retriever import BM25Retriever
 from app.retrieval.hybrid_retriever import HybridRetriever
 
-from examples.03_multi_agent_debate.config import MultiAgentDebateConfig
-from examples.03_multi_agent_debate.agents import DebaterAgent, ModeratorAgent
+from config import MultiAgentDebateConfig
+from agents import DebaterAgent, ModeratorAgent
 
 logger = logging.getLogger(__name__)
 
@@ -89,25 +93,57 @@ class DebateWorkflow:
     def _initialize_retriever(self, config: MultiAgentDebateConfig):
         """Retrieverを初期化"""
         try:
+            # インデックスパスの構築
+            from pathlib import Path
+            # プロジェクトルートからの絶対パスに変換
+            project_root = Path(__file__).parent.parent.parent
+            base_path = Path(config.vector_store_path)
+            if not base_path.is_absolute():
+                base_path = project_root / base_path
+            
+            vector_index_path = str(base_path / "vector")
+            bm25_index_path = str(base_path / "bm25")
+            
+            logger.info(f"Vector index path: {vector_index_path}, exists: {Path(vector_index_path).exists()}")
+            logger.info(f"BM25 index path: {bm25_index_path}, exists: {Path(bm25_index_path).exists()}")
+            
             # ハイブリッド検索を使用
             vector_retriever = VectorRetriever(
-                vector_store_path=config.vector_store_path,
-                data_path=config.data_path,
-                top_k=config.retrieval_top_k
+                embedding_model=config.embedding_model,
+                index_path=vector_index_path
             )
+            # 明示的にインデックスをロード
+            if Path(vector_index_path).exists():
+                logger.info(f"Loading vector index from {vector_index_path}")
+                vector_retriever.load_index()
             
             bm25_retriever = BM25Retriever(
-                data_path=config.data_path,
-                top_k=config.retrieval_top_k
+                index_path=bm25_index_path
             )
+            # 明示的にインデックスをロード
+            if Path(bm25_index_path).exists():
+                logger.info(f"Loading BM25 index from {bm25_index_path}")
+                bm25_retriever.load_index()
             
             retriever = HybridRetriever(
                 vector_retriever=vector_retriever,
                 bm25_retriever=bm25_retriever,
                 vector_weight=0.6,
-                bm25_weight=0.4,
-                top_k=config.retrieval_top_k
+                bm25_weight=0.4
             )
+            
+            # インデックスが正しくロードされたか確認
+            if vector_retriever.vector_store:
+                doc_count = vector_retriever.vector_store.index.ntotal
+                logger.info(f"Vector index loaded: {doc_count} documents")
+            else:
+                logger.warning("Vector index not loaded!")
+                
+            if bm25_retriever.bm25:
+                doc_count = len(bm25_retriever.documents)
+                logger.info(f"BM25 index loaded: {doc_count} documents")
+            else:
+                logger.warning("BM25 index not loaded!")
             
             logger.info("Retriever initialized (Hybrid)")
             return retriever
@@ -156,7 +192,7 @@ class DebateWorkflow:
         logger.info(f"Retrieving documents for: {query}")
         
         try:
-            documents = self.retriever.retrieve(query)
+            documents = self.retriever.retrieve(query, top_k=self.config.retrieval_top_k)
             state["documents"] = documents
             
             # 議論状態の初期化

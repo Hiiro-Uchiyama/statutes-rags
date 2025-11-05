@@ -6,12 +6,14 @@ import sys
 from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch
 
-# プロジェクトルートをパスに追加
+# プロジェクトルートとexamplesディレクトリをパスに追加
 project_root = Path(__file__).parent.parent.parent.parent
+examples_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(examples_dir))
 
-from examples.01_agentic_rag.config import AgenticRAGConfig
-from examples.01_agentic_rag.agents import (
+from config import AgenticRAGConfig
+from agents import (
     ManagerAgent,
     RetrievalAgent,
     ReasoningAgent,

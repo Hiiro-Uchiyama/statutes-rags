@@ -13,15 +13,15 @@ import sys
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from langchain_community.llms import Ollama
+from langchain_ollama import OllamaLLM
 from langgraph.graph import StateGraph, END
 
 from app.retrieval.vector_retriever import VectorRetriever
 from app.retrieval.bm25_retriever import BM25Retriever
 from app.retrieval.hybrid_retriever import HybridRetriever
 
-from examples.01_agentic_rag.config import AgenticRAGConfig
-from examples.01_agentic_rag.agents import (
+from config import AgenticRAGConfig
+from agents import (
     ManagerAgent,
     RetrievalAgent,
     ReasoningAgent,
@@ -75,7 +75,7 @@ class AgenticRAGPipeline:
         
         # LLMの初期化
         ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-        self.llm = Ollama(
+        self.llm = OllamaLLM(
             model=config.llm_model,
             temperature=config.llm_temperature,
             base_url=ollama_host,

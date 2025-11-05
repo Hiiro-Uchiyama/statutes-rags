@@ -418,29 +418,61 @@ python3 scripts/query_cli.py "会社法第26条について教えてください
 
 デジタル庁の4択法令データセットを使用してRAGシステムの精度を評価します。
 
-#### 小規模テスト（3問で動作確認）
+**検索モード**: デフォルトでVector-Only（FAISSベクトル検索）を使用します。環境変数 `RETRIEVER_TYPE=vector` が設定されていることを確認してください。
+
+> **重要**: BM25キーワード検索とHybridモードは、280万件のデータセットで50-60GBのメモリを必要とし、現在のシステム構成（62GBメモリ）では使用できません。Vector-Onlyモードで十分な精度（50%）を達成しています。詳細は [docs/supplemental/memory_issue_analysis.md](../supplemental/memory_issue_analysis.md) を参照してください。
+
+#### 簡単な評価実行（推奨）
+
+シェルスクリプトを使用して、1コマンドで評価を実行できます：
 
 ```bash
-python3 scripts/evaluate_multiple_choice.py \
-  --samples 3 \
-  --llm-model "gpt-oss:20b" \
-  --output evaluation_results_3.json
+# 10サンプルで評価（約2-3分）
+./scripts/evaluate.sh 10
+
+# 50サンプルで評価（約10-15分）
+./scripts/evaluate.sh 50
+
+# 100サンプルで評価（約20-30分）
+./scripts/evaluate.sh 100
 ```
 
-**実行時間:** 約3-5分（ハードウェア性能に依存）
+このスクリプトは以下を自動的に行います：
+- 環境変数の設定（RETRIEVER_TYPE=vector）
+- 仮想環境の有効化
+- GPU状態の確認
+- 評価の実行
+- 結果の保存（evaluation_results_final.json）
+
+#### 手動での評価実行
+
+直接Pythonスクリプトを実行する場合：
+
+```bash
+# 環境変数を設定
+export RETRIEVER_TYPE=vector
+
+# 小規模テスト（10問で動作確認）
+python3 scripts/evaluate_multiple_choice.py \
+  --samples 10 \
+  --llm-model "gpt-oss:20b" \
+  --output evaluation_results_10.json
+```
+
+**実行時間:** 約2-3分（ハードウェア性能に依存）
 
 **注:** 軽量モデルを使用したい場合は、事前に `./setup/bin/ollama pull qwen2.5:7b` を実行して `--llm-model "qwen2.5:7b"` に置き換えてください。
 
-#### 中規模評価（20問）
+#### 中規模評価（50問）
 
 ```bash
 python3 scripts/evaluate_multiple_choice.py \
-  --samples 20 \
+  --samples 50 \
   --llm-model "gpt-oss:20b" \
-  --output evaluation_results_20.json
+  --output evaluation_results_50.json
 ```
 
-**実行時間:** 約20-30分（ハードウェア性能に依存）
+**実行時間:** 約10-15分（ハードウェア性能に依存）
 
 #### 全データ評価（140問）
 

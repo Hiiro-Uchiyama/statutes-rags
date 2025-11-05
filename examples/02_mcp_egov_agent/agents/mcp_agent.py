@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import re
 
 from examples.shared.base_agent import BaseAgent
-from .config import MCPEgovConfig
+from ..config import MCPEgovConfig
 from .tools import EgovToolsFactory
 from .egov_client import EGovAPIError
 
@@ -247,7 +247,7 @@ class MCPEgovAgent(BaseAgent):
             result = self.api_client.search_by_keyword(query)
             
             # 結果をDocumentに変換
-            for law in result.get("laws", [])[:self.config.retrieval_top_k]:
+            for law in result.get("items", [])[:self.config.retrieval_top_k]:
                 doc = self._convert_api_result_to_document(law, "keyword_search")
                 if doc:
                     documents.append(doc)

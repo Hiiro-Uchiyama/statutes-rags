@@ -226,9 +226,13 @@ for rank, doc in enumerate(docs, start=1):
 
 ## BM25検索アルゴリズム
 
+> **⚠️ 重要**: BM25検索は、280万件の大規模データセットで50-60GBのメモリを必要とし、現在のシステム構成（62GBメモリ）では**使用できません**。Vector-Onlyモード（FAISSベクトル検索）を使用してください。詳細は [docs/supplemental/memory_issue_analysis.md](supplemental/memory_issue_analysis.md) を参照してください。
+
 ### 概要
 
 BM25 (Best Matching 25) は、キーワードベースの情報検索アルゴリズムで、TF-IDFの改良版です。
+
+**注意**: 以下の説明は、システムアーキテクチャの理解のために記載していますが、現在の構成では実行できません。
 
 ### 実装: `BM25Retriever`
 
@@ -329,9 +333,13 @@ def bm25_search(query, top_k=10):
 
 ## ハイブリッド検索とスコア統合
 
+> **⚠️ 重要**: Hybrid検索（VectorとBM25の組み合わせ）は、BM25が使用できないため、現在のシステム構成では**使用できません**。Vector-Onlyモード（`RETRIEVER_TYPE=vector`）を使用してください。詳細は [docs/supplemental/memory_issue_analysis.md](supplemental/memory_issue_analysis.md) を参照してください。
+
 ### 概要
 
 ベクトル検索とBM25検索を組み合わせ、それぞれの長所を活かします。
+
+**注意**: 以下の説明は、システムアーキテクチャの理解のために記載していますが、現在の構成では実行できません。
 
 **それぞれの特性:**
 

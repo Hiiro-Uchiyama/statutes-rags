@@ -10,6 +10,10 @@ from unittest.mock import Mock
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
+# 03_multi_agent_debateディレクトリをパスに追加
+debate_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(debate_dir))
+
 
 @pytest.fixture
 def mock_llm():
@@ -62,7 +66,7 @@ def mock_documents(mock_document):
 @pytest.fixture
 def debate_config():
     """Multi-Agent Debate設定を提供"""
-    from examples.03_multi_agent_debate.config import MultiAgentDebateConfig
+    from config import MultiAgentDebateConfig
     
     return MultiAgentDebateConfig(
         max_debate_rounds=3,

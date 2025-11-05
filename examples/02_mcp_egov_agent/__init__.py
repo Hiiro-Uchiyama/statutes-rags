@@ -8,8 +8,7 @@ LangChain Toolsを基盤とし、API優先のハイブリッド検索戦略を�
 __version__ = "0.1.0"
 
 from .config import MCPEgovConfig, load_config
-from .egov_client import EGovAPIClient
-from .agent import MCPEgovAgent
+from .agents import EGovAPIClient, MCPEgovAgent
 from .pipeline import MCPEgovPipeline
 
 __all__ = [

@@ -15,8 +15,13 @@ import sys
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from examples.04_legal_case_generator.pipeline import LegalCaseGenerator
-from examples.04_legal_case_generator.config import load_config
+# 数字で始まるモジュール名のため、importlibを使用
+import importlib
+pipeline_module = importlib.import_module('examples.04_legal_case_generator.pipeline')
+config_module = importlib.import_module('examples.04_legal_case_generator.config')
+
+LegalCaseGenerator = pipeline_module.LegalCaseGenerator
+load_config = config_module.load_config
 
 logger = logging.getLogger(__name__)
 
