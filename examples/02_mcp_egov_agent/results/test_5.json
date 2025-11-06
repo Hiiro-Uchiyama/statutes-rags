@@ -1,0 +1,95 @@
+{
+  "metadata": {
+    "dataset": "../../datasets/lawqa_jp/data/selection.json",
+    "mode": "api_preferred",
+    "timestamp": "2025-11-07T03:06:35.903280",
+    "total_questions": 5
+  },
+  "metrics": {
+    "overall": {
+      "accuracy": 0.6,
+      "total_questions": 5,
+      "correct_answers": 3,
+      "avg_response_time": 14.080907821655273
+    },
+    "by_source": {
+      "none": {
+        "total": 5,
+        "correct": 3,
+        "accuracy": 0.6
+      }
+    },
+    "api_metrics": {
+      "api_used_count": 0,
+      "api_success_count": 0,
+      "api_usage_rate": 0.0,
+      "api_success_rate": 0.0
+    },
+    "errors": {
+      "error_count": 0,
+      "error_rate": 0.0
+    }
+  },
+  "results": [
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号57",
+      "correct": true,
+      "predicted": "c",
+      "ground_truth": "c",
+      "source": "none",
+      "response_time": 15.343458414077759,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 0,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号58",
+      "correct": false,
+      "predicted": "c",
+      "ground_truth": "b",
+      "source": "none",
+      "response_time": 17.000147819519043,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 0,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号59",
+      "correct": true,
+      "predicted": "b",
+      "ground_truth": "b",
+      "source": "none",
+      "response_time": 8.464174032211304,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 0,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号60",
+      "correct": true,
+      "predicted": "b",
+      "ground_truth": "b",
+      "source": "none",
+      "response_time": 7.163427829742432,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 0,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号61",
+      "correct": false,
+      "predicted": "d",
+      "ground_truth": "c",
+      "source": "none",
+      "response_time": 22.43333101272583,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 0,
+      "error": null
+    }
+  ]
+}

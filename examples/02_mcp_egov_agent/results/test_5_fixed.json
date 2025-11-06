@@ -1,0 +1,95 @@
+{
+  "metadata": {
+    "dataset": "../../datasets/lawqa_jp/data/selection.json",
+    "mode": "local_forced",
+    "timestamp": "2025-11-07T03:20:15.480491",
+    "total_questions": 5
+  },
+  "metrics": {
+    "overall": {
+      "accuracy": 0.6,
+      "total_questions": 5,
+      "correct_answers": 3,
+      "avg_response_time": 18.59060068130493
+    },
+    "by_source": {
+      "local": {
+        "total": 5,
+        "correct": 3,
+        "accuracy": 0.6
+      }
+    },
+    "api_metrics": {
+      "api_used_count": 0,
+      "api_success_count": 0,
+      "api_usage_rate": 0.0,
+      "api_success_rate": 0.0
+    },
+    "errors": {
+      "error_count": 0,
+      "error_rate": 0.0
+    }
+  },
+  "results": [
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号57",
+      "correct": true,
+      "predicted": "c",
+      "ground_truth": "c",
+      "source": "local",
+      "response_time": 24.455893754959106,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号58",
+      "correct": false,
+      "predicted": "a",
+      "ground_truth": "b",
+      "source": "local",
+      "response_time": 23.416771173477173,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号59",
+      "correct": false,
+      "predicted": "c",
+      "ground_truth": "b",
+      "source": "local",
+      "response_time": 19.06067156791687,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号60",
+      "correct": true,
+      "predicted": "b",
+      "ground_truth": "b",
+      "source": "local",
+      "response_time": 12.014932870864868,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号61",
+      "correct": true,
+      "predicted": "c",
+      "ground_truth": "c",
+      "source": "local",
+      "response_time": 14.00473403930664,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    }
+  ]
+}

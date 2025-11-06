@@ -1,0 +1,155 @@
+{
+  "metadata": {
+    "dataset": "../../datasets/lawqa_jp/data/selection.json",
+    "mode": "local_forced",
+    "timestamp": "2025-11-07T03:30:26.680067",
+    "total_questions": 10
+  },
+  "metrics": {
+    "overall": {
+      "accuracy": 0.5,
+      "total_questions": 10,
+      "correct_answers": 5,
+      "avg_response_time": 48.751098942756656
+    },
+    "by_source": {
+      "local": {
+        "total": 10,
+        "correct": 5,
+        "accuracy": 0.5
+      }
+    },
+    "api_metrics": {
+      "api_used_count": 0,
+      "api_success_count": 0,
+      "api_usage_rate": 0.0,
+      "api_success_rate": 0.0
+    },
+    "errors": {
+      "error_count": 0,
+      "error_rate": 0.0
+    }
+  },
+  "results": [
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号57",
+      "correct": true,
+      "predicted": "c",
+      "ground_truth": "c",
+      "source": "local",
+      "response_time": 12.222710847854614,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号58",
+      "correct": false,
+      "predicted": "a",
+      "ground_truth": "b",
+      "source": "local",
+      "response_time": 23.61126136779785,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号59",
+      "correct": false,
+      "predicted": "c",
+      "ground_truth": "b",
+      "source": "local",
+      "response_time": 16.576731204986572,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号60",
+      "correct": true,
+      "predicted": "b",
+      "ground_truth": "b",
+      "source": "local",
+      "response_time": 11.576429605484009,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号61",
+      "correct": true,
+      "predicted": "c",
+      "ground_truth": "c",
+      "source": "local",
+      "response_time": 12.852364301681519,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号62",
+      "correct": false,
+      "predicted": "d",
+      "ground_truth": "c",
+      "source": "local",
+      "response_time": 18.884626388549805,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号63",
+      "correct": true,
+      "predicted": "d",
+      "ground_truth": "d",
+      "source": "local",
+      "response_time": 15.796537399291992,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号64",
+      "correct": false,
+      "predicted": "d",
+      "ground_truth": "c",
+      "source": "local",
+      "response_time": 25.721676111221313,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章の2_選択式_関連法令_問題番号65",
+      "correct": true,
+      "predicted": "c",
+      "ground_truth": "c",
+      "source": "local",
+      "response_time": 335.69289541244507,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    },
+    {
+      "question_id": "金商法_第2章の2_選択式_関連法令_問題番号66",
+      "correct": false,
+      "predicted": "d",
+      "ground_truth": "c",
+      "source": "local",
+      "response_time": 14.575756788253784,
+      "api_used": false,
+      "num_api_docs": 0,
+      "num_local_docs": 10,
+      "error": null
+    }
+  ]
+}

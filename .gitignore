@@ -52,16 +52,6 @@ setup/*.tgz
 ###################
 test_mecab.json
 
-# Results and Logs
-###################
-results/
-!results/README.md
-!results/evaluations/
-results/evaluations/*
-!results/evaluations/README.md
-logs/
-!logs/README.md
-
 # Datasets
 ###################
 datasets/

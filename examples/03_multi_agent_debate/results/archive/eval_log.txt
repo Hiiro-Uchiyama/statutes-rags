@@ -1,0 +1,61 @@
+2025-11-06 00:38:54,807 - __main__ - INFO - Loaded 140 questions from /home/toronto02/statutes-rags/datasets/lawqa_jp/data/selection.json
+2025-11-06 00:38:54,807 - __main__ - INFO - Limited to 2 questions
+2025-11-06 00:38:54,807 - __main__ - INFO - Initializing DebateWorkflow...
+/home/toronto02/statutes-rags/examples/03_multi_agent_debate/workflow.py:73: LangChainDeprecationWarning: The class `Ollama` was deprecated in LangChain 0.3.1 and will be removed in 1.0.0. An updated version of the class exists in the `langchain-ollama package and should be used instead. To use it run `pip install -U `langchain-ollama` and import as `from `langchain_ollama import OllamaLLM``.
+  self.llm = Ollama(
+2025-11-06 00:38:54,823 - app.retrieval.vector_retriever - INFO - Using device: cuda for embeddings
+/home/toronto02/statutes-rags/app/retrieval/vector_retriever.py:38: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the `langchain-huggingface package and should be used instead. To use it run `pip install -U `langchain-huggingface` and import as `from `langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(
+2025-11-06 00:38:56,593 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: intfloat/multilingual-e5-large
+2025-11-06 00:39:01,507 - app.retrieval.bm25_retriever - INFO - SudachiPy tokenizer initialized successfully
+2025-11-06 00:39:01,507 - app.retrieval.hybrid_retriever - INFO - HybridRetriever initialized with fusion_method='rrf', weights=(vector:0.6, bm25:0.4), rrf_k=60, fetch_k_multiplier=2
+2025-11-06 00:39:01,507 - workflow - INFO - Retriever initialized (Hybrid)
+2025-11-06 00:39:01,508 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: intfloat/multilingual-e5-large
+2025-11-06 00:39:05,117 - ModeratorAgent - INFO - Embedding model initialized: intfloat/multilingual-e5-large
+2025-11-06 00:39:05,122 - workflow - INFO - DebateWorkflow initialized
+2025-11-06 00:39:05,122 - __main__ - INFO - Starting evaluation on 2 questions...
+2025-11-06 00:39:05,122 - __main__ - INFO - Question 1: 金融商品取引法第5条第6項により、公益又は投資者保護に欠けることがないものとして内閣府令で定める場合...
+2025-11-06 00:39:05,122 - workflow - INFO - Starting debate for query: 金融商品取引法第5条第6項により、公益又は投資者保護に欠けることがないものとして内閣府令で定める場合に該当することを理由として、届出書提出外国会社が金融商品取引法第5条第1項の届出書に代えて提出ことができる書類を教えてください。
+
+a. 第5条第1項の届出書に類する書類であって、届出書提出外国会社の本店所在地の母国語であるフランス語で記載されているもの
+b. 外国において開示予定の参照書類であって、英語で記載されているもの
+c. 第5条第1項の届出書に類する書類であって、英語で記載されているもの
+d. 外国において開示が行われている参照書類であって、日本語で記載されているもの
+
+上記の選択肢から最も適切なものを1つ選び、記号（a/b/c/d）のみを答えてください。
+2025-11-06 00:39:05,123 - workflow - INFO - Retrieving documents for: 金融商品取引法第5条第6項により、公益又は投資者保護に欠けることがないものとして内閣府令で定める場合に該当することを理由として、届出書提出外国会社が金融商品取引法第5条第1項の届出書に代えて提出ことができる書類を教えてください。
+
+a. 第5条第1項の届出書に類する書類であって、届出書提出外国会社の本店所在地の母国語であるフランス語で記載されているもの
+b. 外国において開示予定の参照書類であって、英語で記載されているもの
+c. 第5条第1項の届出書に類する書類であって、英語で記載されているもの
+d. 外国において開示が行われている参照書類であって、日本語で記載されているもの
+
+上記の選択肢から最も適切なものを1つ選び、記号（a/b/c/d）のみを答えてください。
+2025-11-06 00:39:05,123 - app.retrieval.hybrid_retriever - INFO - Hybrid retrieval returned 0 documents (method: rrf)
+2025-11-06 00:39:05,123 - workflow - INFO - Retrieved 0 documents
+2025-11-06 00:39:05,123 - workflow - INFO - Starting debate round 1
+2025-11-06 00:40:03,381 - workflow - INFO - Debate round 1 completed
+2025-11-06 00:40:03,382 - workflow - INFO - Evaluating debate round
+2025-11-06 00:40:27,706 - workflow - INFO - Agreement score: 0.98, Continue: False
+2025-11-06 00:40:27,706 - workflow - INFO - Finalizing debate
+2025-11-06 00:40:27,707 - __main__ - INFO - Question 1 - Correct: c, Predicted: a, Match: False, Rounds: 1, Agreement: 0.98, Time: 82.6s
+2025-11-06 00:40:27,707 - __main__ - INFO - Question 2: 次のうち、正しいものを教えてください。...
+2025-11-06 00:40:27,707 - workflow - INFO - Starting debate for query: 次のうち、正しいものを教えてください。
+
+a. 金融商品取引所に上場されている特定上場有価証券を発行する場合には、金融商品取引法第24条第1項に基づき、有価証券報告書を提出する必要がある
+b. 外国会社が有価証券報告書を提出する場合には、当該事業年度経過後六月以内に提出する必要がある
+c. 内国会社が有価証券報告書を提出する場合には、当該事業年度経過後六月以内に提出する必要がある
+d. その募集又は売出しにつき金融商品取引法第４条第１項本文の適用を受けた有価証券について、金融商品取引所に上場されていなければ、有価証券報告書を提出する必要がない
+
+上記の選択肢から最も適切なものを1つ選び、記号（a/b/c/d）のみを答えてください。
+2025-11-06 00:40:27,707 - workflow - INFO - Retrieving documents for: 次のうち、正しいものを教えてください。
+
+a. 金融商品取引所に上場されている特定上場有価証券を発行する場合には、金融商品取引法第24条第1項に基づき、有価証券報告書を提出する必要がある
+b. 外国会社が有価証券報告書を提出する場合には、当該事業年度経過後六月以内に提出する必要がある
+c. 内国会社が有価証券報告書を提出する場合には、当該事業年度経過後六月以内に提出する必要がある
+d. その募集又は売出しにつき金融商品取引法第４条第１項本文の適用を受けた有価証券について、金融商品取引所に上場されていなければ、有価証券報告書を提出する必要がない
+
+上記の選択肢から最も適切なものを1つ選び、記号（a/b/c/d）のみを答えてください。
+2025-11-06 00:40:27,707 - app.retrieval.hybrid_retriever - INFO - Hybrid retrieval returned 0 documents (method: rrf)
+2025-11-06 00:40:27,708 - workflow - INFO - Retrieved 0 documents
+2025-11-06 00:40:27,708 - workflow - INFO - Starting debate round 1

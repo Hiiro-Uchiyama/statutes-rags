@@ -1,0 +1,89 @@
+{
+  "config": {
+    "rag_enabled": true,
+    "retriever_type": "hybrid",
+    "llm_model": "qwen3:14b",
+    "few_shot_enabled": true,
+    "reranker_enabled": false,
+    "reranker_model": null,
+    "rerank_top_n": null,
+    "ensemble_runs": null,
+    "top_k": 3,
+    "total_samples": 5
+  },
+  "summary": {
+    "accuracy": 0.0,
+    "correct_count": 0,
+    "total_count": 5
+  },
+  "results": [
+    {
+      "question": "金融商品取引法第5条第6項により、公益又は投資者保護に欠けることがないものとして内閣府令で定める場合に該当することを理由として、届出書提出外国会社が金融商品取引法第5条第1項の届出書に代えて提出ことができる書類を教えてください。",
+      "choices": "a 第5条第1項の届出書に類する書類であって、届出書提出外国会社の本店所在地の母国語であるフランス語で記載されているもの\nb 外国において開示予定の参照書類であって、英語で記載されているもの\nc 第5条第1項の届出書に類する書類であって、英語で記載されているもの\nd 外国において開示が行われている参照書類であって、日本語で記載されているもの",
+      "correct_answer": "c",
+      "predicted_answer": "error",
+      "is_correct": false,
+      "response": "Ollama call failed with status code 404. Maybe your model is not found and you should pull the model with `ollama pull qwen3:14b`.",
+      "retrieved_docs_count": 3,
+      "file_name": "金商法_第2章_選択式_関連法令_問題番号57",
+      "references": [
+        "https://laws.e-gov.go.jp/law/323AC0000000025"
+      ]
+    },
+    {
+      "question": "次のうち、正しいものを教えてください。",
+      "choices": "a 金融商品取引所に上場されている特定上場有価証券を発行する場合には、金融商品取引法第24条第1項に基づき、有価証券報告書を提出する必要がある\nb 外国会社が有価証券報告書を提出する場合には、当該事業年度経過後六月以内に提出する必要がある\nc 内国会社が有価証券報告書を提出する場合には、当該事業年度経過後六月以内に提出する必要がある\nd その募集又は売出しにつき金融商品取引法第４条第１項本文の適用を受けた有価証券について、金融商品取引所に上場されていなければ、有価証券報告書を提出する必要がない",
+      "correct_answer": "b",
+      "predicted_answer": "error",
+      "is_correct": false,
+      "response": "Ollama call failed with status code 404. Maybe your model is not found and you should pull the model with `ollama pull qwen3:14b`.",
+      "retrieved_docs_count": 3,
+      "file_name": "金商法_第2章_選択式_関連法令_問題番号58",
+      "references": [
+        "https://laws.e-gov.go.jp/law/323AC0000000025",
+        "https://laws.e-gov.go.jp/law/340CO0000000321"
+      ]
+    },
+    {
+      "question": "金融商品取引法施行令第2条の12に定める取得勧誘又は売付け勧誘等に関する説明として、正しいものを教えてください。",
+      "choices": "a 外国会社が発行する株券等は対象とされていない\nb 一定期間を超える期間譲渡が禁止される旨の制限が付されている株券等のみが対象となる\nc 取締役等以外の者を含めた者を対象として株券等を付与する場合も対象となる\nd 株券等の発行者である会社の取締役等のみが対象となる",
+      "correct_answer": "b",
+      "predicted_answer": "error",
+      "is_correct": false,
+      "response": "Ollama call failed with status code 404. Maybe your model is not found and you should pull the model with `ollama pull qwen3:14b`.",
+      "retrieved_docs_count": 3,
+      "file_name": "金商法_第2章_選択式_関連法令_問題番号59",
+      "references": [
+        "https://laws.e-gov.go.jp/law/340CO0000000321",
+        "https://www.fsa.go.jp/common/law/kaiji/250221_kaiji.pdf"
+      ]
+    },
+    {
+      "question": "金融商品取引法第13条の規定により作成する目論見書及び金融商品取引法第13条第5項の目論見書以外のその他の資料に関する説明として正しいものを教えてください。",
+      "choices": "a 目論見書には、必ず「目論見書」という文字を使用しなければならない\nb 目論見書以外のその他の資料を使用する場合には、当該その他の資料が目論見書であるとの誤解を生じないようにする必要がある\nc 目録見書以外のその他の資料には、口頭説明等による表示は含まれない\nd 目論見書以外のその他の資料を作成することはできない",
+      "correct_answer": "b",
+      "predicted_answer": "error",
+      "is_correct": false,
+      "response": "Ollama call failed with status code 404. Maybe your model is not found and you should pull the model with `ollama pull qwen3:14b`.",
+      "retrieved_docs_count": 3,
+      "file_name": "金商法_第2章_選択式_関連法令_問題番号60",
+      "references": [
+        "https://laws.e-gov.go.jp/law/323AC0000000025",
+        "https://www.fsa.go.jp/common/law/kaiji/250221_kaiji.pdf"
+      ]
+    },
+    {
+      "question": "金融商品取引法第8条により規定される、法第4条第1項から第3項までの規定による届出について、誤っているものを教えてください。",
+      "choices": "a 第5条第1項及び第13項若しくは第7条第1項の規定による届出書類の内容が公衆に容易に理解されると認める場合は、内閣総理大臣は、当該届出者に対し、15日に満たない期間を指定することができる\nb 第5条第1項及び第13項若しくは第7条第1項の規定による届出書類の届出者に係る第5条第1項第2号に掲げる事項に関する情報が既に公衆に広範に提供されていると認める場合は、内閣総理大臣は、当該届出者に対し、届出が、直ちに効力を生ずる旨を通知することができる\nc 内閣総理大臣が、金融商品取引法第８条第１項に規定する期間に満たない期間を指定し、又は、届出が直ちに又は届出書を受理した日の翌日に効力を生ずる旨の通知をしない場合には、届出は、内閣総理大臣が第5条第1項の規定による届出書を受理した日から10日を経過した日に、その効力を生ずる\nd 内閣総理大臣が、金融商品取引法第８条第１項に規定する期間に満たない期間を指定し、又は、届出が直ちに又は届出書を受理した日の翌日に効力を生ずる旨の通知をしない場合には、届出は、内閣総理大臣が第5条第1項の規定による届出書を受理した日から15日を経過した日に、その効力を生ずる",
+      "correct_answer": "c",
+      "predicted_answer": "error",
+      "is_correct": false,
+      "response": "Ollama call failed with status code 404. Maybe your model is not found and you should pull the model with `ollama pull qwen3:14b`.",
+      "retrieved_docs_count": 3,
+      "file_name": "金商法_第2章_選択式_関連法令_問題番号61",
+      "references": [
+        "https://laws.e-gov.go.jp/law/323AC0000000025"
+      ]
+    }
+  ]
+}

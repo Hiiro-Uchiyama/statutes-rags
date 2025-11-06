@@ -1,0 +1,108 @@
+{
+  "accuracy": 0.0,
+  "correct_count": 0,
+  "total": 2,
+  "avg_iterations": 0.0,
+  "avg_llm_calls": 2.0,
+  "results": [
+    {
+      "question_index": 0,
+      "question": "金融商品取引法第5条第6項により、公益又は投資者保護に欠けることがないものとして内閣府令で定める場合に該当することを理由として、届出書提出外国会社が金融商品取引法第5条第1項の届出書に代えて提出ことができる書類を教えてください。",
+      "choices": [
+        "a 第5条第1項の届出書に類する書類であって、届出書提出外国会社の本店所在地の母国語であるフランス語で記載されているもの",
+        "b 外国において開示予定の参照書類であって、英語で記載されているもの",
+        "c 第5条第1項の届出書に類する書類であって、英語で記載されているもの",
+        "d 外国において開示が行われている参照書類であって、日本語で記載されているもの"
+      ],
+      "correct_answer": "c",
+      "predicted_answer": "a",
+      "is_correct": false,
+      "raw_answer": "",
+      "citations": [
+        {
+          "law_title": "農業協同組合法施行規則",
+          "article": "14",
+          "paragraph": "4",
+          "item": null
+        },
+        {
+          "law_title": "行政手続における特定の個人を識別するための番号の利用等に関する法律",
+          "article": "1",
+          "paragraph": "1",
+          "item": "3"
+        },
+        {
+          "law_title": "電子計算機を使用して作成する国税関係帳簿書類の保存方法等の特例に関する法律施行規則",
+          "article": "5",
+          "paragraph": "7",
+          "item": null
+        },
+        {
+          "law_title": "農業協同組合法施行規則",
+          "article": "2",
+          "paragraph": "1",
+          "item": null
+        }
+      ],
+      "metadata": {
+        "complexity": "complex",
+        "query_type": "application",
+        "iterations": 0,
+        "confidence": 0.7,
+        "agents_used": [
+          "manager",
+          "retrieval"
+        ],
+        "retrieval_strategy": "bm25",
+        "is_valid": true
+      }
+    },
+    {
+      "question_index": 1,
+      "question": "次のうち、正しいものを教えてください。",
+      "choices": [
+        "a 金融商品取引所に上場されている特定上場有価証券を発行する場合には、金融商品取引法第24条第1項に基づき、有価証券報告書を提出する必要がある",
+        "b 外国会社が有価証券報告書を提出する場合には、当該事業年度経過後六月以内に提出する必要がある",
+        "c 内国会社が有価証券報告書を提出する場合には、当該事業年度経過後六月以内に提出する必要がある",
+        "d その募集又は売出しにつき金融商品取引法第４条第１項本文の適用を受けた有価証券について、金融商品取引所に上場されていなければ、有価証券報告書を提出する必要がない"
+      ],
+      "correct_answer": "b",
+      "predicted_answer": "a",
+      "is_correct": false,
+      "raw_answer": "",
+      "citations": [
+        {
+          "law_title": "行政手続における特定の個人を識別するための番号の利用等に関する法律",
+          "article": "1",
+          "paragraph": "1",
+          "item": "7"
+        },
+        {
+          "law_title": "国の援助等を必要とする帰国者に関する領事官の職務等に関する法律",
+          "article": "1",
+          "paragraph": "1",
+          "item": "2"
+        },
+        {
+          "law_title": "介護保険法",
+          "article": "115_36",
+          "paragraph": "1",
+          "item": null
+        }
+      ],
+      "metadata": {
+        "complexity": "complex",
+        "query_type": "application",
+        "iterations": 0,
+        "confidence": 0.7,
+        "agents_used": [
+          "manager",
+          "retrieval"
+        ],
+        "retrieval_strategy": "bm25",
+        "is_valid": true
+      }
+    }
+  ],
+  "timestamp": "2025-11-07T02:29:53.976376"
+}
