@@ -201,19 +201,20 @@ class AgenticRAGPipeline:
     
     def _retrieve_node(self, state: AgenticRAGState) -> AgenticRAGState:
         """検索ノード"""
+        query = state["query"]
+        query_type = state.get("query_type", "lookup")
+        
         result = self.retrieval.execute({
-            "query": state["query"],
-            "query_type": state["query_type"],
-            "complexity": state["complexity"]
+            "query": query,
+            "query_type": query_type
         })
         
         state["documents"] = result["documents"]
         state["retrieval_strategy"] = result["strategy"]
-        state["confidence"] = result["quality"]["score"]
-        state["needs_retry"] = not result["quality"]["is_sufficient"]
+        state["confidence"] = result.get("quality_score", 0.5)
         state["agents_used"].append("retrieval")
         
-        logger.info(f"Retrieved {len(result['documents'])} docs, confidence={result['quality']['score']:.3f}")
+        logger.info(f"Retrieved {len(result['documents'])} documents using {result['strategy']}")
         
         return state
     
@@ -223,6 +224,7 @@ class AgenticRAGPipeline:
             # Reasoning無効時は簡易生成
             state["reasoning"] = self._generate_simple_answer(state)
             state["legal_structure"] = {}
+            state["needs_retry"] = False  # 再試行不要
             return state
         
         result = self.reasoning.execute({
@@ -235,6 +237,7 @@ class AgenticRAGPipeline:
         state["legal_structure"] = result["legal_structure"]
         state["answer"] = result["reasoning"]  # 推論結果を回答として使用
         state["agents_used"].append("reasoning")
+        state["needs_retry"] = False  # 再試行不要（デフォルト）
         
         logger.info("Reasoning completed")
         
@@ -358,8 +361,7 @@ class AgenticRAGPipeline:
         if not state.get("needs_retry", False):
             return "validate"
         
-        # 継続
-        state["iteration"] += 1
+        # 継続（iterationのインクリメントはretrieveノードで行う）
         logger.info(f"Continue iteration: {state['iteration']}/{state['max_iterations']}")
         return "continue"
     
@@ -369,9 +371,8 @@ class AgenticRAGPipeline:
         if state["is_valid"] or state["iteration"] >= state["max_iterations"]:
             return "end"
         
-        # 再試行
+        # 再試行（iterationのインクリメントはretrieveノードで行う）
         if state["iteration"] < state["max_iterations"]:
-            state["iteration"] += 1
             logger.info("Retry due to validation failure")
             return "retry"
         

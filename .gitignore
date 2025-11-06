@@ -44,19 +44,23 @@ setup/datasets/
 .DS_Store
 Thumbs.db
 
-# Log files
-###################
-*.log
-setup/*.log
-
 # Downloaded files
 ###################
 setup/*.tgz
 
 # Test & Evaluation Results
 ###################
-evaluation_results.json
 test_mecab.json
+
+# Results and Logs
+###################
+results/
+!results/README.md
+!results/evaluations/
+results/evaluations/*
+!results/evaluations/README.md
+logs/
+!logs/README.md
 
 # Datasets
 ###################
@@ -81,7 +85,6 @@ datasets/criminal_law_exams/*
 data/
 !data/README.md
 # Evaluation results with numbers
-evaluation_results_*.json
 
 # Test scripts in root
 test_retrieval.py

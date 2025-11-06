@@ -25,7 +25,7 @@ class RAGPipeline:
         reranker: Optional[BaseReranker] = None,
         top_k: int = 10,
         rerank_top_n: int = 5,
-        max_context_length: int = 4000,  # 最大コンテキスト長（文字数）
+        max_context_length: int = 6000,  # 最大コンテキスト長（文字数）- 4000から6000に増加
         request_timeout: int = 60  # LLMリクエストのタイムアウト（秒）
     ):
         # パラメータのバリデーション

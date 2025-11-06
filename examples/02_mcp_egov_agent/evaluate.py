@@ -40,7 +40,11 @@ load_config = mcp_module.load_config
 def create_retriever(config):
     """設定に基づいてRetrieverを作成"""
     retriever_type = config.retriever.retriever_type
-    index_path = Path(config.vector_store_path)
+    
+    # プロジェクトルートからの相対パスを構築
+    # evaluate.pyは examples/02_mcp_egov_agent/ にあるので、../../ でプロジェクトルートに戻る
+    project_root = Path(__file__).parent.parent.parent
+    index_path = project_root / config.vector_store_path
     
     if retriever_type == "vector":
         return VectorRetriever(
@@ -83,12 +87,42 @@ def load_dataset(dataset_path: Path) -> List[Dict[str, Any]]:
     with open(dataset_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    if isinstance(data, dict) and 'questions' in data:
+    # samples形式の場合
+    if isinstance(data, dict) and 'samples' in data:
+        samples = data['samples']
+        # 日本語フィールドを英語フィールドに変換
+        converted = []
+        for sample in samples:
+            converted_sample = {
+                'id': sample.get('ファイル名', ''),
+                'question': sample.get('問題文', ''),
+                'choices': parse_choices(sample.get('選択肢', '')),
+                'answer': sample.get('output', '').lower(),
+                'context': sample.get('コンテキスト', '')
+            }
+            converted.append(converted_sample)
+        return converted
+    # questions形式の場合
+    elif isinstance(data, dict) and 'questions' in data:
         return data['questions']
+    # リスト形式の場合
     elif isinstance(data, list):
         return data
     else:
         raise ValueError(f"Unknown dataset format: {dataset_path}")
+
+
+def parse_choices(choices_text: str) -> Dict[str, str]:
+    """選択肢テキストを辞書に変換"""
+    choices = {}
+    lines = choices_text.strip().split('\n')
+    for line in lines:
+        line = line.strip()
+        if line and line[0] in ['a', 'b', 'c', 'd'] and len(line) > 2 and line[1] == ' ':
+            key = line[0]
+            value = line[2:].strip()
+            choices[key] = value
+    return choices
 
 
 def create_multiple_choice_prompt(question: str, choices: str, context: str = "") -> str:
@@ -162,9 +196,12 @@ def evaluate_question(
     question_id = question_data.get("id", "")
     
     # 選択肢の整形
-    choices_text = "\n".join([
-        f"{key}. {value}" for key, value in choices.items()
-    ])
+    if isinstance(choices, dict):
+        choices_text = "\n".join([
+            f"{key}. {value}" for key, value in sorted(choices.items())
+        ])
+    else:
+        choices_text = str(choices)
     
     start_time = time.time()
     

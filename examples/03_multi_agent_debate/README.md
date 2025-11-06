@@ -387,7 +387,9 @@ pytest tests/test_quick.py -v
 ```
 03_multi_agent_debate/
 ├── __init__.py
-├── README.md                    # このファイル
+├── README.md                    # このファイル（システム概要）
+├── SETUP.md                     # セットアップガイド
+├── USAGE.md                     # 使用方法ガイド（ステップバイステップ）
 ├── config.py                    # 設定管理
 ├── workflow.py                  # LangGraph議論ワークフロー
 ├── evaluate.py                  # 評価スクリプト
@@ -395,22 +397,27 @@ pytest tests/test_quick.py -v
 │   ├── __init__.py
 │   ├── debater.py               # 議論エージェント
 │   └── moderator.py             # モデレーター
-└── tests/
-    ├── __init__.py
-    ├── conftest.py              # テストフィクスチャ
-    ├── test_multi_agent_debate.py  # 単体テスト
-    └── test_quick.py            # クイックテスト
+├── tests/
+│   ├── __init__.py
+│   ├── conftest.py              # テストフィクスチャ
+│   ├── test_multi_agent_debate.py  # 単体テスト
+│   └── test_quick.py            # クイックテスト
+└── results/                     # 評価結果（.gitignoreで除外）
+    └── archive/                 # 過去の結果
 ```
 
 ## 動作確認
 
 ### 確認日時
-2024年11月6日
+2024年11月7日
 
 ### テスト結果
-- クイックテスト: 全5項目パス
-- Pytest単体テスト: 全16テストパス
-- 実際のLLM評価: 動作確認完了
+- クイックテスト: 全5項目パス ✓
+- 簡易評価（3問）: 実行完了 ✓
+  - 議論システム正常動作
+  - 合意形成率: 100%
+  - 平均合意スコア: 0.921
+  - 平均処理時間: 137.8秒/問
 
 ### 実際のLLM評価結果（Ollama + qwen3:8b）
 

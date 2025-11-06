@@ -21,7 +21,7 @@ source .venv/bin/activate
 # デフォルト設定
 SAMPLES=${1:-50}
 TOP_K=${2:-10}
-OUTPUT=${3:-evaluation_results_final.json}
+OUTPUT=${3:-results/evaluations/evaluation_results_final.json}
 
 echo "Configuration:"
 echo "  RETRIEVER_TYPE: $RETRIEVER_TYPE (BM25無効化、メモリ問題回避)"

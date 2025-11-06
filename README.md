@@ -10,7 +10,6 @@
 - [docs/03-USAGE.md](docs/03-USAGE.md) - 各スクリプトの詳細な使用方法
 - [docs/04-TESTING.md](docs/04-TESTING.md) - テスト実行ガイド
 - [docs/05-ARCHITECTURE.md](docs/05-ARCHITECTURE.md) - コードベースの構造とモジュール説明
-- [docs/11-MCP-BENCHMARK.md](docs/11-MCP-BENCHMARK.md) - MCPエージェント ベンチマーク評価ガイド
 
 初回の週は「技術調査や課題の調査」を行います。
 `RAG`や`MCPサーバ`技術検証対象を実務レベルの実装や研究、最新状況を把握しましょう。
@@ -79,45 +78,10 @@ source setup/restore_env.sh
 ./scripts/evaluate.sh 50
 
 # 結果の確認
-cat evaluation_results_final.json | python3 -m json.tool | head -20
+cat results/evaluations/evaluation_results_final.json | python3 -m json.tool | head -20
 ```
 
 **注意**: デフォルトでVector-Onlyモード（`RETRIEVER_TYPE=vector`）が使用されます。BM25モードはメモリ制約により使用できません。
 
-### 2. MCP Agent 評価（e-Gov API統合）
-
-MCPエージェント（e-Gov API + ローカル検索のハイブリッド）での評価：
-
-```bash
-# MCP Agent評価のみ実行（API優先モード）
-python scripts/evaluate_mcp_benchmark.py --samples 50 --mode api_preferred
-
-# ローカル優先モード
-python scripts/evaluate_mcp_benchmark.py --samples 50 --mode local_preferred
-
-# 結果の確認
-cat mcp_benchmark_results.json | python3 -m json.tool | head -30
-```
-
-### 3. ベンチマーク比較（Vector vs MCP Agent）
-
-両方の評価を自動実行して結果を比較：
-
-```bash
-# 50サンプルで両方の評価を実行して比較
-./scripts/run_benchmark_comparison.sh 50
-
-# 10サンプルでクイック比較
-./scripts/run_benchmark_comparison.sh 10
-```
-
 **出力ファイル**:
-- `evaluation_results_final.json` - Vector-based評価結果
-- `mcp_benchmark_results.json` - MCP Agent評価結果  
-- `benchmark_comparison.json` - 比較レポート
-
-**比較内容**:
-- 正答率の差分
-- 平均応答時間の差分
-- API使用状況（MCPのみ）
-- データソース別の精度（MCPのみ）
+- `results/evaluations/evaluation_results_final.json` - 評価結果

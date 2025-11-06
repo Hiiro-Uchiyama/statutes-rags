@@ -154,7 +154,7 @@ def main():
     parser.add_argument(
         "--output",
         type=Path,
-        default=PROJECT_ROOT / "data" / "evaluation_report.json",
+        default=PROJECT_ROOT / "results" / "evaluations" / "ragas_evaluation.json",
         help="評価レポート出力先"
     )
     parser.add_argument(

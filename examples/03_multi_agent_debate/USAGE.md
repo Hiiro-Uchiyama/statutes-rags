@@ -1,176 +1,303 @@
 # Multi-Agent Debate - 使用方法ガイド
 
-## クイックスタート
+このガイドは上から順に実行することで、動作確認から評価実験まで完了できるように構成されています。
 
-### 1. セットアップ
+## 前提条件
+
+セットアップが完了していることを確認してください。未完了の場合は [SETUP.md](./SETUP.md) を参照してください。
+
+### セットアップ確認
 
 ```bash
-# プロジェクトルートに移動
-cd /path/to/statutes-rags
+# 1. 仮想環境を有効化
+cd /home/toronto02/statutes-rags
+source .venv/bin/activate
 
-# 依存関係をインストール（初回のみ）
-uv pip install langchain-community langchain-core langgraph langchain-ollama
+# 2. Ollamaが起動しているか確認
+curl http://localhost:11434/api/tags
 
-# または pip を使用
-pip install langchain-community langchain-core langgraph langchain-ollama
+# Ollamaが起動していない場合
+source setup/restore_env.sh
+
+# 3. FAISSインデックスの確認
+ls -la data/faiss_index/vector/index.faiss
+ls -la data/faiss_index/bm25/index.pkl
+
+# 4. LangGraphの確認
+python -c "import langgraph; print('LangGraph OK')"
 ```
 
-### 2. Ollamaの起動とモデルのダウンロード
+すべての確認が成功したら、次のステップに進んでください。
+
+---
+
+## ステップ1: クイックテスト（モック使用）
+
+実際のLLMやデータを使用せず、基本動作を確認します。
 
 ```bash
-# Ollamaを起動（別ターミナル）
-ollama serve
-
-# qwen3:8b モデルをダウンロード（初回のみ、サイズ大）
-ollama pull qwen3:8b
-
-# または、より軽量なモデル
-ollama pull gpt-oss:7b
-```
-
-### 3. インデックスの確認
-
-```bash
-# インデックスが存在することを確認
-ls -la data/faiss_index/vector
-ls -la data/faiss_index/bm25
-
-# インデックスがない場合は構築
-make index
-# または
-python scripts/build_index.py
-```
-
-### 4. 評価の実行
-
-#### 基本的な使用方法
-
-```bash
-# examples/03_multi_agent_debate ディレクトリに移動
+# examples/03_multi_agent_debateに移動
 cd examples/03_multi_agent_debate
 
-# テスト実行（最初の3問のみ）
-python evaluate.py \
-    --dataset ../../datasets/lawqa_jp/data/selection.json \
-    --limit 3 \
-    --output results/test_debate.json
+# クイックテストを実行
+python tests/test_quick.py
 ```
 
-#### 全問題の評価
+**期待される出力:**
+
+```
+test_config_loading ... ok
+test_debater_initialization ... ok
+test_moderator_initialization ... ok
+test_workflow_initialization ... ok
+test_basic_workflow ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.XXXs
+
+OK
+```
+
+すべてのテストがパスすれば、実装は正常です。
+
+---
+
+## ステップ2: 簡易評価テスト（3問）
+
+実際のLLMとデータを使用して、3問で動作確認します。
 
 ```bash
-# 全問題を評価（時間がかかります: 約5分/問）
+# examples/03_multi_agent_debateで実行（ステップ1から続けて実行）
 python evaluate.py \
-    --dataset ../../datasets/lawqa_jp/data/selection.json \
-    --output results/full_debate.json
+  --dataset ../../datasets/lawqa_jp/data/selection.json \
+  --limit 3 \
+  --output results/test_quick.json
 ```
 
-#### 結果の確認
+**実行時間:** 約5-10分（1問あたり2-3分）
+
+**結果の確認:**
 
 ```bash
 # 評価結果のサマリーを確認
-cat results/test_debate.json | python -m json.tool | head -50
+cat results/test_quick.json | python -m json.tool | head -50
 
-# または、評価実行時に自動で表示されます
+# 精度のみを確認
+python -c "
+import json
+with open('results/test_quick.json') as f:
+    data = json.load(f)
+    summary = data['summary']
+    print(f\"正答率: {summary['correct_answers']}/{summary['total_questions']} = {summary['accuracy']*100:.1f}%\")
+    print(f\"平均ラウンド数: {summary['avg_rounds']:.2f}\")
+    print(f\"平均合意スコア: {summary['avg_agreement_score']:.2f}\")
+"
 ```
 
-## コマンドオプション
+---
+
+## ステップ3: 中規模評価（10問）
+
+10問で評価を実行し、システムのパフォーマンスを確認します。
+
+```bash
+# examples/03_multi_agent_debateで実行
+python evaluate.py \
+  --dataset ../../datasets/lawqa_jp/data/selection.json \
+  --limit 10 \
+  --output results/eval_10.json
+```
+
+**実行時間:** 約20-30分
+
+**結果の確認:**
+
+```bash
+cat results/eval_10.json | python -m json.tool | head -50
+```
+
+---
+
+## ステップ4: 本番評価（全問題）
+
+全問題で評価を実行します。実行時間が長いため、バックグラウンド実行を推奨します。
+
+```bash
+# examples/03_multi_agent_debateで実行
+
+# バックグラウンド実行（推奨）
+nohup python evaluate.py \
+  --dataset ../../datasets/lawqa_jp/data/selection.json \
+  --output results/full_evaluation.json \
+  > results/evaluation.log 2>&1 &
+
+# プロセスIDを確認
+echo $!
+
+# 進捗確認
+tail -f results/evaluation.log
+
+# または、フォアグラウンド実行
+python evaluate.py \
+  --dataset ../../datasets/lawqa_jp/data/selection.json \
+  --output results/full_evaluation.json
+```
+
+**実行時間:** 約2-5時間（問題数による）
+
+**結果の確認:**
+
+```bash
+# サマリーを確認
+cat results/full_evaluation.json | python -m json.tool | head -80
+
+# 詳細な統計を表示
+python -c "
+import json
+with open('results/full_evaluation.json') as f:
+    data = json.load(f)
+    summary = data['summary']
+    print('=== 評価結果サマリー ===')
+    print(f\"総問題数: {summary['total_questions']}\")
+    print(f\"正答数: {summary['correct_answers']}\")
+    print(f\"正答率: {summary['accuracy']*100:.2f}%\")
+    print(f\"平均ラウンド数: {summary['avg_rounds']:.2f}\")
+    print(f\"平均合意スコア: {summary['avg_agreement_score']:.3f}\")
+    print(f\"合意形成率: {summary['agreement_formation_rate']*100:.1f}%\")
+    print(f\"平均処理時間: {summary['avg_time_per_question']:.1f}秒/問\")
+    if summary.get('errors', 0) > 0:
+        print(f\"エラー数: {summary['errors']}\")
+"
+```
+
+---
+
+## 評価結果の分析
+
+評価完了後、結果を詳しく分析できます。
+
+### 結果ファイルの構造
+
+```json
+{
+  "timestamp": "2024-11-07T12:00:00",
+  "config": {
+    "max_debate_rounds": 3,
+    "agreement_threshold": 0.8,
+    "llm_model": "qwen3:8b"
+  },
+  "summary": {
+    "total_questions": 140,
+    "correct_answers": 105,
+    "accuracy": 0.75,
+    "avg_rounds": 2.3,
+    "avg_agreement_score": 0.82,
+    "agreement_formation_rate": 0.65,
+    "avg_time_per_question": 45.2
+  },
+  "results": [...]
+}
+```
+
+### 個別問題の確認
+
+```bash
+# 特定の問題を詳しく確認（問題0の場合）
+python -c "
+import json
+with open('results/full_evaluation.json') as f:
+    data = json.load(f)
+    result = data['results'][0]
+    print(f\"質問: {result['question'][:100]}...\")
+    print(f\"正解: {result['correct_answer']}\")
+    print(f\"予測: {result['predicted_answer']}\")
+    print(f\"正誤: {'正解' if result['is_correct'] else '不正解'}\")
+    print(f\"\\n=== 議論履歴 ===\")
+    for h in result['debate_history']:
+        print(f\"\\nラウンド {h['round']}:\")
+        print(f\"  Debater A: {h['debater_a']['position']}\")
+        print(f\"  Debater B: {h['debater_b']['position']}\")
+"
+```
+
+---
+
+## 高度な使用方法
+
+### コマンドオプション
 
 | オプション | 説明 | デフォルト値 |
 |-----------|------|------------|
 | `--dataset` | 評価データセットのパス（必須） | - |
 | `--output` | 結果の出力先 | `results/evaluation_{timestamp}.json` |
 | `--limit` | 評価する最大問題数 | なし（全問題） |
-| `--config` | 設定ファイルのパス | `config.yaml` |
 
-## 設定ファイル（config.yaml）
+### 環境変数によるカスタマイズ
 
-Multi-Agent Debateシステムの動作は `config.yaml` で細かく制御できます：
+Multi-Agent Debateの動作は環境変数でカスタマイズできます：
 
-```yaml
-# LLMモデル設定
-model_name: "qwen3:8b"  # 使用するOllamaモデル
-temperature: 0.3           # 生成の多様性（0.0-1.0）
-max_tokens: 2000          # 最大トークン数
+```bash
+# 高速化設定
+export DEBATE_MAX_ROUNDS=1
+export DEBATE_RETRIEVAL_TOP_K=5
+export LLM_MODEL=gpt-oss:7b
+export LLM_TEMPERATURE=0.1
 
-# 議論設定
-max_debate_rounds: 3      # 最大議論ラウンド数
-agreement_threshold: 0.9  # 合意と判定するスコア閾値
+# 高精度設定
+export DEBATE_MAX_ROUNDS=5
+export DEBATE_AGREEMENT_THRESHOLD=0.9
+export DEBATE_RETRIEVAL_TOP_K=15
+export LLM_TEMPERATURE=0.3
 
-# 検索設定
-retrieval_top_k: 10       # 取得する文書数
-vector_store_path: "data/faiss_index"  # インデックスパス
-embedding_model: "intfloat/multilingual-e5-large"
+# 評価を実行
+python evaluate.py --dataset ../../datasets/lawqa_jp/data/selection.json --limit 10
 ```
 
-### 高速化設定
+主要な環境変数：
 
-```yaml
-# より高速な評価のための設定例
-model_name: "gpt-oss:7b"   # 軽量モデル
-max_debate_rounds: 1       # 1ラウンドのみ
-retrieval_top_k: 5         # 文書数を削減
-temperature: 0.1           # より確実な出力
+| 環境変数 | 説明 | デフォルト値 |
+|---------|------|------------|
+| `DEBATE_MAX_ROUNDS` | 最大議論ラウンド数 | 3 |
+| `DEBATE_AGREEMENT_THRESHOLD` | 合意判定の閾値 | 0.8 |
+| `DEBATE_RETRIEVAL_TOP_K` | 検索文書数 | 10 |
+| `LLM_MODEL` | 使用するLLMモデル | qwen3:8b |
+| `LLM_TEMPERATURE` | LLMの温度パラメータ | 0.1 |
+| `LLM_TIMEOUT` | LLMタイムアウト（秒） | 60 |
+
+### Pythonスクリプトからの使用
+
+```python
+import sys
+from pathlib import Path
+
+# パスを追加
+sys.path.insert(0, str(Path.cwd().parent.parent))
+sys.path.insert(0, str(Path.cwd()))
+
+from workflow import DebateWorkflow
+from config import MultiAgentDebateConfig
+
+# カスタム設定
+config = MultiAgentDebateConfig(
+    max_debate_rounds=5,
+    agreement_threshold=0.9,
+    llm_temperature=0.0,
+    retrieval_top_k=15
+)
+
+# ワークフローの初期化
+workflow = DebateWorkflow(config)
+
+# 質問を実行
+result = workflow.query("会社法第26条について教えてください")
+
+# 結果の表示
+print("回答:", result["answer"])
+print("ラウンド数:", result["metadata"]["rounds"])
+print("合意スコア:", result["metadata"]["agreement_score"])
 ```
 
-### 高精度設定
-
-```yaml
-# より高精度な評価のための設定例
-model_name: "qwen3:8b"  # 大規模モデル
-max_debate_rounds: 5       # 議論を深める
-agreement_threshold: 0.95  # より厳密な合意基準
-retrieval_top_k: 15        # より多くの文書を参照
-temperature: 0.5           # 適度な多様性
-```
-
-## 評価結果の形式
-
-評価結果は以下の形式で出力されます：
-
-```json
-{
-  "summary": {
-    "total_questions": 3,
-    "correct_answers": 2,
-    "accuracy": 0.6667,
-    "avg_rounds": 1.33,
-    "avg_agreement_score": 0.94,
-    "agreement_formation_rate": 1.0,
-    "avg_time_per_question": 45.2,
-    "errors": 0
-  },
-  "results": [
-    {
-      "question_index": 0,
-      "question": "金融商品取引法第5条...",
-      "choices": ["a ...", "b ...", "c ...", "d ..."],
-      "correct_answer": "c",
-      "predicted_answer": "c",
-      "is_correct": true,
-      "debate_rounds": 1,
-      "agreement_score": 0.99,
-      "debate_history": [
-        {
-          "round": 1,
-          "debater_a": {
-            "position": "c",
-            "reasoning": "...",
-            "citations": [...]
-          },
-          "debater_b": {
-            "position": "c",
-            "reasoning": "...",
-            "citations": [...]
-          }
-        }
-      ],
-      "elapsed_time": 26.4,
-      "error": null
-    }
-  ]
-}
-```
+---
 
 ## トラブルシューティング
 
@@ -216,28 +343,27 @@ ollama pull qwen3:8b
 
 ### 処理が遅い場合
 
-```bash
-# 軽量モデルを使用（config.yamlを編集）
-# model_name: "gpt-oss:7b"
-# max_debate_rounds: 1
-# retrieval_top_k: 5
+環境変数で設定を調整：
 
-# または、一時的に環境変数で設定
-python evaluate.py \
-    --dataset ../../datasets/lawqa_jp/data/selection.json \
-    --limit 3 \
-    --config config_fast.yaml
+```bash
+# 軽量設定
+export DEBATE_MAX_ROUNDS=1
+export DEBATE_RETRIEVAL_TOP_K=5
+export LLM_MODEL=gpt-oss:7b
+
+# 評価を実行
+python evaluate.py --dataset ../../datasets/lawqa_jp/data/selection.json --limit 3
 ```
 
 ### メモリ不足
 
 ```bash
 # より軽量なモデルを使用
-ollama pull gpt-oss:7b
-
-# config.yamlでモデルを変更
-# model_name: "gpt-oss:7b"
+export LLM_MODEL=gpt-oss:7b
+export DEBATE_RETRIEVAL_TOP_K=5
 ```
+
+詳細なトラブルシューティングは[SETUP.md](./SETUP.md)を参照してください。
 
 ## ワンライナーコマンド集
 

@@ -1,54 +1,126 @@
 # MCP e-Gov Agent - 使用方法ガイド
 
-## クイックスタート
+このガイドでは、MCP e-Gov Agentの使用方法を**上から順に実行できる形式**で説明します。
 
-### 1. セットアップ
+## 📋 前提条件
+
+セットアップが完了していない場合は、まず **[SETUP.md](SETUP.md)** を参照してセットアップを完了してください。
+
+以下が完了していることを確認:
+- Python 3.10以上のインストール
+- uvとOllamaのインストール
+- 仮想環境のセットアップ
+- データインデックスの構築
+- 簡易デモの動作確認
+
+## 🚀 クイックスタート
+
+### ステップ1: 環境の準備
 
 ```bash
 # プロジェクトルートに移動
 cd /path/to/statutes-rags
 
-# 全ての依存関係を一度にインストール（推奨）
-./setup/setup_uv_env.sh
-
 # 仮想環境を有効化
 source .venv/bin/activate
-```
 
-または、既存環境にExamples依存関係を追加:
-
-```bash
-cd /path/to/statutes-rags
-source .venv/bin/activate
-
-# Examples用の依存関係のみ追加
-uv pip install httpx tenacity
-```
-
-### 2. API接続テスト
-
-最小限の依存関係でAPI接続を確認:
-
-```bash
-# システムPythonで実行可能
-python3 -m pip install httpx tenacity
-
+# examples/02_mcp_egov_agentに移動
 cd examples/02_mcp_egov_agent
+```
+
+### ステップ2: API接続テスト（簡易）
+
+e-Gov API v2への接続を確認します:
+
+```bash
 python3 demo.py --simple
 ```
 
-### 3. 完全デモの実行
+**期待される出力**:
+```
+e-Gov API v2 接続テスト
+テスト1: 法令一覧取得 - 結果: XXX件の法律を取得しました
+テスト2: キーワード検索 - 結果: XX件の法令が見つかりました
+```
 
-仮想環境内で全機能をテスト:
+### ステップ3: 完全デモの実行
+
+全機能をテストします:
 
 ```bash
-cd examples/02_mcp_egov_agent
 python3 demo.py
 ```
 
-## コマンドオプション
+**確認される項目**:
+- e-Gov APIへの接続
+- 設定の読み込み
+- データパスの存在確認
 
-### デモスクリプト
+### ステップ4: ユニットテストの実行
+
+実装が正しく動作するか確認します:
+
+```bash
+# API接続テスト
+python3 tests/test_api_simple.py
+
+# 詳細APIテスト
+python3 tests/test_api_connection.py
+
+# パイプラインテスト（データインデックスが必要）
+python3 tests/test_pipeline.py
+
+# pytest実行（全テスト）
+pytest tests/ -v
+```
+
+### ステップ5: 最小評価テスト（10問）
+
+評価スクリプトが正しく動作するか確認します:
+
+```bash
+python evaluate.py \
+    --dataset ../../datasets/lawqa_jp/data/selection.json \
+    --output results/test_10.json \
+    --mode api_preferred \
+    --limit 10
+```
+
+**実行時間**: 約1-2分
+
+**期待される出力**:
+```
+評価結果
+全体正答率: XX.XX%
+総問題数: 10
+正答数: X
+データソース別正答率:
+  api: XX.XX%
+  local: XX.XX%
+```
+
+### ステップ6: 完全評価実験の実行
+
+全問題を評価します（**時間がかかります**）:
+
+```bash
+python evaluate.py \
+    --dataset ../../datasets/lawqa_jp/data/selection.json \
+    --output results/full_evaluation_$(date +%Y%m%d_%H%M%S).json \
+    --mode api_preferred
+```
+
+**実行時間**: 約10-30分（問題数とLLM性能に依存）
+
+**結果ファイル**: `results/full_evaluation_YYYYMMDD_HHMMSS.json`
+
+---
+
+## 📖 詳細な使用方法
+
+### コマンドオプション
+
+#### デモスクリプト
 
 ```bash
 # 完全デモ（全機能のチェック）
@@ -58,7 +130,7 @@ python3 demo.py
 python3 demo.py --simple
 ```
 
-### 評価スクリプト
+#### 評価スクリプト
 
 | オプション | 説明 | デフォルト値 |
 |-----------|------|------------|
@@ -67,30 +139,55 @@ python3 demo.py --simple
 | `--mode` | 評価モード | `api_preferred` |
 | `--limit` | 評価する最大問題数 | なし（全問題） |
 
-## 使用例
+### 評価モードの使い分け
 
-### 基本的な評価
+#### 1. API優先モード（推奨）
 
 ```bash
-cd examples/02_mcp_egov_agent
-
-# テスト実行（最初の10問のみ）
 python evaluate.py \
     --dataset ../../datasets/lawqa_jp/data/selection.json \
-    --output results/test_eval.json \
+    --output results/api_preferred.json \
     --mode api_preferred \
-    --limit 10
+    --limit 50
 ```
 
-### 全問題の評価
+**用途**: 本番想定の評価。APIを優先し、失敗時はローカルデータにフォールバック。
+
+#### 2. ローカル優先モード
 
 ```bash
-# 全問題を評価（API優先モード）
 python evaluate.py \
     --dataset ../../datasets/lawqa_jp/data/selection.json \
-    --output results/full_eval.json \
-    --mode api_preferred
+    --output results/local_preferred.json \
+    --mode local_preferred \
+    --limit 50
 ```
+
+**用途**: オフライン環境での評価。
+
+#### 3. API強制モード
+
+```bash
+python evaluate.py \
+    --dataset ../../datasets/lawqa_jp/data/selection.json \
+    --output results/api_forced.json \
+    --mode api_forced \
+    --limit 50
+```
+
+**用途**: API性能のみを評価（フォールバックなし）。
+
+#### 4. ローカル強制モード
+
+```bash
+python evaluate.py \
+    --dataset ../../datasets/lawqa_jp/data/selection.json \
+    --output results/local_forced.json \
+    --mode local_forced \
+    --limit 50
+```
+
+**用途**: ローカル性能のみを評価（APIを使用しない）。
 
 ### 評価モード
 
@@ -195,32 +292,57 @@ result = pipeline.query(
 )
 ```
 
-## テストの実行
+## 🧪 テストの実行
 
-### API接続テスト
+### テストの種類
+
+#### 1. API接続テスト（最小依存）
+
+e-Gov API v2への接続のみをテスト:
 
 ```bash
-# 簡易テスト
 python3 tests/test_api_simple.py
+```
 
-# 詳細テスト
+**依存関係**: httpxのみ
+
+#### 2. 詳細API接続テスト
+
+APIクライアントの全機能をテスト:
+
+```bash
 python3 tests/test_api_connection.py
 ```
 
-### パイプラインテスト
+**テスト項目**:
+- ヘルスチェック
+- キーワード検索
+- 法令一覧取得
+- エラーハンドリング
+
+#### 3. パイプライン統合テスト
+
+エンドツーエンドの動作をテスト:
 
 ```bash
 python3 tests/test_pipeline.py
 ```
 
-### pytestによる実行
+**前提**: データインデックスが構築済みであること
+
+#### 4. pytest実行
+
+すべてのテストを一括実行:
 
 ```bash
-# すべてのテストを実行
+# 全テスト実行
 pytest tests/ -v
 
-# カバレッジ付きで実行
+# カバレッジ付き実行
 pytest tests/ --cov=agents --cov-report=html
+
+# 特定のテストのみ実行
+pytest tests/test_api_simple.py -v
 ```
 
 ## ベンチマーク評価
@@ -299,27 +421,70 @@ source .venv/bin/activate
 cd examples/02_mcp_egov_agent
 ```
 
-## ワンライナーコマンド集
+## 📊 評価結果の分析
 
-### テスト評価（10問、API優先）
+### 結果ファイルの確認
 
 ```bash
-cd examples/02_mcp_egov_agent && \
-python evaluate.py --dataset ../../datasets/lawqa_jp/data/selection.json --limit 10 --mode api_preferred --output results/quick_test.json
+# 結果ファイルの一覧
+ls -lh results/
+
+# 最新の結果を表示（整形）
+python3 -m json.tool results/full_evaluation_*.json | less
+
+# 主要指標のみ抽出
+cat results/full_evaluation_*.json | python3 -m json.tool | grep -A 10 '"overall"'
 ```
 
-### 本番評価（全問題、標準設定）
+### 複数モードの比較
+
+異なるモードで評価を実行し、結果を比較:
 
 ```bash
-cd examples/02_mcp_egov_agent && \
-python evaluate.py --dataset ../../datasets/lawqa_jp/data/selection.json --mode api_preferred --output results/full_evaluation_$(date +%Y%m%d_%H%M%S).json
+# API優先モード
+python evaluate.py --dataset ../../datasets/lawqa_jp/data/selection.json \
+    --output results/api_preferred.json --mode api_preferred --limit 50
+
+# ローカル優先モード
+python evaluate.py --dataset ../../datasets/lawqa_jp/data/selection.json \
+    --output results/local_preferred.json --mode local_preferred --limit 50
+
+# 結果の比較
+echo "=== API優先モード ==="
+cat results/api_preferred.json | python3 -c "import json, sys; d=json.load(sys.stdin); print(f\"正答率: {d['metrics']['overall']['accuracy']:.2%}\")"
+
+echo "=== ローカル優先モード ==="
+cat results/local_preferred.json | python3 -c "import json, sys; d=json.load(sys.stdin); print(f\"正答率: {d['metrics']['overall']['accuracy']:.2%}\")"
 ```
 
-### デバッグモード（詳細ログ付き）
+## 🔧 便利なワンライナー
+
+### クイックテスト（10問、API優先）
+
+```bash
+cd examples/02_mcp_egov_agent && python evaluate.py --dataset ../../datasets/lawqa_jp/data/selection.json --limit 10 --mode api_preferred --output results/quick_test.json
+```
+
+### 本番評価（全問題、タイムスタンプ付き）
+
+```bash
+cd examples/02_mcp_egov_agent && python evaluate.py --dataset ../../datasets/lawqa_jp/data/selection.json --mode api_preferred --output results/full_evaluation_$(date +%Y%m%d_%H%M%S).json
+```
+
+### デバッグモード（詳細ログ）
+
+```bash
+cd examples/02_mcp_egov_agent && LOG_LEVEL=DEBUG python evaluate.py --dataset ../../datasets/lawqa_jp/data/selection.json --limit 1 2>&1 | tee debug.log
+```
+
+### すべてのテストを連続実行
 
 ```bash
 cd examples/02_mcp_egov_agent && \
-python evaluate.py --dataset ../../datasets/lawqa_jp/data/selection.json --limit 1 2>&1 | tee debug.log
+echo "=== 1. API簡易テスト ===" && python3 tests/test_api_simple.py && \
+echo "=== 2. API詳細テスト ===" && python3 tests/test_api_connection.py && \
+echo "=== 3. パイプラインテスト ===" && python3 tests/test_pipeline.py && \
+echo "=== すべてのテスト完了 ==="
 ```
 
 ## 評価結果の形式
