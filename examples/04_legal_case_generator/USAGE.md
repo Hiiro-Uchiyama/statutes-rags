@@ -17,6 +17,7 @@
 7. [結果分析](#7-結果分析)
 8. [高度な使用方法](#8-高度な使用方法)
 9. [トラブルシューティング](#9-トラブルシューティング)
+10. [4択問題からの事例生成（MCQモード）](#10-4択問題からの事例生成mcqモード)
 
 ---
 
@@ -675,6 +676,69 @@ cat results/eval.json | python3 -c "import sys, json; r=json.load(sys.stdin); pr
 | `LLM_TEMPERATURE` | 0.3 | 温度パラメータ |
 | `LLM_TIMEOUT` | 120 | タイムアウト（秒） |
 | `OLLAMA_HOST` | http://localhost:11434 | Ollamaホスト |
+
+---
+
+## 10. 4択問題からの事例生成（MCQモード）
+
+LangGraphワークフローにMCQモードが追加され、4択問題（LAW QA）を入力に正解肢を裏付ける約500文字の事例を生成できます。  
+入力データには `datasets/lawqa_jp/data/selection.json` などの4択問題データセットを利用します。
+
+### 10.1 単一問題を処理する
+
+```bash
+cd examples/04_legal_case_generator
+
+python3 pipeline.py mcq \
+  --dataset ../../datasets/lawqa_jp/data/selection.json \
+  --index 0 \
+  --count 1 \
+  --output results/mcq_case_000.json
+```
+
+- `--index`: 生成を開始する問題番号（0始まり）
+- `--count`: 連続して処理する件数（省略時1件）
+- `--output`: 出力ファイル。省略時は標準出力にJSONを表示
+
+### 10.2 出力例
+
+```json
+{
+  "dataset": ".../selection.json",
+  "start_index": 0,
+  "count": 1,
+  "results": [
+    {
+      "question_id": "金商法_第2章_選択式_関連法令_問題番号57",
+      "question": "金融商品取引法第5条第6項により...",
+      "choices": {
+        "a": "第5条第1項の届出書に類する書類であって...",
+        "b": "外国において開示予定の参照書類であって...",
+        "c": "第5条第1項の届出書に類する書類であって、英語で記載されているもの",
+        "d": "外国において開示が行われている参照書類であって、日本語で記載されているもの"
+      },
+      "correct_choice": "c",
+      "scenario": "（約500文字の具体事例。正解肢や条文番号を直接示さず、条文要件と事実で結論を描写する）",
+      "character_count": 502,
+      "is_valid": true,
+      "validation_score": 0.92,
+      "feedback": [],
+      "iterations": 0,
+      "agents_used": ["mcq_parser", "mcq_case_generator", "mcq_checker"]
+    }
+  ]
+}
+```
+
+### 10.3 動作のポイント
+
+- 文字数は既定で **460〜540文字**（環境変数 `MCQ_CASE_MIN_LENGTH` / `MCQ_CASE_MAX_LENGTH` で調整可能）
+- シナリオ本文で「選択肢」「正解」「回答」など問題形式を示唆する語を使用しない
+- 「第〇条」「第〇項」「第〇号」等の条文番号・項号を直接引用せず、制度趣旨を言い換えて説明する
+- 正解肢の文面を逐語的に引用せず、条文要件を満たす具体的事実で裏付ける
+- 整合性チェックに失敗した場合は `MCQRefinerAgent` がフィードバックを基に再生成
+- `--count` を増やすと連続した複数問題をまとめて処理可能
+- `results[*].feedback` に失敗時の改善ヒントが格納されます
 
 ---
 

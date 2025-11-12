@@ -29,6 +29,26 @@ class LegalCaseConfig(BaseModel):
         default=int(os.getenv("LEGAL_CASE_MAX_ITERATIONS", "2")),
         description="最大反復回数（洗練プロセス）"
     )
+    mcq_target_length: int = Field(
+        default=int(os.getenv("MCQ_CASE_TARGET_LENGTH", "500")),
+        description="4択問題用シナリオの目標文字数"
+    )
+    mcq_min_length: int = Field(
+        default=int(os.getenv("MCQ_CASE_MIN_LENGTH", "460")),
+        description="4択問題用シナリオの最小文字数"
+    )
+    mcq_max_length: int = Field(
+        default=int(os.getenv("MCQ_CASE_MAX_LENGTH", "540")),
+        description="4択問題用シナリオの最大文字数"
+    )
+    mcq_max_iterations: int = Field(
+        default=int(os.getenv("MCQ_CASE_MAX_ITERATIONS", "6")),
+        description="4択問題シナリオ生成の最大反復回数"
+    )
+    mcq_validation_threshold: float = Field(
+        default=float(os.getenv("MCQ_CASE_VALIDATION_THRESHOLD", "0.75")),
+        description="4択問題シナリオの整合性スコア閾値"
+    )
     
     # 事例タイプの生成制御
     generate_applicable: bool = Field(
@@ -54,8 +74,16 @@ class LegalCaseConfig(BaseModel):
         description="LLMの温度パラメータ（事例生成ではやや高めで多様性確保）"
     )
     llm_timeout: int = Field(
-        default=int(os.getenv("LLM_TIMEOUT", "120")),
+        default=int(os.getenv("LLM_TIMEOUT", "300")),
         description="LLMリクエストのタイムアウト（秒）"
+    )
+    llm_retry_attempts: int = Field(
+        default=int(os.getenv("LLM_RETRY_ATTEMPTS", "3")),
+        description="LLM呼び出し時の再試行回数"
+    )
+    llm_retry_delay: float = Field(
+        default=float(os.getenv("LLM_RETRY_DELAY", "5.0")),
+        description="LLM再試行前の待機秒数"
     )
     
     # 検証設定

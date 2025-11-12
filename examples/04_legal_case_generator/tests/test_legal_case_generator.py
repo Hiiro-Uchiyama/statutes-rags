@@ -26,10 +26,15 @@ def test_config():
     assert config.llm_model == "qwen3:8b"
     assert config.llm_temperature == 0.3
     assert config.max_iterations == 2
+    assert config.mcq_target_length == 500
+    assert config.mcq_min_length == 460
+    assert config.mcq_max_length == 540
+    assert config.mcq_max_iterations == 6
     
     print(f"  llm_model: {config.llm_model}")
     print(f"  llm_temperature: {config.llm_temperature}")
     print(f"  max_iterations: {config.max_iterations}")
+    print(f"  mcq_target_length: {config.mcq_target_length}")
     print("  Config loading: OK")
 
 
@@ -41,10 +46,18 @@ def test_agents_import():
     ScenarioGeneratorAgent = agents_module.ScenarioGeneratorAgent
     LegalCheckerAgent = agents_module.LegalCheckerAgent
     RefinerAgent = agents_module.RefinerAgent
+    MCQParserAgent = agents_module.MCQParserAgent
+    MCQCaseGeneratorAgent = agents_module.MCQCaseGeneratorAgent
+    MCQConsistencyCheckerAgent = agents_module.MCQConsistencyCheckerAgent
+    MCQRefinerAgent = agents_module.MCQRefinerAgent
     
     print(f"  ScenarioGeneratorAgent: {ScenarioGeneratorAgent.__name__}")
     print(f"  LegalCheckerAgent: {LegalCheckerAgent.__name__}")
     print(f"  RefinerAgent: {RefinerAgent.__name__}")
+    print(f"  MCQParserAgent: {MCQParserAgent.__name__}")
+    print(f"  MCQCaseGeneratorAgent: {MCQCaseGeneratorAgent.__name__}")
+    print(f"  MCQConsistencyCheckerAgent: {MCQConsistencyCheckerAgent.__name__}")
+    print(f"  MCQRefinerAgent: {MCQRefinerAgent.__name__}")
     print("  Agents import: OK")
 
 
@@ -54,8 +67,10 @@ def test_pipeline_import():
     
     pipeline_module = importlib.import_module("examples.04_legal_case_generator.pipeline")
     LegalCaseGenerator = pipeline_module.LegalCaseGenerator
+    MCQCaseGenerator = pipeline_module.MCQCaseGenerator
     
     print(f"  LegalCaseGenerator: {LegalCaseGenerator.__name__}")
+    print(f"  MCQCaseGenerator: {MCQCaseGenerator.__name__}")
     print("  Pipeline import: OK")
 
 

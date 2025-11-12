@@ -6,6 +6,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -82,15 +83,41 @@ class BaseAgent(ABC):
         Returns:
             LLMの応答、またはエラー時はNone
         """
-        try:
-            response = self.llm.invoke(prompt)
-            return response.strip() if isinstance(response, str) else str(response).strip()
-        except TimeoutError:
-            self.logger.error("LLM request timeout")
-            return None
-        except Exception as e:
-            self.logger.error(f"LLM invocation error: {e}", exc_info=True)
-            return None
+        attempts = max(int(getattr(self.config, "llm_retry_attempts", 1)), 1)
+        delay = float(getattr(self.config, "llm_retry_delay", 0.0))
+        last_error: Optional[Exception] = None
+
+        for attempt in range(1, attempts + 1):
+            try:
+                kwargs = {}
+                if timeout is not None:
+                    # 一部のLLMクラスでは request_timeout を参照する
+                    kwargs["timeout"] = timeout
+                    kwargs["request_timeout"] = timeout
+
+                response = self.llm.invoke(prompt, **kwargs)
+                return response.strip() if isinstance(response, str) else str(response).strip()
+            except TimeoutError as exc:
+                last_error = exc
+                self.logger.warning(
+                    "LLM request timeout (attempt %d/%d)", attempt, attempts
+                )
+            except Exception as exc:  # pylint: disable=broad-except
+                last_error = exc
+                self.logger.warning(
+                    "LLM invocation error (attempt %d/%d): %s",
+                    attempt,
+                    attempts,
+                    exc,
+                    exc_info=True
+                )
+
+            if attempt < attempts and delay > 0:
+                time.sleep(delay)
+
+        if last_error:
+            self.logger.error("LLM invocation failed after %d attempts: %s", attempts, last_error)
+        return None
     
     def _parse_json_response(self, response: str, default: Optional[Dict] = None) -> Dict[str, Any]:
         """
