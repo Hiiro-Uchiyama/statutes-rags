@@ -469,3 +469,212 @@ Question → Retrieval → Round 1 → Evaluation → Agreement?
                                   Agreement
                                     Score
 ```
+
+---
+
+## 判例評価
+
+マルチエージェント議論システムが、実際の判例と同じ結論を出せるかを評価します。
+
+### 概要
+
+判例データセット（`data_set/precedent/`）から判例を読み込み、事件の要旨を質問として与え、システムが生成した回答と判例の要旨を比較して評価します。
+
+### ステップ1: クイックテスト（3判例）
+
+少数の判例で動作確認します。
+
+```bash
+# examples/03_multi_agent_debateで実行
+python evaluate_precedent.py \
+  --precedent-dir data_set/precedent \
+  --limit 3 \
+  --output results/precedent_test_quick.json
+```
+
+**実行時間:** 約15-30分（1判例あたり5-10分）
+
+**結果の確認:**
+
+```bash
+# 評価結果のサマリーを確認
+cat results/precedent_test_quick.json | python -m json.tool | head -50
+
+# 類似度のみを確認
+python -c "
+import json
+with open('results/precedent_test_quick.json') as f:
+    data = json.load(f)
+    metrics = data['metrics']
+    print(f\"類似率: {metrics['similar_precedents']}/{metrics['total_precedents']} = {metrics['similarity_rate']*100:.1f}%\")
+    print(f\"平均類似度スコア: {metrics['avg_similarity_score']:.3f}\")
+    print(f\"平均ラウンド数: {metrics['avg_rounds']:.2f}\")
+"
+```
+
+### ステップ2: 中規模評価（10判例）
+
+10判例で評価を実行します。
+
+```bash
+# examples/03_multi_agent_debateで実行
+python evaluate_precedent.py \
+  --precedent-dir data_set/precedent \
+  --limit 10 \
+  --random-seed 42 \
+  --output results/precedent_eval_10.json
+```
+
+**実行時間:** 約1-2時間
+
+**オプション:**
+- `--limit`: 評価する判例数の上限
+- `--random-seed`: ランダムシード（指定するとランダムサンプリング）
+- `--precedent-dir`: 判例データディレクトリのパス（デフォルト: `data_set/precedent`）
+
+### ステップ3: 本番評価（全判例または多数）
+
+多数の判例で評価を実行します。実行時間が長いため、バックグラウンド実行を推奨します。
+
+```bash
+# examples/03_multi_agent_debateで実行
+
+# バックグラウンド実行（推奨）
+nohup python evaluate_precedent.py \
+  --precedent-dir data_set/precedent \
+  --limit 50 \
+  --random-seed 42 \
+  --output results/precedent_full_evaluation.json \
+  > results/precedent_evaluation.log 2>&1 &
+
+# プロセスIDを確認
+echo $!
+
+# 進捗確認
+tail -f results/precedent_evaluation.log
+```
+
+**実行時間:** 判例数に応じて変動（1判例あたり5-10分）
+
+### 評価メトリクス
+
+判例評価では以下のメトリクスを計算します：
+
+- **類似率**: システムの回答が判例要旨と類似していると判定された割合（類似度スコア ≥ 0.7）
+- **平均類似度スコア**: 予測回答と判例要旨のコサイン類似度の平均
+- **平均ラウンド数**: 議論に要した平均ラウンド数
+- **平均合意スコア**: エージェント間の平均合意スコア
+- **平均処理時間**: 1判例あたりの平均処理時間
+
+### 結果ファイルの構造
+
+```json
+{
+  "timestamp": "2024-11-07T12:00:00",
+  "config": {
+    "max_debate_rounds": 3,
+    "agreement_threshold": 0.8,
+    "llm_model": "qwen3:8b"
+  },
+  "metrics": {
+    "total_precedents": 10,
+    "similar_precedents": 7,
+    "similarity_rate": 0.7,
+    "avg_similarity_score": 0.75,
+    "avg_rounds": 2.3,
+    "avg_agreement_score": 0.82,
+    "avg_time_per_precedent": 320.5
+  },
+  "results": [...]
+}
+```
+
+### 個別判例の確認
+
+```bash
+# 特定の判例を詳しく確認（判例0の場合）
+python -c "
+import json
+with open('results/precedent_eval_10.json') as f:
+    data = json.load(f)
+    result = data['results'][0]
+    print(f\"事件名: {result['case_name']}\")
+    print(f\"類似度スコア: {result['similarity_score']:.3f}\")
+    print(f\"一致判定: {'一致' if result['is_similar'] else '不一致'}\")
+    print(f\"\\n=== 質問 ===\")
+    print(result['question'][:200])
+    print(f\"\\n=== 判例要旨（正解） ===\")
+    print(result['correct_answer'][:300])
+    print(f\"\\n=== システムの回答 ===\")
+    print(result['predicted_answer'][:300])
+"
+```
+
+### トラブルシューティング
+
+#### エラー: "Precedent directory not found"
+
+```bash
+# 判例ディレクトリのパスを確認
+ls -la data_set/precedent/
+
+# 絶対パスで指定
+python evaluate_precedent.py \
+    --precedent-dir /home/toronto02/statutes-rags/examples/03_multi_agent_debate/data_set/precedent \
+    --limit 3
+```
+
+#### 処理が遅い場合
+
+環境変数で設定を調整：
+
+```bash
+# 軽量設定
+export DEBATE_MAX_ROUNDS=1
+export DEBATE_RETRIEVAL_TOP_K=5
+export LLM_MODEL=gpt-oss:7b
+
+# 評価を実行
+python evaluate_precedent.py --limit 3
+```
+
+#### メモリ不足
+
+```bash
+# より軽量なモデルを使用
+export LLM_MODEL=gpt-oss:7b
+export DEBATE_RETRIEVAL_TOP_K=5
+```
+
+### ワンライナーコマンド集
+
+#### テスト評価（3判例、標準設定）
+
+```bash
+cd examples/03_multi_agent_debate && \
+python evaluate_precedent.py \
+    --precedent-dir data_set/precedent \
+    --limit 3 \
+    --output results/precedent_quick_test.json
+```
+
+#### 本番評価（50判例、ランダムサンプリング）
+
+```bash
+cd examples/03_multi_agent_debate && \
+python evaluate_precedent.py \
+    --precedent-dir data_set/precedent \
+    --limit 50 \
+    --random-seed 42 \
+    --output results/precedent_evaluation_$(date +%Y%m%d_%H%M%S).json
+```
+
+#### デバッグモード（1判例のみ、詳細ログ付き）
+
+```bash
+cd examples/03_multi_agent_debate && \
+python evaluate_precedent.py \
+    --precedent-dir data_set/precedent \
+    --limit 1 \
+    2>&1 | tee results/precedent_debug_$(date +%Y%m%d_%H%M%S).log
+```

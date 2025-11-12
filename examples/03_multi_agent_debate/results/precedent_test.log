@@ -1,0 +1,104 @@
+2025-11-12 04:58:31,604 - __main__ - INFO - Loading precedents from /home/toronto02/statutes-rags/examples/03_multi_agent_debate/data_set/precedent
+2025-11-12 04:58:31,604 - precedent_loader - INFO - Loading precedents from 1940
+2025-11-12 04:58:32,029 - precedent_loader - INFO - Loading precedents from 1950
+2025-11-12 04:58:37,608 - precedent_loader - INFO - Loading precedents from 1960
+2025-11-12 04:58:40,711 - precedent_loader - INFO - Loading precedents from 1970
+2025-11-12 04:58:43,741 - precedent_loader - INFO - Loading precedents from 1980
+2025-11-12 04:58:45,840 - precedent_loader - INFO - Loading precedents from 1990
+2025-11-12 04:58:48,012 - precedent_loader - INFO - Loading precedents from 2000
+2025-11-12 04:58:58,749 - precedent_loader - INFO - Loading precedents from 2010
+2025-11-12 04:59:06,194 - precedent_loader - INFO - Loading precedents from 2020
+2025-11-12 04:59:09,670 - precedent_loader - INFO - Loaded 54104 precedents
+2025-11-12 04:59:11,536 - precedent_loader - INFO - Created 1 evaluation questions
+2025-11-12 04:59:11,562 - __main__ - INFO - Initializing DebateWorkflow...
+/home/toronto02/statutes-rags/examples/03_multi_agent_debate/workflow.py:73: LangChainDeprecationWarning: The class `Ollama` was deprecated in LangChain 0.3.1 and will be removed in 1.0.0. An updated version of the class exists in the `langchain-ollama package and should be used instead. To use it run `pip install -U `langchain-ollama` and import as `from `langchain_ollama import OllamaLLM``.
+  self.llm = Ollama(
+2025-11-12 04:59:11,562 - workflow - INFO - Vector index path: /home/toronto02/statutes-rags/data/faiss_index/vector, exists: True
+2025-11-12 04:59:11,562 - workflow - INFO - BM25 index path: /home/toronto02/statutes-rags/data/faiss_index/bm25, exists: True
+2025-11-12 04:59:11,579 - app.retrieval.vector_retriever - INFO - Using device: cuda for embeddings
+/home/toronto02/statutes-rags/app/retrieval/vector_retriever.py:38: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the `langchain-huggingface package and should be used instead. To use it run `pip install -U `langchain-huggingface` and import as `from `langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(
+2025-11-12 04:59:13,430 - numexpr.utils - INFO - NumExpr defaulting to 6 threads.
+2025-11-12 04:59:13,923 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: intfloat/multilingual-e5-large
+2025-11-12 04:59:19,012 - faiss.loader - INFO - Loading faiss with AVX2 support.
+2025-11-12 04:59:19,028 - faiss.loader - INFO - Successfully loaded faiss with AVX2 support.
+2025-11-12 05:00:04,205 - app.retrieval.vector_retriever - INFO - Vector index loaded from /home/toronto02/statutes-rags/data/faiss_index/vector (2802222 documents)
+2025-11-12 05:00:04,205 - workflow - INFO - Loading vector index from /home/toronto02/statutes-rags/data/faiss_index/vector
+2025-11-12 05:00:51,634 - app.retrieval.vector_retriever - INFO - Vector index loaded from /home/toronto02/statutes-rags/data/faiss_index/vector (2802222 documents)
+2025-11-12 05:00:51,659 - app.retrieval.bm25_retriever - INFO - SudachiPy tokenizer initialized successfully
+2025-11-12 05:00:51,660 - app.retrieval.bm25_retriever - WARNING - Tokenizer mismatch: index was built with 'ngram', but current tokenizer is 'sudachi'. This may cause inconsistent results.
+2025-11-12 05:00:52,229 - app.retrieval.bm25_retriever - INFO - BM25 index loaded from /home/toronto02/statutes-rags/data/faiss_index/bm25 (10000 documents, tokenizer: sudachi)
+2025-11-12 05:00:52,229 - workflow - INFO - Loading BM25 index from /home/toronto02/statutes-rags/data/faiss_index/bm25
+2025-11-12 05:00:52,229 - app.retrieval.bm25_retriever - WARNING - Tokenizer mismatch: index was built with 'ngram', but current tokenizer is 'sudachi'. This may cause inconsistent results.
+2025-11-12 05:00:52,850 - app.retrieval.bm25_retriever - INFO - BM25 index loaded from /home/toronto02/statutes-rags/data/faiss_index/bm25 (10000 documents, tokenizer: sudachi)
+2025-11-12 05:00:52,851 - app.retrieval.hybrid_retriever - INFO - HybridRetriever initialized with fusion_method='rrf', weights=(vector:0.6, bm25:0.4), rrf_k=60, fetch_k_multiplier=2
+2025-11-12 05:00:52,851 - workflow - INFO - Vector index loaded: 2802222 documents
+2025-11-12 05:00:52,851 - workflow - INFO - BM25 index loaded: 10000 documents
+2025-11-12 05:00:52,851 - workflow - INFO - Retriever initialized (Hybrid)
+2025-11-12 05:00:52,852 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: intfloat/multilingual-e5-large
+2025-11-12 05:00:57,248 - ModeratorAgent - INFO - Embedding model initialized: intfloat/multilingual-e5-large
+2025-11-12 05:00:57,254 - workflow - INFO - DebateWorkflow initialized
+2025-11-12 05:00:57,254 - __main__ - INFO - Starting evaluation on 1 precedents...
+2025-11-12 05:00:57,254 - __main__ - INFO - Precedent 1: 常習賭博
+2025-11-12 05:00:57,254 - workflow - INFO - Starting debate for query: 以下の法律事件について、法的解釈と結論を示してください。
+
+【事件名】
+常習賭博
+
+【事件の要旨】
+一　罪となるべき事實とは、刑罰法令各本條における犯罪の構成要件に該當する具體的事實というものであるから、該事實を判決書に判示するには、その各本條の構成要件に該當すべき具體的事實を該構成要件に該當するか否かを判定するに足る程度に具体的に明白にし、かくしてその各本條を適用する事實上の根據を確認し得られるようにするを以て足るものというべく、必ずしもそれ以上更にその構成要件の内容を一層精密に説示しなければならぬものではないといわねばならぬ。
+二　「被告人等は外數名と共に花札を使用し、金銭を賭け俗にコイコイ又は後先と稱する賭博を爲したものである。」と判示したのであるからその判示は、當該行爲が同罪の構成要素たる「財物」に該當する金銭であること並びに他の構成要素たる「偶然の勝敗を決すべき博戯」に該當する俗にコイコイ又は後先と稱する數名の當事者が花札を使用して勝敗を爭う博戯であることを明白にしているものと言うべく、從つてその判示を以て前示法條を適用する事實上の根據を確認せしめるに足るものとするに妨げない。
+三　舊刑訴第三六〇條第一項は、同第四九條第一項所定の裁判の理由を有罪判決の理由において具體的に示すべき最小限度の要件を規定したもので、裁判の理由には、罪となるべき事實の外主文の因て生ずる量刑の事由をも示すを妥當とすべきこと勿論である。されば、有罪判決の理由には罪となるべき事實の外犯罪の原因、動機、手段の特殊性、結果の輕重等をも判示するを相當とすべく、本件のごとき賭博罪にあつては時として、財物の種類、數額、賭博方法の詳細勝敗の回數、結果等をも判示するを適當とすることがある。殊に常習賭博においては、賭金の數額、手段方法の如何、勝負の回數結果等によつて常習を認定判示し得べき場合あることを忘れてはならない。しかし、これらの判示方法はいずれも妥當の問題であつて違法の問題ではない。
+
+上記の事件について、関連する法令を参照しながら、以下の点について回答してください：
+
+1. 法的問題点の整理
+2. 適用される法令の特定
+3. 法的解釈と根拠
+4. 結論
+
+判例の要旨に相当する形で、簡潔かつ明確に回答してください。
+
+2025-11-12 05:00:57,256 - workflow - INFO - Retrieving documents for: 以下の法律事件について、法的解釈と結論を示してください。
+
+【事件名】
+常習賭博
+
+【事件の要旨】
+一　罪となるべき事實とは、刑罰法令各本條における犯罪の構成要件に該當する具體的事實というものであるから、該事實を判決書に判示するには、その各本條の構成要件に該當すべき具體的事實を該構成要件に該當するか否かを判定するに足る程度に具体的に明白にし、かくしてその各本條を適用する事實上の根據を確認し得られるようにするを以て足るものというべく、必ずしもそれ以上更にその構成要件の内容を一層精密に説示しなければならぬものではないといわねばならぬ。
+二　「被告人等は外數名と共に花札を使用し、金銭を賭け俗にコイコイ又は後先と稱する賭博を爲したものである。」と判示したのであるからその判示は、當該行爲が同罪の構成要素たる「財物」に該當する金銭であること並びに他の構成要素たる「偶然の勝敗を決すべき博戯」に該當する俗にコイコイ又は後先と稱する數名の當事者が花札を使用して勝敗を爭う博戯であることを明白にしているものと言うべく、從つてその判示を以て前示法條を適用する事實上の根據を確認せしめるに足るものとするに妨げない。
+三　舊刑訴第三六〇條第一項は、同第四九條第一項所定の裁判の理由を有罪判決の理由において具體的に示すべき最小限度の要件を規定したもので、裁判の理由には、罪となるべき事實の外主文の因て生ずる量刑の事由をも示すを妥當とすべきこと勿論である。されば、有罪判決の理由には罪となるべき事實の外犯罪の原因、動機、手段の特殊性、結果の輕重等をも判示するを相當とすべく、本件のごとき賭博罪にあつては時として、財物の種類、數額、賭博方法の詳細勝敗の回數、結果等をも判示するを適當とすることがある。殊に常習賭博においては、賭金の數額、手段方法の如何、勝負の回數結果等によつて常習を認定判示し得べき場合あることを忘れてはならない。しかし、これらの判示方法はいずれも妥當の問題であつて違法の問題ではない。
+
+上記の事件について、関連する法令を参照しながら、以下の点について回答してください：
+
+1. 法的問題点の整理
+2. 適用される法令の特定
+3. 法的解釈と根拠
+4. 結論
+
+判例の要旨に相当する形で、簡潔かつ明確に回答してください。
+
+2025-11-12 05:00:59,625 - app.retrieval.hybrid_retriever - INFO - Hybrid retrieval returned 10 documents (method: rrf)
+2025-11-12 05:00:59,625 - workflow - INFO - Retrieved 10 documents
+2025-11-12 05:00:59,625 - workflow - INFO - Starting debate round 1
+2025-11-12 05:01:16,934 - workflow - INFO - Debate round 1 completed
+2025-11-12 05:01:16,935 - workflow - INFO - Evaluating debate round
+2025-11-12 05:01:28,578 - workflow - INFO - Agreement score: 0.94, Continue: False
+2025-11-12 05:01:28,578 - workflow - INFO - Finalizing debate
+2025-11-12 05:01:28,580 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: intfloat/multilingual-e5-large
+2025-11-12 05:01:32,999 - __main__ - INFO - Precedent 1 - Similarity: 0.945, Match: True, Rounds: 1, Agreement: 0.94, Time: 31.3s
+2025-11-12 05:01:32,999 - __main__ - INFO - 
+============================================================
+2025-11-12 05:01:32,999 - __main__ - INFO - PRECEDENT EVALUATION RESULTS
+2025-11-12 05:01:32,999 - __main__ - INFO - ============================================================
+2025-11-12 05:01:32,999 - __main__ - INFO - Total Precedents: 1
+2025-11-12 05:01:32,999 - __main__ - INFO - Similar Precedents: 1
+2025-11-12 05:01:32,999 - __main__ - INFO - Similarity Rate: 100.00%
+2025-11-12 05:01:32,999 - __main__ - INFO - Average Similarity Score: 0.945
+2025-11-12 05:01:32,999 - __main__ - INFO - Average Rounds: 1.00
+2025-11-12 05:01:32,999 - __main__ - INFO - Average Agreement Score: 0.94
+2025-11-12 05:01:32,999 - __main__ - INFO - Average Time per Precedent: 31.3s
+2025-11-12 05:01:32,999 - __main__ - INFO - Errors: 0
+2025-11-12 05:01:32,999 - __main__ - INFO - ============================================================
+2025-11-12 05:01:33,000 - __main__ - INFO - Results saved to results/precedent_test_single.json
+2025-11-12 05:01:33,000 - __main__ - INFO - Evaluation completed!

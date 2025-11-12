@@ -180,6 +180,28 @@ result = workflow.query("あなたの質問")
 
 ## 評価
 
+### 4択法令問題での評価
+
+デジタル庁の4択法令問題データセットを使用した評価については、[USAGE.md](./USAGE.md)の「ステップ2」以降を参照してください。
+
+### 判例評価
+
+実際の判例データを使用して、マルチエージェント議論システムが判例と同じ結論を出せるかを評価します。
+
+詳細は[USAGE.md](./USAGE.md)の「判例評価」セクションを参照してください。
+
+**クイックスタート:**
+
+```bash
+cd examples/03_multi_agent_debate
+
+# 3判例でテスト
+python evaluate_precedent.py \
+  --precedent-dir data_set/precedent \
+  --limit 3 \
+  --output results/precedent_test.json
+```
+
 ### 実際の評価実験（オプション）
 
 実際にLLMとデータを使用した評価を行う場合:
@@ -392,11 +414,16 @@ pytest tests/test_quick.py -v
 ├── USAGE.md                     # 使用方法ガイド（ステップバイステップ）
 ├── config.py                    # 設定管理
 ├── workflow.py                  # LangGraph議論ワークフロー
-├── evaluate.py                  # 評価スクリプト
+├── evaluate.py                  # 4択問題評価スクリプト
+├── evaluate_precedent.py        # 判例評価スクリプト
+├── precedent_loader.py          # 判例データローダー
 ├── agents/
 │   ├── __init__.py
 │   ├── debater.py               # 議論エージェント
 │   └── moderator.py             # モデレーター
+├── data_set/                    # データセット
+│   ├── precedent/               # 判例データ
+│   └── law/                     # 法令データ
 ├── tests/
 │   ├── __init__.py
 │   ├── conftest.py              # テストフィクスチャ
