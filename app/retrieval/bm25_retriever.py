@@ -290,8 +290,8 @@ class BM25Retriever(BaseRetriever):
         
         return results
     
-    def save_index(self):
-        """インデックスを保存"""
+    def save_index(self, chunk_size: int = 150000):
+        """インデックスを保存（大規模データは分割保存）"""
         if not self.index_path:
             logger.warning("Cannot save BM25 index - index path not set")
             return
@@ -309,27 +309,52 @@ class BM25Retriever(BaseRetriever):
             index_path = Path(self.index_path)
             index_path.mkdir(parents=True, exist_ok=True)
             
+            # 既存の分割ファイルを削除
+            for old_chunk in index_path.glob("tokenized_corpus_*.pkl"):
+                old_chunk.unlink()
+            if (index_path / "tokenized_corpus.pkl").exists():
+                (index_path / "tokenized_corpus.pkl").unlink()
+            
             with open(index_path / "bm25.pkl", "wb") as f:
                 pickle.dump(self.bm25, f)
+            logger.info(f"Saved bm25.pkl")
             
             with open(index_path / "documents.pkl", "wb") as f:
                 pickle.dump(self.documents, f)
+            logger.info(f"Saved documents.pkl ({len(self.documents):,} docs)")
             
-            # トークナイズ済みコーパスを保存（メモリ節約のため）
-            with open(index_path / "tokenized_corpus.pkl", "wb") as f:
-                pickle.dump(self.tokenized_corpus, f)
+            # トークナイズ済みコーパスを分割保存（大規模データ対応）
+            total = len(self.tokenized_corpus)
+            if total > chunk_size:
+                num_chunks = (total + chunk_size - 1) // chunk_size
+                logger.info(f"Saving tokenized_corpus in {num_chunks} chunks...")
+                for i in range(0, total, chunk_size):
+                    chunk_idx = i // chunk_size
+                    chunk = self.tokenized_corpus[i:i+chunk_size]
+                    chunk_path = index_path / f"tokenized_corpus_{chunk_idx:03d}.pkl"
+                    with open(chunk_path, "wb") as f:
+                        pickle.dump(chunk, f)
+                    logger.info(f"  Saved chunk {chunk_idx+1}/{num_chunks} ({len(chunk):,} items)")
+            else:
+                # 小規模データは単一ファイル
+                with open(index_path / "tokenized_corpus.pkl", "wb") as f:
+                    pickle.dump(self.tokenized_corpus, f)
             
             # トークナイザータイプを保存（互換性チェック用）
             with open(index_path / "tokenizer_info.pkl", "wb") as f:
-                pickle.dump({"tokenizer_type": self.tokenizer_type}, f)
+                pickle.dump({
+                    "tokenizer_type": self.tokenizer_type,
+                    "total_docs": total,
+                    "chunked": total > chunk_size
+                }, f)
             
-            logger.info(f"BM25 index saved to {index_path} ({len(self.documents)} documents, tokenizer: {self.tokenizer_type})")
+            logger.info(f"BM25 index saved to {index_path} ({len(self.documents):,} documents, tokenizer: {self.tokenizer_type})")
         except Exception as e:
             logger.error(f"Error saving BM25 index to {self.index_path}: {e}", exc_info=True)
             raise
     
     def load_index(self):
-        """インデックスをロード"""
+        """インデックスをロード（分割ファイル対応）"""
         if not self.index_path:
             logger.warning("BM25 index path not set")
             return
@@ -346,10 +371,12 @@ class BM25Retriever(BaseRetriever):
         
         try:
             # トークナイザー情報の確認
+            is_chunked = False
             if tokenizer_info_path.exists():
                 with open(tokenizer_info_path, "rb") as f:
                     tokenizer_info = pickle.load(f)
                     saved_tokenizer = tokenizer_info.get("tokenizer_type", "unknown")
+                    is_chunked = tokenizer_info.get("chunked", False)
                     
                     if saved_tokenizer != self.tokenizer_type:
                         logger.warning(
@@ -360,21 +387,36 @@ class BM25Retriever(BaseRetriever):
             
             with open(bm25_path, "rb") as f:
                 self.bm25 = pickle.load(f)
+            logger.info(f"Loaded bm25.pkl")
             
             with open(docs_path, "rb") as f:
                 self.documents = pickle.load(f)
+            logger.info(f"Loaded documents.pkl ({len(self.documents):,} docs)")
             
-            # トークナイズ済みコーパスをロード（メモリ節約）
+            # トークナイズ済みコーパスをロード
+            chunk_files = sorted(index_path.glob("tokenized_corpus_*.pkl"))
             tokenized_corpus_path = index_path / "tokenized_corpus.pkl"
-            if tokenized_corpus_path.exists():
+            
+            if chunk_files:
+                # 分割ファイルから読み込み
+                logger.info(f"Loading tokenized_corpus from {len(chunk_files)} chunks...")
+                self.tokenized_corpus = []
+                for i, chunk_file in enumerate(chunk_files):
+                    with open(chunk_file, "rb") as f:
+                        chunk = pickle.load(f)
+                        self.tokenized_corpus.extend(chunk)
+                    logger.info(f"  Loaded chunk {i+1}/{len(chunk_files)} ({len(chunk):,} items)")
+                logger.info(f"Total tokenized_corpus: {len(self.tokenized_corpus):,} items")
+            elif tokenized_corpus_path.exists():
+                # 単一ファイルから読み込み
                 with open(tokenized_corpus_path, "rb") as f:
                     self.tokenized_corpus = pickle.load(f)
-                logger.info(f"BM25 index loaded from {index_path} ({len(self.documents)} documents, tokenizer: {self.tokenizer_type})")
+                logger.info(f"Loaded tokenized_corpus.pkl ({len(self.tokenized_corpus):,} items)")
             else:
-                # 旧バージョンとの互換性: tokenized_corpus.pklが存在しない場合は再構築
+                # 存在しない場合は再構築
                 logger.warning(
-                    f"tokenized_corpus.pkl not found at {index_path}. "
-                    f"Rebuilding tokenized corpus (this may use significant memory)."
+                    f"tokenized_corpus not found at {index_path}. "
+                    f"Rebuilding tokenized corpus (this may take a while)."
                 )
                 if self.documents:
                     self.tokenized_corpus = [
@@ -383,7 +425,8 @@ class BM25Retriever(BaseRetriever):
                     ]
                 else:
                     self.tokenized_corpus = []
-                logger.info(f"BM25 index loaded from {index_path} ({len(self.documents)} documents, tokenizer: {self.tokenizer_type})")
+            
+            logger.info(f"BM25 index loaded from {index_path} ({len(self.documents):,} documents, tokenizer: {self.tokenizer_type})")
         except Exception as e:
             logger.error(f"Error loading BM25 index from {index_path}: {e}", exc_info=True)
             # 状態をクリアして続行（新規インデックス作成可能な状態に）

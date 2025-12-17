@@ -6,6 +6,7 @@ Multi-Agent Debate評価スクリプト
 import json
 import argparse
 import logging
+import re
 from pathlib import Path
 from typing import Dict, Any, List
 from datetime import datetime
@@ -43,12 +44,39 @@ def load_dataset(dataset_path: Path) -> List[Dict[str, Any]]:
     with open(dataset_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    # データセットが辞書の場合、'samples'キーから取得
+    # データセット構造の判定
     if isinstance(data, dict):
         if 'samples' in data:
             questions = data['samples']
+        elif 'results' in data:
+            # MCQ生成結果の形式を評価用に正規化
+            questions = []
+            for item in data['results']:
+                choices_raw = item.get("choices", {})
+                if isinstance(choices_raw, dict):
+                    choices = [
+                        choices_raw[label]
+                        for label in ['a', 'b', 'c', 'd']
+                        if label in choices_raw
+                    ]
+                elif isinstance(choices_raw, list):
+                    choices = choices_raw
+                else:
+                    choices = []
+                
+                normalized = {
+                    "question": item.get("question") or "",
+                    "context": item.get("context") or "",
+                    "choices": choices,
+                    "answer": item.get("correct_choice") or item.get("correct_choice_label") or "a",
+                    "question_id": item.get("question_id"),
+                    "metadata": item.get("metadata", {}),
+                }
+                questions.append(normalized)
         else:
-            raise ValueError(f"Expected 'samples' key in dataset, got keys: {list(data.keys())}")
+            raise ValueError(
+                f"Unsupported dataset format. Expected 'samples' or 'results' key, got: {list(data.keys())}"
+            )
     else:
         questions = data
     
@@ -57,7 +85,7 @@ def load_dataset(dataset_path: Path) -> List[Dict[str, Any]]:
     return questions
 
 
-def create_multiple_choice_prompt(question: str, choices: List[str]) -> str:
+def create_multiple_choice_prompt(question: str, choices: List[str], context: str = "") -> str:
     """
     4択問題のプロンプトを作成
     
@@ -68,7 +96,13 @@ def create_multiple_choice_prompt(question: str, choices: List[str]) -> str:
     Returns:
         プロンプト文字列
     """
-    prompt = f"{question}\n\n"
+    prompt_parts = []
+    if context:
+        prompt_parts.append(str(context).strip())
+    
+    prompt_parts.append(str(question).strip())
+    
+    prompt = "\n\n".join(part for part in prompt_parts if part) + "\n\n"
     for i, choice in enumerate(choices):
         label = chr(ord('a') + i)  # a, b, c, d
         prompt += f"{label}. {choice}\n"
@@ -88,20 +122,39 @@ def extract_answer(response: str) -> str:
     Returns:
         選択肢（a/b/c/d）
     """
-    response_lower = response.lower().strip()
+    if not response:
+        return "a"
     
-    # 最初に出現する a, b, c, d を抽出
+    response_lower = response.lower()
+    
+    patterns = [
+        r"最終選択肢[:：]\s*([abcd])",
+        r"final[_\s-]*answer[:：]?\s*([abcd])",
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, response_lower)
+        if match:
+            return match.group(1)
+    
+    for line in response_lower.splitlines():
+        stripped = line.strip()
+        match = re.match(r"(?:最終選択肢|final[_\s-]*answer)\s*[:：]\s*([abcd])$", stripped)
+        if match:
+            return match.group(1)
+    
+    # フォールバック: 行末に単独で現れる選択肢ラベルを探索
+    for line in response_lower.splitlines():
+        stripped = line.strip()
+        if stripped in {"a", "b", "c", "d"}:
+            return stripped
+    
+    # 最終フォールバック: 文字全体から探索
     for char in ['a', 'b', 'c', 'd']:
         if char in response_lower:
             return char
     
-    # 見つからない場合は最初の文字
-    if response_lower:
-        first_char = response_lower[0]
-        if first_char in ['a', 'b', 'c', 'd']:
-            return first_char
-    
-    return "a"  # デフォルト
+    return "a"
 
 
 def parse_choices(choices_str: str) -> List[str]:
@@ -148,19 +201,34 @@ def evaluate_single_question(
     """
     # データセットの形式に対応（'問題文'/'question', '選択肢'/'choices', 'output'/'answer'）
     question = question_data.get("問題文") or question_data.get("question", "")
+    context = question_data.get("context") or question_data.get("文脈") or ""
     choices_raw = question_data.get("選択肢") or question_data.get("choices")
-    correct_answer = question_data.get("output") or question_data.get("answer", "a")
+    correct_answer = (
+        question_data.get("output")
+        or question_data.get("answer")
+        or question_data.get("correct_choice")
+        or question_data.get("correct_choice_label")
+        or "a"
+    )
     
     # 選択肢を処理
     if isinstance(choices_raw, str):
         choices = parse_choices(choices_raw)
     elif isinstance(choices_raw, list):
         choices = choices_raw
+    elif isinstance(choices_raw, dict):
+        choices = [
+            choices_raw[label]
+            for label in ['a', 'b', 'c', 'd']
+            if label in choices_raw
+        ]
+        if not choices:
+            choices = list(choices_raw.values())
     else:
         choices = []
     
     # プロンプトを作成
-    prompt = create_multiple_choice_prompt(question, choices)
+    prompt = create_multiple_choice_prompt(question, choices, context=context)
     
     logger.info(f"Question {question_index + 1}: {question[:50]}...")
     
@@ -192,6 +260,7 @@ def evaluate_single_question(
         return {
             "question_index": question_index,
             "question": question,
+            "question_id": question_data.get("question_id"),
             "correct_answer": correct_answer,
             "predicted_answer": predicted_answer,
             "is_correct": is_correct,
@@ -209,6 +278,7 @@ def evaluate_single_question(
         return {
             "question_index": question_index,
             "question": question,
+            "question_id": question_data.get("question_id"),
             "correct_answer": correct_answer,
             "predicted_answer": "a",
             "is_correct": False,

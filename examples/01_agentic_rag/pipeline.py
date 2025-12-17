@@ -213,6 +213,7 @@ class AgenticRAGPipeline:
         state["retrieval_strategy"] = result["strategy"]
         state["confidence"] = result.get("quality_score", 0.5)
         state["agents_used"].append("retrieval")
+        state["iteration"] = state.get("iteration", 0) + 1
         
         logger.info(f"Retrieved {len(result['documents'])} documents using {result['strategy']}")
         
@@ -260,6 +261,7 @@ class AgenticRAGPipeline:
         state["is_valid"] = result["is_valid"]
         state["confidence"] = max(state["confidence"], result["confidence"])
         state["agents_used"].append("validation")
+        state["needs_retry"] = not state["is_valid"]
         
         logger.info(f"Validation: valid={result['is_valid']}, confidence={result['confidence']:.3f}")
         

@@ -8,3 +8,7 @@ langchain-ollama>=1.0.0
 
 # オプション: トレーシング・デバッグ
 # langsmith>=0.1.0,<0.2.0
+
+# トレーニング基盤（Agent-lightning）
+agentlightning>=0.2.0
+agentops>=0.4.21

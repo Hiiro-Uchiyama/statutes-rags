@@ -52,29 +52,24 @@ setup/*.tgz
 ###################
 test_mecab.json
 
-# Datasets
+# Data / Datasets (large artifacts)
 ###################
-datasets/
-!datasets/README.md
-!datasets/egov_laws/
-datasets/egov_laws/*
-!datasets/egov_laws/README.md
-!datasets/lawqa_jp/
-datasets/lawqa_jp/*
-!datasets/lawqa_jp/README.md
-!datasets/lawqa_jp/LICENSE.md
-!datasets/civil_law_instructions/
-datasets/civil_law_instructions/*
-!datasets/civil_law_instructions/README.md
-!datasets/criminal_law_exams/
-datasets/criminal_law_exams/*
-!datasets/criminal_law_exams/README.md
+/datasets/
+/data/
 
-# Data
+# Example artifacts (generated/large)
 ###################
-data/
-!data/README.md
-# Evaluation results with numbers
+/examples/03_multi_agent_debate/results/
+/examples/03_multi_agent_debate/archive/
+/examples/03_multi_agent_debate/data_set/
+/examples/04_legal_case_generator/logs/
+/examples/04_legal_case_generator/results/
+/agentops.log
+/setup/*.log
+/setup/*.tgz
+/examples/03_multi_agent_debate/*.pdf
+*.out
+*.log
 
 # Test scripts in root
 test_retrieval.py

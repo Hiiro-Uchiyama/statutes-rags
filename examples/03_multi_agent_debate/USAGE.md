@@ -74,6 +74,8 @@ python evaluate.py \
   --output results/test_quick.json
 ```
 
+> **補足:** `examples/04_legal_case_generator` の `generate_mcq_dataset.sh` や `pipeline.py mcq ... --output ...` で生成した `results/*.json`（`results` 配列を持つ形式）も `--dataset` に指定できます。その場合、`context` 情報を含めたプロンプトで議論が行われ、`correct_choice` を正解ラベルとして扱います。
+
 **実行時間:** 約5-10分（1問あたり2-3分）
 
 **結果の確認:**

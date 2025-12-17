@@ -29,8 +29,12 @@ class MultiAgentDebateConfig(BaseModel):
         description="LLMの温度パラメータ"
     )
     llm_timeout: int = Field(
-        default=int(os.getenv("LLM_TIMEOUT", "60")),
+        default=int(os.getenv("LLM_TIMEOUT", "1200")),
         description="LLMリクエストのタイムアウト（秒）"
+    )
+    llm_num_ctx: int = Field(
+        default=int(os.getenv("LLM_NUM_CTX", "16384")),
+        description="LLMのコンテキストサイズ（トークン数）"
     )
     
     # 検索設定
@@ -41,7 +45,7 @@ class MultiAgentDebateConfig(BaseModel):
     
     # ベクトルストアとデータのパス
     vector_store_path: str = Field(
-        default=os.getenv("VECTOR_STORE_PATH", "data/faiss_index"),
+        default=os.getenv("VECTOR_STORE_PATH", "data/faiss_index_lawqa"),
         description="ベクトルストアのパス"
     )
     data_path: str = Field(
@@ -78,4 +82,3 @@ def load_config(config_path: Optional[str] = None) -> MultiAgentDebateConfig:
     """
     # 環境変数から設定を読み込み
     return MultiAgentDebateConfig()
-

@@ -24,6 +24,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+try:
+    from agentlightning.instrumentation import instrument_all
+    instrument_all()
+    logger.info("Agent-lightning instrumentation initialized.")
+except ImportError as exc:
+    logger.warning("Agent-lightning instrumentation is unavailable: %s", exc)
+
 
 def load_dataset(dataset_path: Path) -> List[Dict[str, Any]]:
     """
